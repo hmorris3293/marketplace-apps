@@ -1,12 +1,15 @@
 - name: install woocommerce plugin
-  shell:
+  command: wp plugin install --allow-root woocommerce
+  args:
     chdir: "/var/www/{{ _domain }}/public_html"
-    cmd: wp plugin install --allow-root woocommerce
+    executable: /usr/local/bin/wp
 
 - name: activate woocommerce plugin
-  shell:
+  command: wp plugin activate --allow-root woocommerce
+  args:
     chdir: "/var/www/{{ _domain }}/public_html"
-    cmd: wp plugin activate --allow-root woocommerce
+    executable: /usr/local/bin/wp
+
 
 - name: updating document root ownership
   file:
