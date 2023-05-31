@@ -13,4 +13,5 @@
     # provioner will update with desired stack
     - PROVISIONER-WEBSERVER-STACK
     - wordpress
+    - woocommerce
     - post
