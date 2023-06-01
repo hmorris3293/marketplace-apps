@@ -5,7 +5,7 @@
     executable: /usr/local/bin/wp
 
 - name: activate kepler plugin
-  command: wp plugin --allow-root https://storage.googleapis.com/kepler-download/kepler-builder.zip --activate
+  command: wp plugin install --allow-root https://storage.googleapis.com/kepler-download/kepler-builder.zip --activate
   args:
     chdir: "/var/www/{{ _domain }}/public_html"
     executable: /usr/local/bin/wp
