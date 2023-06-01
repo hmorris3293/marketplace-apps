@@ -84,6 +84,8 @@
       wp core config --allow-root \
           --url="{{ _domain }}" \
           --title="{{ site_title }}" \
+          --dbname="{{ wp_db_name }}" \
+          --dbuser="{{ wp_db_user }}" \
           --admin_user="{{ wp_admin_user }}" \
           --admin_email="{{ soa_email_address }}" \
           --admin_password="{{ wp_admin_password }}" \
