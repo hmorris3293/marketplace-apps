@@ -10,7 +10,6 @@
     chdir: "/var/www/{{ _domain }}/public_html"
     executable: /usr/local/bin/wp
 
-
 - name: updating document root ownership
   file:
     path: "/var/www/{{ _domain }}/public_html"
