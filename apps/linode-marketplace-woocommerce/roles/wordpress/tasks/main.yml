@@ -56,6 +56,16 @@
     chdir: "/var/www/{{ _domain }}/public_html"
     cmd: wp core download --allow-root
 
+- name: configuring wordpress site
+  shell:
+    chdir: "/var/www/{{ _domain }}/public_html"
+    cmd: |
+      wp core config --allow-root \
+        --dbhost="localhost" \
+        --dbname="{{ wp_db_name }}" \
+        --dbuser="{{ wp_db_user }}" \
+        --dbpass="{{ wp_db_pass }}" \
+
 - name: generating wordpress admin password
   set_fact:
     wp_admin_password: "{{ lookup('password', '/dev/null length=20 chars=ascii_letters,digits') }}"
@@ -66,22 +76,18 @@
     path: group_vars/linode/vars
     line: | 
       wp_admin_password: {{ wp_admin_password }}
-      
+
 - name: configuring wordpress site
   shell:
     chdir: "/var/www/{{ _domain }}/public_html"
     cmd: |
-      wp core config --allow-root \
-        --dbhost="localhost" \
-        --dbname="{{ wp_db_name }}" \
-        --dbuser="{{ wp_db_user }}" \
-        --dbpass="{{ wp_db_pass }}" \
-        --url="{{ _domain }}" \
-        --title="{{ site_title }}" \
-        --admin_user="{{ wp_admin_user }}" \
-        --admin_email="{{ soa_email_address }}" \
-        --admin_password="{{ wp_admin_password }}" \
-        --path="/var/www/{{ _domain }}/public_html"
+      wp core install --allow-root \
+          --url="{{ _domain }}" \
+          --title="{{ site_title }}" \
+          --admin_user="{{ wp_admin_user }}" \
+          --admin_email="{{ soa_email_address }}" \
+          --admin_password="{{ wp_admin_password }}" \
+          --path="/var/www/{{ _domain }}/public_html"
 
 - name: updating document root ownership
   file:
