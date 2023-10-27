@@ -20,9 +20,15 @@
 #- name: Run the script with flags failing with "ERROR! [Errno 2] No such file or directory"
 #  script: /home/installer --skiplicensecheck --skip-cloudlinux | tee /dev/ttyS0 | tee -a /var/log/stackscript.log
 - name: Install cPanel
-  command: /bin/bash /home/installer | tee /dev/ttyS0 | tee -a /var/log/stackscript.log 
+  command: /bin/bash /home/installer --skiplicensecheck --skip-cloudlinux &
   args:
     chdir: /home
+
+- name: Wait for cPanel to install...
+  wait_for:
+    path: /var/log/cpanel-install.log
+    search_regex: "Thank you for installing cPanel"
+    timeout: 3600 # 1 hour
 
 - name: Remove /etc/cpupdate.conf
   file:
