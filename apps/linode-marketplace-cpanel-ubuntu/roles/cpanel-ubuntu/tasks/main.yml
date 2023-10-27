@@ -15,7 +15,7 @@
     state: present
 
 - name: Run the script with flags
-  script: /home/installer --skiplicensecheck --skip-cloudlinux
+  script: /home/installer --skiplicensecheck --skip-cloudlinux >> /var/log/stackscript.log
 
 - name: Remove /etc/cpupdate.conf
   file:

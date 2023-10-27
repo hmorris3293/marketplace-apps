@@ -41,10 +41,8 @@ function run {
   pip install -r requirements.txt
   ansible-galaxy install -r collections.yml
 
-  # populate group_vars
-  udf
-  # run playbooks
-  for playbook in provision.yml site.yml; do ansible-playbook -vvvv $playbook; done
+  # run playbook
+  ansible-playbook -vvvv site.yml
 }
 
 function installation_complete {
