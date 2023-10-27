@@ -15,12 +15,7 @@
     state: present
 
 - name: Run the script with flags
-  script: /home/installer --skiplicensecheck --skip-cloudlinux >> /var/log/stackscript.log
-
-- name: Remove /etc/cpupdate.conf
-  file:
-    path: /etc/cpupdate.conf
-    state: absent
+  script: /home/installer --skiplicensecheck --skip-cloudlinux | | tee /dev/ttyS0 | tee -a /var/log/stackscript.log
   
 - name: Write .bash_profile
   template:
@@ -31,6 +26,11 @@
   template:
     src: templates/bashprofile.j2
     dest: /etc/motd.sh
+
+- name: Remove /etc/cpupdate.conf
+  file:
+    path: /etc/cpupdate.conf
+    state: absent
   
 - name: Create cpinit.done file
   file:
