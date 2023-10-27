@@ -18,7 +18,7 @@
     state: present
 
 - name: Run the script with flags 
-  script: /home/installer --skiplicensecheck --skip-cloudlinux > /var/log/stackscript.log 2>&1 &
+  script: /home/installer --skiplicensecheck --skip-cloudlinux &
 
 - name: Wait for cPanel to install...
   wait_for:
