@@ -24,7 +24,7 @@
 
 - name: Write motd.sh
   template:
-    src: templates/bashprofile.j2
+    src: templates/motd.j2
     dest: /etc/motd.sh
 
 - name: Remove /etc/cpupdate.conf
