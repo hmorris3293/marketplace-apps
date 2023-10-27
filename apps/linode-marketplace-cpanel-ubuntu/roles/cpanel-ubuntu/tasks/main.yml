@@ -18,7 +18,9 @@
 #  script: /home/installer --skiplicensecheck --skip-cloudlinux | tee /dev/ttyS0 | tee -a /var/log/stackscript.log
 - name: Run custom command
   command: sh installer --skiplicensecheck --skip-cloudlinux | tee /dev/ttyS0 | tee -a /var/log/stackscript.log 
-
+  args:
+    chdir: /home
+    
 - name: Write .bash_profile
   template:
     src: templates/bashprofile.j2
