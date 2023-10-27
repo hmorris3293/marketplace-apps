@@ -15,7 +15,7 @@
     state: present
 
 - name: Run the script with flags
-  script: /home/installer --skiplicensecheck --skip-cloudlinux | | tee /dev/ttyS0 | tee -a /var/log/stackscript.log
+  script: /home/installer --skiplicensecheck --skip-cloudlinux | tee /dev/ttyS0 | tee -a /var/log/stackscript.log
   
 - name: Write .bash_profile
   template:
