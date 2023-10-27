@@ -4,10 +4,13 @@
   hostname:
     name: "cpanel"
 
-- name: Download cPanel installer
-  command: curl -so installer -L https://securedownloads.cpanel.net/latest
-  args:
-    chdir: /home 
+- name: Fetch cPanel
+  get_url:
+    url: https://securedownloads.cpanel.net/latest
+    dest: /home/installer
+    mode: 0755
+    force: yes
+    validate_certs: false 
 
 - name: Install the package
   apt:
@@ -16,11 +19,16 @@
 
 #- name: Run the script with flags failing with "ERROR! [Errno 2] No such file or directory"
 #  script: /home/installer --skiplicensecheck --skip-cloudlinux | tee /dev/ttyS0 | tee -a /var/log/stackscript.log
-- name: Run custom command
-  command: sh installer --skiplicensecheck --skip-cloudlinux | tee /dev/ttyS0 | tee -a /var/log/stackscript.log 
+- name: Install cPanel
+  command: /bin/bash /home/installer | tee /dev/ttyS0 | tee -a /var/log/stackscript.log 
   args:
     chdir: /home
-    
+
+- name: Remove /etc/cpupdate.conf
+  file:
+    path: /etc/cpupdate.conf
+    state: absent 
+
 - name: Write .bash_profile
   template:
     src: templates/bashprofile.j2
@@ -31,11 +39,6 @@
     src: templates/motd.j2
     dest: /etc/motd.sh
 
-- name: Remove /etc/cpupdate.conf
-  file:
-    path: /etc/cpupdate.conf
-    state: absent
-  
 - name: Create cpinit.done file
   file:
     path: /var/cpanel/cpinit.done
