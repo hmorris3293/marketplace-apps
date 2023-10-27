@@ -14,9 +14,11 @@
     name: grub-pc
     state: present
 
-- name: Run the script with flags
-  script: /home/installer --skiplicensecheck --skip-cloudlinux | tee /dev/ttyS0 | tee -a /var/log/stackscript.log
-  
+#- name: Run the script with flags failing with "ERROR! [Errno 2] No such file or directory"
+#  script: /home/installer --skiplicensecheck --skip-cloudlinux | tee /dev/ttyS0 | tee -a /var/log/stackscript.log
+- name: Run custom command
+  command: sh installer --skiplicensecheck --skip-cloudlinux | tee /dev/ttyS0 | tee -a /var/log/stackscript.log 
+
 - name: Write .bash_profile
   template:
     src: templates/bashprofile.j2
