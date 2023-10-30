@@ -7,7 +7,7 @@ export distro=$(cat /etc/os-release | sed -n 's/^NAME="\(.*\)"/\1/p' | awk '{pri
 
 # git repo
 export GIT_REPO="https://github.com/akamai-compute-marketplace/marketplace-apps.git"
-export WORK_DIR="/tmp/marketplace-apps" 
+export WORK_DIR="/root/marketplace-apps" # moved to root dir because cpanel install will remove anything in tmp
 export MARKETPLACE_APP="apps/linode-marketplace-cpanel-$distro"
 
 # enable logging
@@ -28,9 +28,9 @@ function run {
   apt-get install -y git python3 python3-pip
 
   # clone repo and set up ansible environment
-  git -C /tmp clone ${GIT_REPO}
+  git -C /root clone ${GIT_REPO}
   # for a single testing branch
-  # git -C /tmp clone --single-branch --branch ${BRANCH} ${GIT_REPO}
+  # git -C /root clone --single-branch --branch ${BRANCH} ${GIT_REPO}
 
   # venv
   cd ${WORK_DIR}/${MARKETPLACE_APP}
@@ -42,7 +42,7 @@ function run {
   ansible-galaxy install -r collections.yml
 
   # run playbook
-  ansible-playbook -vvvv site.yml
+  ansible-playbook -v site.yml
 }
 
 function installation_complete {

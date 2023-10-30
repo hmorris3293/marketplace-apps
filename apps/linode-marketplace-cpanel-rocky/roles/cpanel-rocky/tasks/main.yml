@@ -9,15 +9,13 @@
     name: NetworkManager
     state: absent
 
-- name: Download cPanel installer
-  command: curl -so installer -L https://securedownloads.cpanel.net/latest
-  args:
-    chdir: /home 
-
-- name: Install the package
-  apt:
-    name: grub-pc
-    state: present
+- name: Fetch cPanel
+  get_url:
+    url: https://securedownloads.cpanel.net/latest
+    dest: /home/installer
+    mode: 0755
+    force: yes
+    validate_certs: false 
 
 - name: Run the script with flags
   script: /home/installer --skiplicensecheck
@@ -34,7 +32,7 @@
 
 - name: Write motd.sh
   template:
-    src: templates/bashprofile.j2
+    src: templates/motd.j2
     dest: /etc/motd.sh
   
 - name: Create cpinit.done file
