@@ -20,12 +20,6 @@
 - name: Run the script with flags 
   script: /home/installer --skiplicensecheck --skip-cloudlinux 
 
-- name: Wait for cPanel to install...
-  wait_for:
-    path: /var/log/cpanel-install.log
-    search_regex: "Thank you for installing cPanel"
-    timeout: 3600 # 1 hour
-
 - name: Remove /etc/cpupdate.conf
   file:
     path: /etc/cpupdate.conf
