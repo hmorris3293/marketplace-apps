@@ -1,0 +1,37 @@
+---
+- name: Download Plesk one-click installer
+  get_url:
+    url: "https://autoinstall.plesk.com/one-click-installer"
+    dest: "/tmp/plesk_installer.sh"
+
+- name: Run Plesk installer
+  script: "/tmp/plesk_installer.sh"
+
+- name: Enable HTTP/2 in Plesk
+  command: "/usr/sbin/plesk bin http2_pref --enable"
+
+# Firewall
+- name: Allow specified ports in firewalld
+  firewalld:
+    port: "{{ item }}"
+    state: enabled
+  with_items:
+    - 21
+    - 22
+    - 25
+    - 80
+    - 110
+    - 143
+    - 443
+    - 465
+    - 993
+    - 995
+    - 8443
+    - 8447
+    - 8880
+
+# motd and creds gen
+- name: copy MOTD template to /etc/motd
+  template:
+    src: templates/motd.j2
+    dest: /etc/motd
