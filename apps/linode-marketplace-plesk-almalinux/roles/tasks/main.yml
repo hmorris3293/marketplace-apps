@@ -11,10 +11,12 @@
   command: "/usr/sbin/plesk bin http2_pref --enable"
 
 # Firewall
-- name: Allow specified ports in firewalld
-  firewalld:
-    port: "{{ item }}"
-    state: enabled
+- name: Allow specified ports in iptables
+  iptables:
+    chain: INPUT
+    protocol: tcp
+    destination_port: '{{ item }}'
+    jump: ACCEPT
   with_items:
     - 21
     - 22
@@ -29,6 +31,7 @@
     - 8443
     - 8447
     - 8880
+  become: true
 
 # motd and creds gen
 - name: copy MOTD template to /etc/motd
