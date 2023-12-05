@@ -135,12 +135,7 @@
 - name: install nginx
   apt:
     pkg: nginx
-    state: present
-
-- name: config file setup
-  template:
-      src: templates/nginx.conf.j2
-      dest: "/etc/nginx/nginx.conf"  
+    state: present 
 
 # ssl_certbot
 - name: setting up ssl certificate
@@ -149,6 +144,11 @@
 
 # back to nginx because mastodon as ships a custom nginx config and it will fail the ssl generation
 - name: config file setup
+  template:
+      src: templates/nginx.conf.j2
+      dest: "/etc/nginx/nginx.conf" 
+      
+- name: vhost file setup
   template:
       src: templates/vhost.j2
       dest: "/etc/nginx/sites-available/{{ _domain }}"  
