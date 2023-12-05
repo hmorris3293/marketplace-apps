@@ -48,23 +48,21 @@
     dest: /home/mastodon/live/.env.production
 
 # secret gen
+## can't use docker compose community module as it requires an old version of pyyaml
 - name: starting postgresql and redis container
-  community.docker.docker_compose:
-    project_src: "/home/mastodon/live"
-    services:
-      - db
-      - redis
-    build: false
+  shell: docker-compose -f /home/mastodon/live/docker-compose.yml up -d db redis
+  args:
+    chdir: "/home/mastodon/live"
+  environment:
+    DOCKER_BUILD: "false"
 
 - name: pulling new container images
-  community.docker.docker_compose:
-    project_src: "/home/mastodon/live"
-    services:
-      - web
-      - streaming
-      - sidekiq
-    build: false
-    pull: true
+  shell: docker-compose -f /home/mastodon/live/docker-compose.yml up -d web streaming sidekiq
+  args:
+    chdir: "/home/mastodon/live"
+  environment:
+    DOCKER_BUILD: "false"
+    DOCKER_PULL: "true"
 
 - name: get secret_key_base
   shell: "docker-compose run --rm web bundle exec rake secret"
@@ -116,9 +114,11 @@
     recurse: true
 
 - name: bringing up mastodon containers
-  community.docker.docker_compose:
-    project_src: "/home/mastodon/live"
-    build: false
+  shell: docker-compose -f /home/mastodon/live/docker-compose.yml up -d
+  args:
+    chdir: "/home/mastodon/live"
+  environment:
+    DOCKER_BUILD: "false"
 
 - name: assign Owner user and password
   shell: "docker exec live_web_1 tootctl accounts create {{ owner_username }} --email {{ owner_email }} --confirmed --role Owner"
