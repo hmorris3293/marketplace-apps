@@ -17,4 +17,4 @@
         insertafter: EOF
         path: group_vars/linode/vars
         line: | 
-            psql_password: {{ psql_password }}
+          psql_password: {{ psql_password }}
