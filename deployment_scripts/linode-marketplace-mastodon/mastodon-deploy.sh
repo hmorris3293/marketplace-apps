@@ -31,13 +31,14 @@ function udf {
   
    # write udf vars
   cat <<END > ${group_vars}
-  webserver_stack: lemp
-  domain: ${DOMAIN}
-  subdomain: ${SUBDOMAIN}
-  soa_email_address: ${SOA_EMAIL_ADDRESS}
-  owner_username: ${OWNER_USERNAME}
-  owner_email: ${OWNER_EMAIL}
-  single_user_mode: ${SINGLE_USER_MODE}
+webserver_stack: lemp
+domain: ${DOMAIN}
+subdomain: ${SUBDOMAIN}
+soa_email_address: ${SOA_EMAIL_ADDRESS}
+owner_username: ${OWNER_USERNAME}
+owner_email: ${OWNER_EMAIL}
+single_user_mode: ${SINGLE_USER_MODE}
+token_password: ${TOKEN_PASSWORD}
 END
   
 }

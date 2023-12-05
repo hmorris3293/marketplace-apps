@@ -24,6 +24,7 @@
 # adding MX & SPF
 - name: create MX record for domain
   linode.cloud.domain_record:
+    api_token: "{{ token_password }}"
     domain: '{{ _domain }}'
     name: '{{ _domain }}'
     type: 'MX'
@@ -33,6 +34,7 @@
 
 - name: create SPF records for domain
   linode.cloud.domain_record:
+    api_token: "{{ token_password }}"
     domain: '{{ _domain }}'
     name: '{{ _domain }}'
     type: 'TXT'
