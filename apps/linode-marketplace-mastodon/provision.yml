@@ -1,4 +1,4 @@
-# joplin
+# mastodon
 - name: setting up environment 
   hosts: localhost
   connection: local
