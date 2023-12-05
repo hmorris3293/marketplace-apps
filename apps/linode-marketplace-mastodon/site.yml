@@ -1,6 +1,6 @@
 # linode ansible playbook
 
-- name: Joplin deploy
+- name: Mastodon deploy
   hosts: localhost
   connection: local
   gather_facts: true
