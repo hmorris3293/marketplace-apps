@@ -137,6 +137,11 @@
     pkg: nginx
     state: present
 
+- name: config file setup
+  template:
+      src: templates/nginx.conf.j2
+      dest: "/etc/nginx/nginx.conf"  
+
 # ssl_certbot
 - name: setting up ssl certificate
   import_role:
@@ -145,7 +150,7 @@
 # back to nginx because mastodon as ships a custom nginx config and it will fail the ssl generation
 - name: config file setup
   template:
-      src: templates/nginx.conf.j2
+      src: templates/vhost.j2
       dest: "/etc/nginx/sites-available/{{ _domain }}"  
 
 - name: create a symbolic link for the nginx configuration
