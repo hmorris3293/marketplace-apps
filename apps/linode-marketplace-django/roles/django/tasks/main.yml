@@ -1,0 +1,97 @@
+---
+ # django
+- name: Install required packages
+  apt:
+    name: "{{ item }}"
+    state: present
+  with_items:
+    - python3-pip
+    - python3-venv
+    - libpq-dev
+    - postgresql
+    - nginx
+    - supervisor
+
+- name: Create directory for Django App
+  file:
+    path: ~/DjangoApp
+    state: directory
+
+- name: Create and activate virtual environment
+  command: python3 -m venv ~/DjangoApp
+  args:
+    creates: ~/DjangoApp
+
+- name: Install Gunicorn and Django
+  pip:
+    name:
+      - gunicorn
+      - Django
+
+- name: Configure PostgreSQL
+  postgresql_db:
+    name: sampledjango
+    state: present
+  become_user: postgres
+
+- name: Create PostgreSQL user
+  postgresql_user:
+    name: django
+    password: {{ postgres_db_pass }}
+    encrypted: yes
+    state: present
+  become_user: postgres
+
+- name: Start Django project
+  community.general.django_manage:
+    command: startproject
+    app_path: ~/DjangoApp
+    args:
+      - DjangoApp
+
+- name: Apply Django migrations
+  community.general.django_manage:
+    app_path: ~/DjangoApp
+    command: migrate
+
+- name: Create Django superuser
+  community.general.django_manage:
+    app_path: ~/DjangoApp
+    command: shell
+    args:
+      stdin: "from django.contrib.auth.models import User; User.objects.create_superuser('{{ django_user }}', '{{ soa_email_address }}', '{{ django_password }}')"
+
+- name: Install app dependencies
+  pip:
+    requirements: /path/to/your/app/requirements.txt
+    virtualenv: /path/to/your/venv
+
+- name: Configure Django settings
+  template:
+    src: settings.py.j2
+    dest: /path/to/your/app/your_django_app/settings.py
+
+- name: Collect static files
+  command: /path/to/your/venv/bin/python /path/to/your/app/manage.py collectstatic --noinput
+
+- name: Migrate database
+  command: /path/to/your/venv/bin/python /path/to/your/app/manage.py migrate --noinput
+
+- name: Configure Gunicorn systemd service
+  template:
+    src: gunicorn.service.j2
+    dest: /etc/systemd/system/gunicorn.service
+
+- name: Start and enable Gunicorn service
+  systemd:
+    name: gunicorn
+    state: started
+    enabled: yes
+
+- name: Configure Nginx
+  template:
+    src: nginx.conf.j2
+    dest: /etc/nginx/sites-available/your_django_app
+  notify: Reload Nginx
+
+
