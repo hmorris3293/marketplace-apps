@@ -24,7 +24,7 @@
 - name: Create PostgreSQL user
   postgresql_user:
     name: django
-    password: {{ postgres_db_pass }}
+    password: "{{ postgres_db_pass }}"
     encrypted: yes
     state: present
   become_user: postgres
