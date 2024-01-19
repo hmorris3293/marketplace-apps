@@ -104,14 +104,14 @@
     command: "makemigrations"
     app_path: "/var/www/Django/"
     manage_py: "/var/www/Django/manage.py"
-  become_user: {{ username }}
+  become_user: "{{ username }}"
 
 - name: Apply Migrations
   community.general.django_manage:
     command: "migrate"
     app_path: "/var/www/Django/"
     manage_py: "/var/www/Django/manage.py"
-  become_user: holden
+  become_user: "{{ username }}"
 
 - name: Create Django superuser
   community.general.django_manage:
@@ -125,7 +125,7 @@
     command: "collectstatic"
     app_path: "/var/www/Django/"
     manage_py: "/var/www/Django/manage.py"
-  become_user: holden
+  become_user: "{{ username }}"
 
 # Gunicorn
 - name: Configure Gunicorn socket
