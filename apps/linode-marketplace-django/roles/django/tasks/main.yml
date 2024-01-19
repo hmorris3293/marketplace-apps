@@ -7,30 +7,17 @@
   with_items:
     - python3-pip
     - python3-venv
+    - python3-dev
     - libpq-dev
     - postgresql
+    - postgresql-contrib
     - nginx
-    - supervisor
+    - certbot
 
-- name: Create directory for Django App
-  file:
-    path: ~/DjangoApp
-    state: directory
-
-- name: Create and activate virtual environment
-  command: python3 -m venv ~/DjangoApp
-  args:
-    creates: ~/DjangoApp
-
-- name: Install Gunicorn and Django
-  pip:
-    name:
-      - gunicorn
-      - Django
-
+# Postgres
 - name: Configure PostgreSQL
   postgresql_db:
-    name: sampledjango
+    name: django
     state: present
   become_user: postgres
 
@@ -42,40 +29,109 @@
     state: present
   become_user: postgres
 
-- name: Start Django project
+# https://docs.djangoproject.com/en/5.0/ref/databases/#optimizing-postgresql-s-configuration
+- name: Set client_encoding for django
+  postgresql_user:
+    db: django
+    name: django
+    client_encoding: utf8
+  become: yes
+
+- name: Set default_transaction_isolation for django
+  postgresql_user:
+    db: django
+    name: django
+    default_transaction_isolation: 'read committed'
+  become: yes
+
+- name: Set timezone for django
+  postgresql_user:
+    db: django
+    name: django
+    attributes: "SET timezone TO 'UTC'"
+  become: yes
+
+# Create directory and setup venv
+- name: Create directory for Django App
+  file:
+    path: /var/www/Django
+    state: directory
+
+- name: Run venv in dir
+  command: python3 -m venv django_env
+  args:
+    chdir: /var/www/Django
+  become: yes
+
+- name: Run venv in dir
+  command: source django_env/bin/activate
+  args:
+    chdir: /var/www/Django
+  become: yes
+
+- name: Install Gunicorn and Django
+  pip:
+    name:
+      - gunicorn
+      - Django
+
+- name: Create Django project
   community.general.django_manage:
     command: startproject
-    app_path: ~/DjangoApp
-    args:
-      - DjangoApp
+    args: Django /var/www/Django
+  become: yes
 
-- name: Apply Django migrations
+- name: copy settings template
+  template:
+    src: templates/settings.py.j2
+    dest: /var/www/Django/Django/settings.py
+    force: yes
+  become: yes
+
+- name: Generate a new SECRET_KEY
+  command: "python3 -c 'from django.core.management.utils import get_random_secret_key; print(get_random_secret_key())'"
+  register: new_secret_key
+
+- name: Replace SECRET_KEY line in Django settings
+  lineinfile:
+    path: /var/www/Django/Django/settings.py
+    regexp: '^SECRET_KEY = '
+    line: 'SECRET_KEY = "{{ new_secret_key.stdout }}"'
+  become: yes
+
+- name: Make Migrations
   community.general.django_manage:
-    app_path: ~/DjangoApp
-    command: migrate
+    command: "makemigrations"
+    app_path: "/var/www/Django/"
+    manage_py: "/var/www/Django/manage.py"
+  become_user: {{ username }}
+
+- name: Apply Migrations
+  community.general.django_manage:
+    command: "migrate"
+    app_path: "/var/www/Django/"
+    manage_py: "/var/www/Django/manage.py"
+  become_user: holden
 
 - name: Create Django superuser
   community.general.django_manage:
-    app_path: ~/DjangoApp
+    app_path: /var/www/Django
     command: shell
     args:
       stdin: "from django.contrib.auth.models import User; User.objects.create_superuser('{{ django_user }}', '{{ soa_email_address }}', '{{ django_password }}')"
 
-- name: Install app dependencies
-  pip:
-    requirements: /path/to/your/app/requirements.txt
-    virtualenv: /path/to/your/venv
+- name: Apply collectstatic
+  community.general.django_manage:
+    command: "collectstatic"
+    app_path: "/var/www/Django/"
+    manage_py: "/var/www/Django/manage.py"
+  become_user: holden
 
-- name: Configure Django settings
+# Gunicorn
+- name: Configure Gunicorn socket
   template:
-    src: settings.py.j2
-    dest: /path/to/your/app/your_django_app/settings.py
-
-- name: Collect static files
-  command: /path/to/your/venv/bin/python /path/to/your/app/manage.py collectstatic --noinput
-
-- name: Migrate database
-  command: /path/to/your/venv/bin/python /path/to/your/app/manage.py migrate --noinput
+    src: gunicorn.socket.j2
+    dest: /etc/systemd/system/gunicorn.socket
 
 - name: Configure Gunicorn systemd service
   template:
@@ -88,10 +144,22 @@
     state: started
     enabled: yes
 
-- name: Configure Nginx
-  template:
-    src: nginx.conf.j2
-    dest: /etc/nginx/sites-available/your_django_app
-  notify: Reload Nginx
+# Nginx
 
+- name: config file setup
+  template:
+    src: templates/nginx.conf.j2
+    dest: "/etc/nginx/sites-available/{{ _domain }}"   
+
+- name: create a symbolic link for the nginx configuration
+  file:
+    src: "/etc/nginx/sites-available/{{ _domain }}"
+    dest: "/etc/nginx/sites-enabled/{{ _domain }}"
+    state: link
+
+- name: unlink the default nginx configuration
+  file:
+    path: "/etc/nginx/sites-enabled/default"
+    state: absent
+  notify: reload nginx service
 
