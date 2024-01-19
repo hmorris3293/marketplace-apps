@@ -35,27 +35,27 @@
 - name: Set client_encoding for django
   postgresql_query:
     db: django
-    login_user: django
-    login_password: "{{ postgres_db_pass }}"
+    login_user: postgres
+    login_unix_socket: /var/run/postgresql
     query:
       - "ALTER ROLE django SET client_encoding TO 'utf8';"
   become: yes
   become_user: postgres
 
 - name: Set default_transaction_isolation for django
-  postgresql_db:
+  postgresql_query:
     db: django
-    login_user: django
-    login_password: "{{ postgres_db_pass }}"
+    login_user: postgres
+   # login_password: "{{ postgres_db_pass }}"
     query:
       - "ALTER ROLE django SET default_transaction_isolation TO 'read committed';"
   become: yes
   become_user: postgres
 
 - name: Set timezone for django
-  postgresql_db:
+  postgresql_query:
     db: django
-    login_user: django
+    login_user: postgres
     login_password: "{{ postgres_db_pass }}"
     query:
       - "ALTER ROLE django SET timezone TO 'UTC';"
