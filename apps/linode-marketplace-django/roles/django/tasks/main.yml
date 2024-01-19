@@ -33,7 +33,7 @@
 
 # https://docs.djangoproject.com/en/5.0/ref/databases/#optimizing-postgresql-s-configuration
 - name: Set client_encoding for django
-  postgres_db:
+  postgresql_db:
     name: django
     state: present
     login_user: django
@@ -44,7 +44,7 @@
   become_user: postgres
 
 - name: Set default_transaction_isolation for django
-  postgres_db:
+  postgresql_db:
     name: django
     state: present
     login_user: django
@@ -55,7 +55,7 @@
   become_user: postgres
 
 - name: Set timezone for django
-  postgres_db:
+  postgresql_db:
     name: django
     state: present
     login_user: django
