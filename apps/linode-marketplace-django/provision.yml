@@ -1,4 +1,4 @@
-# harbor
+# django
 - name: setting up environment 
   hosts: localhost
   connection: local
@@ -11,13 +11,15 @@
     - name: generating sudo user and password 
       import_tasks: ../linode_helpers/roles/sudouser/tasks/main.yml
       
-    - name: generating harbor admin/db passwords
+    - name: generating passwords
       set_fact:
         POSTGRES_DB_PASSWORD: "{{ lookup('password', '/dev/null length=45 chars=ascii_letters,digits') }}"
+        DJANGO_PASSWORD: "{{ lookup('password', '/dev/null length=45 chars=ascii_letters,digits') }}"
 
-    - name: writing harbor admin/db password to vars
+    - name: writing passwords to vars
       blockinfile:
         insertafter: EOF
         path: group_vars/linode/vars
         block: | 
           postgres_db_pass: {{ POSTGRES_DB_PASSWORD }}
+          django_password: {{ DJANGO_PASSWORD }}
