@@ -33,34 +33,31 @@
 
 # https://docs.djangoproject.com/en/5.0/ref/databases/#optimizing-postgresql-s-configuration
 - name: Set client_encoding for django
-  postgresql_db:
-    name: django
-    state: present
+  postgresql_query:
+    db: django
     login_user: django
     login_password: "{{ postgres_db_pass }}"
-    queries:
+    query:
       - "ALTER ROLE django SET client_encoding TO 'utf8';"
   become: yes
   become_user: postgres
 
 - name: Set default_transaction_isolation for django
   postgresql_db:
-    name: django
-    state: present
+    db: django
     login_user: django
     login_password: "{{ postgres_db_pass }}"
-    queries:
+    query:
       - "ALTER ROLE django SET default_transaction_isolation TO 'read committed';"
   become: yes
   become_user: postgres
 
 - name: Set timezone for django
   postgresql_db:
-    name: django
-    state: present
+    db: django
     login_user: django
     login_password: "{{ postgres_db_pass }}"
-    queries:
+    query:
       - "ALTER ROLE django SET timezone TO 'UTC';"
   become: yes
   become_user: postgres
