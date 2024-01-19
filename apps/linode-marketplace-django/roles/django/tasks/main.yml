@@ -19,6 +19,7 @@
   postgresql_db:
     name: django
     state: present
+  become: yes
   become_user: postgres
 
 - name: Create PostgreSQL user
@@ -27,6 +28,7 @@
     password: "{{ postgres_db_pass }}"
     encrypted: yes
     state: present
+  become: yes
   become_user: postgres
 
 # https://docs.djangoproject.com/en/5.0/ref/databases/#optimizing-postgresql-s-configuration
@@ -36,6 +38,7 @@
     name: django
     client_encoding: utf8
   become: yes
+  become_user: postgres
 
 - name: Set default_transaction_isolation for django
   postgresql_user:
@@ -43,6 +46,7 @@
     name: django
     default_transaction_isolation: 'read committed'
   become: yes
+  become_user: postgres
 
 - name: Set timezone for django
   postgresql_user:
@@ -50,6 +54,7 @@
     name: django
     attributes: "SET timezone TO 'UTC'"
   become: yes
+  become_user: postgres
 
 # Create directory and setup venv
 - name: Create directory for Django App
