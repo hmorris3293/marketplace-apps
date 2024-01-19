@@ -32,27 +32,36 @@
   become_user: postgres
 
 # https://docs.djangoproject.com/en/5.0/ref/databases/#optimizing-postgresql-s-configuration
-- name: Set client_encoding for Django  
-  community.general.postgresql_script:
-    db: django
-    executable: psql
-    cmd: "ALTER ROLE django SET client_encoding TO 'utf8';"
+- name: Set client_encoding for django
+  postgres_db:
+    name: django
+    state: present
+    login_user: django
+    login_password: "{{ postgres_db_pass }}"
+    queries:
+      - "ALTER ROLE django SET client_encoding TO 'utf8';"
   become: yes
   become_user: postgres
 
-- name: Set default_transaction_isolation for Django
-  community.general.postgresql_script:
-    db: django
-    executable: psql
-    cmd: "ALTER ROLE django SET default_transaction_isolation TO 'read committed';"
+- name: Set default_transaction_isolation for django
+  postgres_db:
+    name: django
+    state: present
+    login_user: django
+    login_password: "{{ postgres_db_pass }}"
+    queries:
+      - "ALTER ROLE django SET default_transaction_isolation TO 'read committed';"
   become: yes
   become_user: postgres
 
-- name: Set timezone for Django
-  community.general.postgresql_script:
-    db: django
-    executable: psql
-    cmd: "ALTER ROLE django SET timezone TO 'UTC';"
+- name: Set timezone for django
+  postgres_db:
+    name: django
+    state: present
+    login_user: django
+    login_password: "{{ postgres_db_pass }}"
+    queries:
+      - "ALTER ROLE django SET timezone TO 'UTC';"
   become: yes
   become_user: postgres
 
