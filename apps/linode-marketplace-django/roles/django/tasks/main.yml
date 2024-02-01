@@ -69,12 +69,12 @@
 #    state: directory
 
 - name: Install Gunicorn and Django
-      pip:
-        name: "{{ item }}"
-        state: present
-      loop:
-        - gunicorn
-        - django
+  pip:
+    name: "{{ item }}"
+    state: present
+  loop:
+    - gunicorn
+    - django
 
 - name: Create Django project
   command: python3 -m django startproject Django
