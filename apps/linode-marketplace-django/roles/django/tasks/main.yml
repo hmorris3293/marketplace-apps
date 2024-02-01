@@ -63,41 +63,32 @@
   become_user: postgres
 
 # Create directory and setup venv
-- name: Create directory for Django App
-  file:
-    path: /var/www/Django
-    state: directory
-
-- name: Run venv in dir
-  command: python3 -m venv django_env
-  args:
-    chdir: /var/www/Django
-  become: yes
-
-- name: Run venv in dir
-  command: source django_env/bin/activate
-  args:
-    chdir: /var/www/Django
-  become: yes
+#- name: Create directory for Django App
+#  file:
+#    path: /var/www/Django
+#    state: directory
 
 - name: Install Gunicorn and Django
-  pip:
-    name:
-      - gunicorn
-      - Django
+      pip:
+        name: "{{ item }}"
+        state: present
+      loop:
+        - gunicorn
+        - django
 
 - name: Create Django project
-  community.general.django_manage:
-    command: startproject
-    args: Django /var/www/Django
-  become: yes
+  command: python3 -m django startproject Django
+  args:
+    chdir: /var/www/
+  become_user: "{{ username }}"
+  #become: yes
 
 - name: copy settings template
   template:
     src: templates/settings.py.j2
-    dest: /var/www/Django/Django/settings.py
+    dest: /var/www/Django/settings.py
     force: yes
-  become: yes
+  become_user: "{{ username }}"
 
 - name: Generate a new SECRET_KEY
   command: "python3 -c 'from django.core.management.utils import get_random_secret_key; print(get_random_secret_key())'"
@@ -105,23 +96,21 @@
 
 - name: Replace SECRET_KEY line in Django settings
   lineinfile:
-    path: /var/www/Django/Django/settings.py
+    path: /var/www/Django/settings.py
     regexp: '^SECRET_KEY = '
     line: 'SECRET_KEY = "{{ new_secret_key.stdout }}"'
-  become: yes
-
-- name: Make Migrations
-  community.general.django_manage:
-    command: "makemigrations"
-    app_path: "/var/www/Django/"
-    manage_py: "/var/www/Django/manage.py"
   become_user: "{{ username }}"
 
-- name: Apply Migrations
-  community.general.django_manage:
-    command: "migrate"
-    app_path: "/var/www/Django/"
-    manage_py: "/var/www/Django/manage.py"
+- name: Run makemigrations
+  command: python3 manage.py makemigrations
+  args:
+    chdir: /var/www/Django/manage.py
+  become_user: "{{ username }}"
+
+- name: Run migrate
+  command: python3 manage.py migrate
+  args:
+    chdir: /var/www/Django/manage.py
   become_user: "{{ username }}"
 
 - name: Create Django superuser
@@ -130,12 +119,12 @@
     command: shell
     args:
       stdin: "from django.contrib.auth.models import User; User.objects.create_superuser('{{ django_user }}', '{{ soa_email_address }}', '{{ django_password }}')"
+  become_user: "{{ username }}"
 
-- name: Apply collectstatic
-  community.general.django_manage:
-    command: "collectstatic"
-    app_path: "/var/www/Django/"
-    manage_py: "/var/www/Django/manage.py"
+- name: Run collectstatic
+  command: python3 manage.py collectstatic --noinput
+  args:
+    chdir: /var/www/Django/
   become_user: "{{ username }}"
 
 # Gunicorn
