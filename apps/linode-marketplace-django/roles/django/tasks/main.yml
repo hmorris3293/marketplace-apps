@@ -104,13 +104,13 @@
 - name: Run makemigrations
   command: python3 manage.py makemigrations
   args:
-    chdir: /var/www/Django/manage.py
+    chdir: /var/www/Django/
   become_user: "{{ username }}"
 
 - name: Run migrate
   command: python3 manage.py migrate
   args:
-    chdir: /var/www/Django/manage.py
+    chdir: /var/www/Django/
   become_user: "{{ username }}"
 
 - name: Create Django superuser
