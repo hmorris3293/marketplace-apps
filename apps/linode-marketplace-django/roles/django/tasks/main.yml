@@ -119,11 +119,11 @@
     chdir: /var/www/Django/
   become_user: "{{ username }}"
 
-- name: Run collectstatic
-  command: python3 manage.py collectstatic --noinput
-  args:
-    chdir: /var/www/Django/
-  become_user: "{{ username }}"
+#- name: Run collectstatic
+#  command: python3 manage.py collectstatic --noinput
+#  args:
+#    chdir: /var/www/Django/
+#  become_user: "{{ username }}"
 
 # Gunicorn
 - name: Configure Gunicorn socket
