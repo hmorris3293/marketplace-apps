@@ -69,8 +69,9 @@
 #    state: directory
 
 - name: Install Gunicorn and Django
-  pip:
+  ansible.builtin.pip:
     name: "{{ item }}"
+    executable: pip3
     state: present
   loop:
     - gunicorn
@@ -81,7 +82,6 @@
   args:
     chdir: /var/www/
   become_user: "{{ username }}"
-  #become: yes
 
 - name: copy settings template
   template:
@@ -113,12 +113,10 @@
     chdir: /var/www/Django/
   become_user: "{{ username }}"
 
-- name: Create Django superuser
-  community.general.django_manage:
-    app_path: /var/www/Django
-    command: shell
-    args:
-      stdin: "from django.contrib.auth.models import User; User.objects.create_superuser('{{ django_user }}', '{{ soa_email_address }}', '{{ django_password }}')"
+- name: Create Django superuse
+  command: echo "from django.contrib.auth.models import User; User.objects.create_superuser('{{ django_user }}', '{{ soa_email_address }}', '{{ django_password }}')" | python3 manage.py shell
+  args:
+    chdir: /var/www/Django/
   become_user: "{{ username }}"
 
 - name: Run collectstatic
