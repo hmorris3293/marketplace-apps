@@ -4,7 +4,7 @@ server {
     server_name {{ _domain }};                             
     {% elif subdomain == "www" %}
     server_name {{ _domain }} www.{{ _domain }};      
-
+    {% endif %}   
     location = /favicon.ico { access_log off; log_not_found off; }
     location /static/ {
         root /var/www/Django;
@@ -29,7 +29,11 @@ server {
 
 server {
     listen 443 ssl;
-    server_name {{ _domain }};
+    {% if subdomain != "www" or default_dns is defined %}
+    server_name {{ _domain }};                             
+    {% elif subdomain == "www" %}
+    server_name {{ _domain }} www.{{ _domain }};      
+    {% endif %} 
 
     ssl_certificate /etc/letsencrypt/live/{{ _domain }}/fullchain.pem;  
     ssl_certificate_key /etc/letsencrypt/live/{{ _domain }}/privkey.pem;  
