@@ -38,7 +38,7 @@ function udf {
   # sudo username
   username: ${USER_NAME}
   django_user: ${DJANGO_USER}
-  webserver_stack: lemp
+  webserver_stack: standalone
 EOF
 
   if [ "$DISABLE_ROOT" = "Yes" ]; then
