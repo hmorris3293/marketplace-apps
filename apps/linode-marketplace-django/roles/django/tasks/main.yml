@@ -13,6 +13,8 @@
     - postgresql-contrib
     - nginx
     - certbot
+    - gunicorn
+    - python3-django
 
 # Postgres
 - name: Configure PostgreSQL
@@ -149,17 +151,22 @@
     src: templates/default.conf.j2
     dest: "/etc/nginx/sites-available/{{ _domain }}"  
 
-- name: reload Nginx service to pickup default changes
+- name: stop nginx to run certbot standalone
   systemd:
     name: nginx
-    state: reloaded
+    state: stop
 
 # ssl_certbot
 - name: setting up ssl certificate
   import_role:
     name: certbot_ssl
 
-- name: config file setup
+- name: nginx config file setup
+  template:
+    src: templates/nginx.conf.j2
+    dest: "/etc/nginx/nginx.conf"  
+
+- name: vhost file 
   template:
     src: templates/nginx.conf.j2
     dest: "/etc/nginx/sites-available/{{ _domain }}"   
@@ -174,5 +181,11 @@
   file:
     path: "/etc/nginx/sites-enabled/default"
     state: absent
-  notify: reload nginx service
+
+- name: start nginx after certbot gen
+  systemd:
+    name: nginx
+    state: start
+
+
 
