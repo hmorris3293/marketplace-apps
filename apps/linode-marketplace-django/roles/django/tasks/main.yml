@@ -71,7 +71,7 @@
 #    state: directory
 
 - name: Create Django project
-  command: python3 -m django startproject Django
+  command: django-admin startproject Django
   args:
     chdir: /var/www/
   become_user: "{{ username }}"
@@ -79,35 +79,35 @@
 - name: copy settings template
   template:
     src: templates/settings.py.j2
-    dest: /var/www/Django/settings.py
+    dest: /var/www/Django/Django/settings.py
     force: yes
   become_user: "{{ username }}"
 
 - name: Generate a new SECRET_KEY
-  command: "python3 -c 'from django.core.management.utils import get_random_secret_key; print(get_random_secret_key())'"
+  command: 'django-admin shell -c "from django.core.management import utils; print(utils.get_random_secret_key())"'
   register: new_secret_key
 
 - name: Replace SECRET_KEY line in Django settings
   lineinfile:
-    path: /var/www/Django/settings.py
+    path: /var/www/Django/Django/settings.py
     regexp: '^SECRET_KEY = '
     line: 'SECRET_KEY = "{{ new_secret_key.stdout }}"'
   become_user: "{{ username }}"
 
 - name: Run makemigrations
-  command: python3 manage.py makemigrations
+  command: 'python3 manage.py makemigrations'
   args:
     chdir: /var/www/Django/
   become_user: "{{ username }}"
 
 - name: Run migrate
-  command: python3 manage.py migrate
+  command: 'python3 manage.py migrate'
   args:
     chdir: /var/www/Django/
   become_user: "{{ username }}"
 
 - name: Create Django superuse
-  command: echo "from django.contrib.auth.models import User; User.objects.create_superuser('{{ django_user }}', '{{ soa_email_address }}', '{{ django_password }}')" | python3 manage.py shell
+  command: 'django-admin shell -c "from django.contrib.auth.models import User; User.objects.create_superuser('{{ django_user }}', '{{ soa_email_address }}', '{{ django_password }}')"'
   args:
     chdir: /var/www/Django/
   become_user: "{{ username }}"
