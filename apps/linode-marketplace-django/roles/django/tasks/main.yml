@@ -70,15 +70,6 @@
 #    path: /var/www/Django
 #    state: directory
 
-- name: Install Gunicorn and Django
-  ansible.builtin.pip:
-    name: "{{ item }}"
-    executable: pip3
-    state: present
-  loop:
-    - gunicorn
-    - django
-
 - name: Create Django project
   command: python3 -m django startproject Django
   args:
@@ -154,7 +145,7 @@
 - name: stop nginx to run certbot standalone
   systemd:
     name: nginx
-    state: stop
+    state: stopped
 
 # ssl_certbot
 - name: setting up ssl certificate
