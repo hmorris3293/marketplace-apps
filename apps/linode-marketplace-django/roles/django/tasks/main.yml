@@ -126,23 +126,33 @@
 #  become_user: "{{ username }}"
 
 # Gunicorn
-- name: Configure Gunicorn socket
+- name: configure Gunicorn socket
   template:
     src: gunicorn.socket.j2
     dest: /etc/systemd/system/gunicorn.socket
 
-- name: Configure Gunicorn systemd service
+- name: configure Gunicorn systemd service
   template:
     src: gunicorn.service.j2
     dest: /etc/systemd/system/gunicorn.service
 
-- name: Start and enable Gunicorn service
+- name: start and enable Gunicorn service
   systemd:
     name: gunicorn
     state: started
     enabled: yes
 
 # Nginx
+
+- name: update default config file 
+  template:
+    src: templates/default.conf.j2
+    dest: "/etc/nginx/sites-available/{{ _domain }}"  
+
+- name: reload Nginx service to pickup default changes
+  systemd:
+    name: nginx
+    state: reloaded
 
 # ssl_certbot
 - name: setting up ssl certificate
