@@ -64,12 +64,6 @@
   become: yes
   become_user: postgres
 
-# Create directory and setup venv
-#- name: Create directory for Django App
-#  file:
-#    path: /var/www/Django
-#    state: directory
-
 - name: Create Django project
   command: django-admin startproject Django
   args:
@@ -107,7 +101,7 @@
   become_user: "{{ username }}"
 
 - name: Create Django superuse
-  command: 'django-admin shell -c "from django.contrib.auth.models import User; User.objects.create_superuser('{{ django_user }}', '{{ soa_email_address }}', '{{ django_password }}')"'
+  command: django-admin shell -c "from django.contrib.auth.models import User; User.objects.create_superuser('{{ django_user }}', '{{ soa_email_address }}', '{{ django_password }}')"
   args:
     chdir: /var/www/Django/
   become_user: "{{ username }}"
