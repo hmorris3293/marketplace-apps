@@ -101,18 +101,24 @@
   args:
     chdir: /var/www/Django/
   become_user: "{{ username }}"
+  environment:
+    DJANGO_SETTINGS_MODULE: "Django.settings"
 
 - name: Run migrate
   command: 'python3 manage.py migrate'
   args:
     chdir: /var/www/Django/
   become_user: "{{ username }}"
+  environment:
+    DJANGO_SETTINGS_MODULE: "Django.settings"
 
 - name: Create Django superuse
   command: django-admin shell -c "from django.contrib.auth.models import User; User.objects.create_superuser('{{ django_user }}', '{{ soa_email_address }}', '{{ django_password }}')"
   args:
     chdir: /var/www/Django/
   become_user: "{{ username }}"
+  environment:
+    DJANGO_SETTINGS_MODULE: "Django.settings"
 
 #- name: Run collectstatic
 #  command: python3 manage.py collectstatic --noinput
