@@ -7,11 +7,7 @@ After=network.target
 User=www-data
 Group=www-data
 WorkingDirectory=/var/www/Django
-ExecStart=/var/www/Django/gunicorn \
-          --access-logfile= /var/log/gunicorn/gunicorn-django.log \
-          --workers 3 \
-          --bind unix:/run/gunicorn.sock \
-          Django.wsgi:application
+ExecStart=/usr/bin/gunicorn --access-logfile - --workers 3 --bind unix:/run/gunicorn.sock Django.wsgi:application
 
 [Install]
 WantedBy=multi-user.target

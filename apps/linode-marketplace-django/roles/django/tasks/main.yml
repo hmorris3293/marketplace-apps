@@ -16,6 +16,14 @@
     - gunicorn
     - python3-django
 
+# configure env var for Django
+- name: Add DJANGO_SETTINGS_MODULE to .bashrc
+    lineinfile:
+      path: ~/.bashrc
+      line: 'export DJANGO_SETTINGS_MODULE=Django.settings'
+      insertafter: EOF
+    become_user: {{ username }}
+
 # Postgres
 - name: Configure PostgreSQL
   postgresql_db:
@@ -68,14 +76,14 @@
   command: django-admin startproject Django
   args:
     chdir: /var/www/
-  become_user: "{{ username }}"
+  become_user: {{ username }}
 
 - name: copy settings template
   template:
     src: templates/settings.py.j2
     dest: /var/www/Django/Django/settings.py
     force: yes
-  become_user: "{{ username }}"
+  become_user: {{ username }}
 
 - name: Generate a new SECRET_KEY
   command: 'django-admin shell -c "from django.core.management import utils; print(utils.get_random_secret_key())"'
@@ -86,13 +94,13 @@
     path: /var/www/Django/Django/settings.py
     regexp: '^SECRET_KEY = '
     line: 'SECRET_KEY = "{{ new_secret_key.stdout }}"'
-  become_user: "{{ username }}"
+  become_user: {{ username }}
 
 - name: Run makemigrations
   command: 'python3 manage.py makemigrations'
   args:
     chdir: /var/www/Django/
-  become_user: "{{ username }}"
+  become_user: {{ username }}
 
 - name: Run migrate
   command: 'python3 manage.py migrate'
@@ -104,7 +112,7 @@
   command: django-admin shell -c "from django.contrib.auth.models import User; User.objects.create_superuser('{{ django_user }}', '{{ soa_email_address }}', '{{ django_password }}')"
   args:
     chdir: /var/www/Django/
-  become_user: "{{ username }}"
+  become_user: {{ username }}
 
 #- name: Run collectstatic
 #  command: python3 manage.py collectstatic --noinput
@@ -122,6 +130,10 @@
   template:
     src: gunicorn.service.j2
     dest: /etc/systemd/system/gunicorn.service
+
+- name: Reload systemd
+  systemd:
+    state: reloaded
 
 - name: start and enable Gunicorn service
   systemd:

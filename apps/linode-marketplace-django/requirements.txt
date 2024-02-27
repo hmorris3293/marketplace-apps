@@ -11,4 +11,5 @@ pyyaml==6.0.1
 dnspython==2.2.1
 docker==6.1.3
 #new
-psycopg==3.1.9
+#psycopg==3.1.9
+psycopg2==2.9.9
