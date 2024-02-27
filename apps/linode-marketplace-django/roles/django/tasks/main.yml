@@ -19,11 +19,11 @@
 
 # configure env var for Django
 - name: Add DJANGO_SETTINGS_MODULE to .bashrc
-    lineinfile:
-      path: ~/.bashrc
-      line: 'export DJANGO_SETTINGS_MODULE=Django.settings'
-      insertafter: EOF
-    become_user: {{ username }}
+  lineinfile:
+    path: ~/.bashrc
+    line: 'export DJANGO_SETTINGS_MODULE=Django.settings'
+    insertafter: EOF
+  become_user: {{ username }}
 
 # Postgres
 - name: Configure PostgreSQL
