@@ -8,6 +8,7 @@
     - python3-pip
     - python3-venv
     - python3-dev
+    - python3-psycopg2
     - libpq-dev
     - postgresql
     - postgresql-contrib
@@ -56,7 +57,6 @@
   postgresql_query:
     db: django
     login_user: postgres
-   # login_password: "{{ postgres_db_pass }}"
     query:
       - "ALTER ROLE django SET default_transaction_isolation TO 'read committed';"
   become: yes
