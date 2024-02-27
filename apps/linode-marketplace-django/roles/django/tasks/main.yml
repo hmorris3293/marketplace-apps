@@ -23,6 +23,7 @@
     path: ~/.bashrc
     line: 'export DJANGO_SETTINGS_MODULE=Django.settings'
     insertafter: EOF
+  become: true
   become_user: "{{ username }}"
 
 # Postgres
@@ -30,7 +31,7 @@
   postgresql_db:
     name: django
     state: present
-  become: yes
+  become: true
   become_user: postgres
 
 - name: Create PostgreSQL user
@@ -39,7 +40,7 @@
     password: "{{ postgres_db_pass }}"
     encrypted: yes
     state: present
-  become: yes
+  become: true
   become_user: postgres
 
 # https://docs.djangoproject.com/en/5.0/ref/databases/#optimizing-postgresql-s-configuration
@@ -50,7 +51,7 @@
     login_unix_socket: /var/run/postgresql
     query:
       - "ALTER ROLE django SET client_encoding TO 'utf8';"
-  become: yes
+  become: true
   become_user: postgres
 
 - name: Set default_transaction_isolation for django
@@ -59,7 +60,7 @@
     login_user: postgres
     query:
       - "ALTER ROLE django SET default_transaction_isolation TO 'read committed';"
-  become: yes
+  become: true
   become_user: postgres
 
 - name: Set timezone for django
@@ -69,13 +70,14 @@
     login_password: "{{ postgres_db_pass }}"
     query:
       - "ALTER ROLE django SET timezone TO 'UTC';"
-  become: yes
+  become: true
   become_user: postgres
 
 - name: Create Django project
   command: django-admin startproject Django
   args:
     chdir: /var/www/
+  become: true
   become_user: "{{ username }}"
 
 - name: copy settings template
@@ -83,6 +85,7 @@
     src: templates/settings.py.j2
     dest: /var/www/Django/Django/settings.py
     force: yes
+  become: true  
   become_user: "{{ username }}"
 
 - name: Generate a new SECRET_KEY
@@ -94,12 +97,14 @@
     path: /var/www/Django/Django/settings.py
     regexp: '^SECRET_KEY = '
     line: 'SECRET_KEY = "{{ new_secret_key.stdout }}"'
+  become: true
   become_user: "{{ username }}"
 
 - name: Run makemigrations
   command: 'python3 manage.py makemigrations'
   args:
     chdir: /var/www/Django/
+  become: true
   become_user: "{{ username }}"
   environment:
     DJANGO_SETTINGS_MODULE: "Django.settings"
@@ -108,6 +113,7 @@
   command: 'python3 manage.py migrate'
   args:
     chdir: /var/www/Django/
+  become: true
   become_user: "{{ username }}"
   environment:
     DJANGO_SETTINGS_MODULE: "Django.settings"
@@ -116,6 +122,7 @@
   command: django-admin shell -c "from django.contrib.auth.models import User; User.objects.create_superuser('{{ django_user }}', '{{ soa_email_address }}', '{{ django_password }}')"
   args:
     chdir: /var/www/Django/
+  become: true
   become_user: "{{ username }}"
   environment:
     DJANGO_SETTINGS_MODULE: "Django.settings"
