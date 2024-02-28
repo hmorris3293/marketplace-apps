@@ -1,18 +1,24 @@
 ---
 # antmedia
 
-- name: set facts for Community edition
+- name: set facts for Community edition & SSL
   set_fact:
     ant_media_install_script_url: 'https://raw.githubusercontent.com/ant-media/Scripts/master/install_ant-media-server.sh'
     ant_media_zip_remote_url: 'https://antmedia.io/download/latest.zip'
     ant_media_zip_local_path: '/tmp/ams.zip'
+    full: /etc/letsencrypt/live/"{{ _domain }}"/fullchain.pem
+    priv: /etc/letsencrypt/live/"{{ _domain }}"/privkey.pem
+    chain: /etc/letsencrypt/live/"{{ _domain }}"/chain.pem
   when: version == 'Community'
 
-- name: set facts for Enterprise edition
+- name: set facts for Enterprise edition & SSL
   set_fact:
     ant_media_install_script_url: 'https://raw.githubusercontent.com/ant-media/Scripts/master/install_ant-media-server.sh'
     ant_media_zip_remote_url: 'https://antmedia.io/linode/antmedia_2.5.3.zip'
     ant_media_zip_local_path: '/tmp/ams.zip'
+    full: '/etc/letsencrypt/live/"{{ _domain }}"/fullchain.pem'#
+    priv: '/etc/letsencrypt/live/"{{ _domain }}"/privkey.pem'
+    chain: '/etc/letsencrypt/live/"{{ _domain }}"/chain.pem'
   when: version == 'Enterprise'
 
 - name: download install_ant-media-server.sh script
@@ -34,11 +40,11 @@
   import_role:
     name: certbot_ssl
 
-- name: set facts for letsencrypt certs
-  set_fact:
-    full: '/etc/letsencrypt/live/"{{ _domain }}"/fullchain.pem'
-    priv: '/etc/letsencrypt/live/"{{ _domain }}"/privkey.pem'
-    chain: '/etc/letsencrypt/live/"{{ _domain }}"/chain.pem'
+#- name: set facts for letsencrypt certs
+#  set_fact:
+#    full: /etc/letsencrypt/live/"{{ _domain }}"/fullchain.pem
+#    priv: /etc/letsencrypt/live/"{{ _domain }}"/privkey.pem
+#    chain: /etc/letsencrypt/live/"{{ _domain }}"/chain.pem
 
 # AMS ssl install script
   command: ./enable_ssl.sh -f {{ full }} -p {{ priv }} -c {{ chain }} -d {{ _domain }}
