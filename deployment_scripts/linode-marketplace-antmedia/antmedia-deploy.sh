@@ -13,7 +13,7 @@ trap "cleanup $? $LINENO" EXIT
 #<UDF name="domain" label="Domain" example="The domain for the DNS record: example.com (Requires API token)" default="">
 
 ## $antmedia setup
-#<UDF name="soa_email_address" label="Email address (for the Let's Encrypt SSL certificate)" example="user@domain.tld">
+#<UDF name="soa_email_address" label="Email address (for the Let's Encrypt SSL certificate)">
 #<UDF name="version" label="Would you like the Community Version or Enterprise Version of Ant Media?" oneOf="Community,Enterprise" default="Community">
 
 # git repo
