@@ -40,8 +40,7 @@
     priv: '/etc/letsencrypt/live/{{ _domain }}/privkey.pem'
     chain: '/etc/letsencrypt/live/{{ _domain }}/chain.pem'
 
-# cd /usr/local/antmedia && ./enable_ssl.sh -f /etc/letsencrypt/live/170-187-144-8.ip.linodeusercontent.com/fullchain.pem -p /etc/letsencrypt/live/170-187-144-8.ip.linodeusercontent.com/privkey.pem -c /etc/letsencrypt/live/170-187-144-8.ip.linodeusercontent.com/chain.pem -d 170-187-144-8.ip.linodeusercontent.com
-- name: Change directory to /usr/local/antmedia and run enable_ssl.sh
+# AMS ssl install script
   command: ./enable_ssl.sh -f {{ full }} -p {{ priv }} -c {{ chain }} -d {{ _domain }}
   args:
     chdir: /usr/local/antmedia
