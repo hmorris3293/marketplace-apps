@@ -1,10 +1,20 @@
 ---
 # chevereto
-- name: Run Chevereto Docker installation script
-  script:
-    cmd: "bash <(curl -s https://chevereto.com/sh/ubuntu/22.04/docker.sh)"
-  args:  
-    chdir: "/home/{{ username }}"
+- name: download Docker installation script
+  get_url:
+    url: "https://chevereto.com/sh/ubuntu/22.04/docker.sh"
+    dest: "/home/{{ username }}/docker.sh"
+  become: true
+  become_user: "{{ username }}"
+
+- name: Set execute permissions on the script
+  file:
+    path: "/home/{{ username }}/docker.sh"
+    mode: "u+x"
+  when: download_result.changed
+
+- name: Run the Docker installation script
+  command: "/home/{{ username }}/docker.sh"
   become: true
   become_user: "{{ username }}"
 
@@ -13,19 +23,19 @@
     src: env.j2
     dest: "/home/{{ username }}/docker/.env" 
 
-- name: Run 'install' target as root
+- name: run setup
   make:
     chdir: "/home/{{ username }}/docker"
-    target: install
+    target: setup
   become: true
   become_user: "{{ username }}"
 
-- name: Run 'make setup'
-  command: "make setup"
-  args:
-    chdir: "/home/{{ username }}/docker"
-  become: true
-  become_user: "{{ username }}"
+#- name: Run 'make setup'
+#  command: "make setup"
+#  args:
+#    chdir: "/home/{{ username }}/docker"
+#  become: true
+#  become_user: "{{ username }}"
 
 - name: Run 'make image'
   command: "make image"
