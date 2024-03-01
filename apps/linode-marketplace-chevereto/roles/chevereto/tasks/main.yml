@@ -35,6 +35,7 @@
   args:
    chdir: "/home/{{ username }}/docker"
   become: true
+  ignore_errors: yes
 #  become_user: "{{ username }}"
 
 - name: run image
