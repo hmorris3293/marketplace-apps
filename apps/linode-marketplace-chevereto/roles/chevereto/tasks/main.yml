@@ -12,7 +12,7 @@ tasks:
 - name: config file setup
   template:
     src: env.j2
-    dest: "/home/{{ username }}/docker"/.env" 
+    dest: "/home/{{ username }}/docker/.env" 
 
 - name: Run 'install' target as root
   make:
