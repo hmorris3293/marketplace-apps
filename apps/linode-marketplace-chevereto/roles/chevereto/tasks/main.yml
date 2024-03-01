@@ -4,8 +4,8 @@
   get_url:
     url: "https://chevereto.com/sh/ubuntu/22.04/docker.sh"
     dest: "/home/{{ username }}/docker.sh"
-  become: true
-  become_user: "{{ username }}"
+#  become: true
+ # become_user: "{{ username }}"
 
 - name: set execute permissions on the script
   file:
@@ -16,15 +16,16 @@
   shell: "./docker.sh"
   args:
     chdir: "/home/{{ username }}"
-  become: true
+ # become: true
 
 - name: recursively change ownership 
   file:
     path: "/home/{{ username }}/docker"
     owner: "{{ username }}"
+    group: "{{ username }}"
     recurse: yes
     state: directory
-  become: yes
+ # become: yes
 
 - name: config file setup
   template:
@@ -35,8 +36,8 @@
   make:
     chdir: "/home/{{ username }}/docker"
     target: setup
-  become: true
-  become_user: "{{ username }}"
+ # become: true
+ #become_user: "{{ username }}"
 
 #- name: Run 'make setup'
 #  command: "make setup"
@@ -49,15 +50,15 @@
   make:
     chdir: "/home/{{ username }}/docker"
     target: image
-  become: true
-  become_user: "{{ username }}"
+ # become: true
+ # become_user: "{{ username }}"
 
 - name: run deploy
   make:
     chdir: "/home/{{ username }}/docker"
     target: "deploy NAMESPACE=demo ADMIN_EMAIL={{ soa_email_address }}"
-  become: true
-  become_user: "{{ username }}"
+ # become: true
+ # become_user: "{{ username }}"
   register: make_deploy_result
 
 #- name: Run 'make deploy'
