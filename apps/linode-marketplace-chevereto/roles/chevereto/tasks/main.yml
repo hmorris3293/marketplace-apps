@@ -11,7 +11,6 @@
   file:
     path: "/home/{{ username }}/docker.sh"
     mode: "u+x"
-  when: download_result.changed
 
 - name: Run the Docker installation script
   command: "/home/{{ username }}/docker.sh"
