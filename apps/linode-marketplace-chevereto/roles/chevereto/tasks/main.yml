@@ -13,9 +13,9 @@
     mode: "u+x"
 
 - name: Run the Docker installation script
-  command: "/home/{{ username }}/docker.sh"
-  become: true
-  become_user: "{{ username }}"
+  shell: "sudo ./docker.sh"
+  args:
+    chdir: "/home/{{ username }}"
 
 - name: config file setup
   template:
