@@ -16,6 +16,8 @@
   shell: "sudo ./docker.sh"
   args:
     chdir: "/home/{{ username }}"
+  become: true
+  become_user: "{{ username }}"
 
 - name: config file setup
   template:
@@ -36,20 +38,28 @@
 #  become: true
 #  become_user: "{{ username }}"
 
-- name: Run 'make image'
-  command: "make image"
-  args:
+- name: run setup
+  make:
     chdir: "/home/{{ username }}/docker"
+    target: image
   become: true
   become_user: "{{ username }}"
 
-- name: Run 'make deploy'
-  command: "make deploy NAMESPACE=demo ADMIN_EMAIL={{ soa_email_address }}"
-  args:
+- name: run setup
+  make:
     chdir: "/home/{{ username }}/docker"
+    target: "deploy NAMESPACE=demo ADMIN_EMAIL={{ soa_email_address }}"
   become: true
   become_user: "{{ username }}"
   register: make_deploy_result
+
+#- name: Run 'make deploy'
+#  command: "make deploy NAMESPACE=demo ADMIN_EMAIL={{ soa_email_address }}"
+#  args:
+#    chdir: "/home/{{ username }}/docker"
+#  become: true
+#  become_user: "{{ username }}"
+#  register: make_deploy_result
 
 - name: Parse Email and Password from make deploy output
   set_fact:
