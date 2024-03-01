@@ -12,8 +12,8 @@ trap "cleanup $? $LINENO" EXIT
 #<UDF name="subdomain" label="Subdomain" example="The subdomain for the DNS record: www (Requires Domain)" default="">
 #<UDF name="domain" label="Domain" example="The domain for the DNS record: example.com (Requires API token)" default="">
 
-## $chevereto setup
-#<UDF name="soa_email_address" label="Email address (for the Let's Encrypt SSL certificate)" example="user@domain.tld">
+## chevereto setup
+#<UDF name="soa_email_address" label="Email address for Admin account & SSL" >
 
 # git repo
 export GIT_REPO="https://github.com/akamai-compute-marketplace/marketplace-apps.git"
@@ -36,7 +36,6 @@ function udf {
 
   # sudo username
   username: ${USER_NAME}
-  webserver_stack: lemp
 EOF
 
   if [ "$DISABLE_ROOT" = "Yes" ]; then
