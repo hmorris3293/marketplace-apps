@@ -9,6 +9,11 @@ tasks:
   become: true
   become_user: "{{ username }}"
 
+- name: config file setup
+  template:
+    src: env.j2
+    dest: "/home/{{ username }}/docker"/.env" 
+
 - name: Run 'install' target as root
   make:
     chdir: "/home/{{ username }}/docker"
