@@ -23,17 +23,17 @@
     src: env.j2
     dest: "/home/{{ username }}/docker/.env" 
 
-- name: run setup
-  make:
-    chdir: "/home/{{ username }}/docker"
-    target: setup
+#- name: run setup
+#  make:
+#    chdir: "/home/{{ username }}/docker"
+#    target: setup
  # become: true
  #become_user: "{{ username }}"
 
-#- name: Run 'make setup'
-#  command: "make setup"
-#  args:
-#    chdir: "/home/{{ username }}/docker"
+- name: Run 'make setup'
+  command: "make setup"
+  args:
+   chdir: "/home/{{ username }}/docker"
 #  become: true
 #  become_user: "{{ username }}"
 
