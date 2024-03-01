@@ -1,6 +1,5 @@
 ---
 # chevereto
-tasks:
 - name: Run Chevereto Docker installation script
   script:
     cmd: "bash <(curl -s https://chevereto.com/sh/ubuntu/22.04/docker.sh)"
