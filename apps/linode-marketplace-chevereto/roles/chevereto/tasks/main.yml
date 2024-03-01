@@ -1,0 +1,44 @@
+---
+# chevereto
+tasks:
+- name: Run Chevereto Docker installation script
+  script:
+    cmd: "bash <(curl -s https://chevereto.com/sh/ubuntu/22.04/docker.sh)"
+  args:  
+    chdir: "/home/{{ username }}"
+  become: true
+  become_user: {{ username }}
+
+- name: Run 'install' target as root
+  make:
+    chdir: "/home/{{ username }}/docker"
+    target: install
+  become: true
+  become_user: {{ username }}
+
+- name: Run 'make setup'
+  command: "make setup"
+  args:
+    chdir: "/home/{{ username }}/docker"
+  become: true
+  become_user: {{ username }}
+
+- name: Run 'make image'
+  command: "make image"
+  args:
+    chdir: "/home/{{ username }}/docker"
+  become: true
+  become_user: {{ username }}
+
+- name: Run 'make deploy'
+  command: "make deploy NAMESPACE=demo ADMIN_EMAIL={{ soa_email_address }}"
+  args:
+    chdir: "/home/{{ username }}/docker"
+  become: true
+  become_user: {{ username }}
+  register: make_deploy_result
+
+- name: Parse Email and Password from make deploy output
+  set_fact:
+    email: "{{ make_deploy_result.stdout_lines | regex_search('Email: (.*)', '\\1') }}"
+    password: "{{ make_deploy_result.stdout_lines | regex_search('Password: (.*)', '\\1') }}"
