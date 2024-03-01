@@ -34,7 +34,7 @@
   command: "make setup"
   args:
    chdir: "/home/{{ username }}/docker"
-#  become: true
+  become: true
 #  become_user: "{{ username }}"
 
 - name: run image
