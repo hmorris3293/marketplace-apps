@@ -7,17 +7,24 @@
   become: true
   become_user: "{{ username }}"
 
-- name: Set execute permissions on the script
+- name: set execute permissions on the script
   file:
     path: "/home/{{ username }}/docker.sh"
     mode: "u+x"
 
-- name: Run the Docker installation script
-  shell: "sudo ./docker.sh"
+- name: run the Docker installation script
+  shell: "./docker.sh"
   args:
     chdir: "/home/{{ username }}"
   become: true
-  become_user: "{{ username }}"
+
+- name: recursively change ownership 
+  file:
+    path: "/home/{{ username }}/docker"
+    owner: "{{ username }}"
+    recurse: yes
+    state: directory
+  become: yes
 
 - name: config file setup
   template:
@@ -38,14 +45,14 @@
 #  become: true
 #  become_user: "{{ username }}"
 
-- name: run setup
+- name: run image
   make:
     chdir: "/home/{{ username }}/docker"
     target: image
   become: true
   become_user: "{{ username }}"
 
-- name: run setup
+- name: run deploy
   make:
     chdir: "/home/{{ username }}/docker"
     target: "deploy NAMESPACE=demo ADMIN_EMAIL={{ soa_email_address }}"
