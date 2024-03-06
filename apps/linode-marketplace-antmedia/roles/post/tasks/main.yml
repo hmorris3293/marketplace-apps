@@ -12,4 +12,5 @@
     content: |
       Sudo Username: {{ username }}
       Sudo Password: {{ password }}
-
+      Ant Media Admin Username: {{ soa_email_address }}
+      Ant Media Admin Password: {{ antmedia_password }}
