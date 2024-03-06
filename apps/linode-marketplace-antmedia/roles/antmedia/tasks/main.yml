@@ -26,7 +26,7 @@
     url: "{{ ant_media_zip_remote_url }}"
     dest: "{{ ant_media_zip_local_path }}"
 
-- name: Run Ant Media Server installation script
+- name: run Ant Media Server installation script
   script: "/tmp/install_ant-media-server.sh -i {{ ant_media_zip_local_path }}"
 
 # Bypass user setup
@@ -36,7 +36,7 @@
     port: 5080
   timeout: 60
 
-- name: Send POST request
+- name: send POST request
   uri:
     url: http://localhost:5080/rest/v2/users/initial
     method: POST
