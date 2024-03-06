@@ -43,7 +43,7 @@
 # AMS ssl install script
 - name: ant media ssl script install
   script: ./enable_ssl.sh -f {{ full }} -p {{ priv }} -c {{ chain }} -d {{ _domain }}
-  chdir: /usr/local/antmedia
+    chdir: /usr/local/antmedia
 
 # Bypass user setup
 - name: Send POST request
