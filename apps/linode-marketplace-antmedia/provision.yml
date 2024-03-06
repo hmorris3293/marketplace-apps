@@ -13,7 +13,7 @@
       
     - name: generating antmedia password
       set_fact:
-        ANTMEDIA_PASSWORD: "{{ lookup('password', '/dev/null length=45 chars=ascii_letters,digits') }}"
+        ANTMEDIA_PASSWORD: "{{ lookup('password', '/dev/null length=25 chars=ascii_letters,digits') }}"
 
     - name: writing ant media password to vars
       blockinfile:
