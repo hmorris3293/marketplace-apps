@@ -46,6 +46,21 @@
   args:
     chdir: /usr/local/antmedia
 
+# Bypass user setup
+- name: Send POST request
+  uri:
+    url: http://localhost:5080/rest/v2/users/initial
+    method: POST
+    body_format: json
+    body:
+      email: "{{ soa_email_address }}"
+      password: "{{ antmedia_password }}"
+      scope: "system"
+      userType: "ADMIN"
+    headers:
+      Content-Type: "application/json"
+  register: result
+
 
 
 
