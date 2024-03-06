@@ -18,7 +18,7 @@
 - name: download install_ant-media-server.sh script
   get_url:
     url: "{{ ant_media_install_script_url }}"
-    dest: "/tmp/install_ant-media-server.sh"
+    dest: '/tmp/install_ant-media-server.sh'
     mode: '0755'
 
 - name: download ams.zip file from a remote location
@@ -36,14 +36,13 @@
 
 - name: set facts for letsencrypt certs
   set_fact:
-    full: /etc/letsencrypt/live/{{ _domain }}/fullchain.pem
-    priv: /etc/letsencrypt/live/{{ _domain }}/privkey.pem
-    chain: /etc/letsencrypt/live/{{ _domain }}/chain.pem
+    full: "/etc/letsencrypt/live/{{ _domain }}/fullchain.pem"
+    priv: "/etc/letsencrypt/live/{{ _domain }}/privkey.pem"
+    chain: "/etc/letsencrypt/live/{{ _domain }}/chain.pem"
 
 # AMS ssl install script
 - name: ant media ssl script install
-  script: ./enable_ssl.sh -f {{ full }} -p {{ priv }} -c {{ chain }} -d {{ _domain }}
-    chdir: /usr/local/antmedia
+  script: "/usr/local/antmedia/enable_ssl.sh -f {{ full }} -p {{ priv }} -c {{ chain }} -d {{ _domain }}"
 
 # Bypass user setup
 - name: Send POST request
@@ -54,10 +53,10 @@
     body:
       email: "{{ soa_email_address }}"
       password: "{{ antmedia_password }}"
-      scope: "system"
-      userType: "ADMIN"
+      scope: 'system'
+      userType: 'ADMIN'
     headers:
-      Content-Type: "application/json"
+      Content-Type: 'application/json'
   register: result
 
 
