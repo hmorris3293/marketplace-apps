@@ -4,10 +4,14 @@ Requires=gunicorn.socket
 After=network.target
 
 [Service]
-User=www-data
+User={{ username }}
 Group=www-data
-WorkingDirectory=/var/www/Django
-ExecStart=/usr/bin/gunicorn --access-logfile - --workers 3 --bind unix:/run/gunicorn.sock Django.wsgi:application
+WorkingDirectory=/var/www/django_app
+ExecStart=/var/www/django_app/djangoenv/bin/gunicorn \
+          --access-logfile - \
+          --workers 3 \
+          --bind unix:/run/gunicorn.sock \
+          django_sample.wsgi:application
 
 [Install]
 WantedBy=multi-user.target

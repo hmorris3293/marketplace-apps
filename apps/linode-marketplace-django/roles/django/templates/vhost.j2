@@ -7,7 +7,7 @@ server {
     {% endif %}   
     location = /favicon.ico { access_log off; log_not_found off; }
     location /static/ {
-        root /var/www/Django;
+        root /var/www/django_app ;
     }
 
     location / {
@@ -20,7 +20,7 @@ server {
 # Certbot SSL configuration
     location ~ /.well-known/acme-challenge {
         allow all;
-        root /var/www/Django;
+        root /var/www/django_app ;
     }
 }
 
@@ -41,7 +41,7 @@ server {
     }
 
     location /static/ {
-        root /var/www/Django;
+        root /var/www/django_app ;
     }
 
     location / {

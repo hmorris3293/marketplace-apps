@@ -5,26 +5,15 @@
     name: "{{ item }}"
     state: present
   with_items:
-    - python3-pip
     - python3-venv
     - python3-dev
-    - python3-psycopg2
     - libpq-dev
     - postgresql
     - postgresql-contrib
     - nginx
     - certbot
-    - gunicorn
-    - python3-django
-
-# configure env var for Django
-- name: Add DJANGO_SETTINGS_MODULE to .bashrc
-  lineinfile:
-    path: ~/.bashrc
-    line: 'export DJANGO_SETTINGS_MODULE=Django.settings'
-    insertafter: EOF
   become: true
-  become_user: "{{ username }}"
+  become_user: {{ username }}
 
 # Postgres
 - name: Configure PostgreSQL
@@ -73,17 +62,47 @@
   become: true
   become_user: postgres
 
-- name: Create Django project
-  command: django-admin startproject Django
+- name: Create project directory
+  file:
+    path: '/var/www/django_app'
+    state: directory
+    owner: holden
+    group: holden
+
+- name: Create and activate virtual environment
+  command: python3 -m venv djangoenv
   args:
-    chdir: /var/www/
+    chdir: '/var/www/django_app'
+  become: true
+  become_user: {{ username }}
+
+- name: Activate virtual environment
+  shell:
+    cmd: 'source /var/www/django_app/djangoenv/bin/activate'
+  become: true
+  become_user: {{ username }}
+
+- name: Install Django and Gunicorn
+  pip:
+    name: "{{ item }}"
+  loop:
+    - django
+    - gunicorn
+    - psycopg2-binary
+  become: true
+  become_user: {{ username }}
+
+- name: Start Django project
+  command: django-admin startproject django_sample
+  args:
+    chdir: '/var/www/django_app'
   become: true
   become_user: "{{ username }}"
 
 - name: copy settings template
   template:
     src: templates/settings.py.j2
-    dest: /var/www/Django/Django/settings.py
+    dest: '/var/www/django_app/django_sample/settings.py'
     force: yes
   become: true  
   become_user: "{{ username }}"
@@ -100,38 +119,33 @@
   become: true
   become_user: "{{ username }}"
 
-- name: Run makemigrations
-  command: 'python3 manage.py makemigrations'
+- name: Apply migrations
+  command: "./manage.py migrate"
   args:
-    chdir: /var/www/Django/
+    chdir: "/var/www/django_app/django_sample"
   become: true
   become_user: "{{ username }}"
-  environment:
-    DJANGO_SETTINGS_MODULE: "Django.settings"
 
-- name: Run migrate
-  command: 'python3 manage.py migrate'
-  args:
-    chdir: /var/www/Django/
-  become: true
-  become_user: "{{ username }}"
-  environment:
-    DJANGO_SETTINGS_MODULE: "Django.settings"
+#- name: Create superuser
+#  command: "./manage.py createsuperuser --noinput --username={{ django_user }} --email=user@linode.com"
+#  args:
+#    chdir: "/var/www/django_app/django_sample"
+#  become: true
+#  become_user: "{{ username }}"
 
-- name: Create Django superuse
+- name: Create Django superuser
   command: django-admin shell -c "from django.contrib.auth.models import User; User.objects.create_superuser('{{ django_user }}', '{{ soa_email_address }}', '{{ django_password }}')"
   args:
-    chdir: /var/www/Django/
+    chdir: '/var/www/django_app'
   become: true
   become_user: "{{ username }}"
-  environment:
-    DJANGO_SETTINGS_MODULE: "Django.settings"
 
-#- name: Run collectstatic
-#  command: python3 manage.py collectstatic --noinput
-#  args:
-#    chdir: /var/www/Django/
-#  become_user: "{{ username }}"
+- name: Collect static files
+  command: "./manage.py collectstatic --noinput"
+  args:
+    chdir: "/var/www/django_app/django_sample"
+  become: true
+  become_user: "{{ username }}"
 
 # Gunicorn
 - name: configure Gunicorn socket
@@ -144,7 +158,7 @@
     src: gunicorn.service.j2
     dest: /etc/systemd/system/gunicorn.service
 
-- name: Reload systemd
+- name: reload systemd
   systemd:
     state: reloaded
 
@@ -153,6 +167,12 @@
     name: gunicorn
     state: started
     enabled: yes
+
+- name: deactivate virtual environment
+  shell:
+    cmd: 'deactivate'
+  become: true
+  become_user: {{ username }}
 
 # Nginx
 
@@ -171,10 +191,10 @@
   import_role:
     name: certbot_ssl
 
-- name: nginx config file setup
-  template:
-    src: templates/nginx.conf.j2
-    dest: "/etc/nginx/nginx.conf"  
+#- name: nginx config file setup
+#  template:
+#    src: templates/nginx.conf.j2
+#    dest: "/etc/nginx/nginx.conf"  
 
 - name: vhost file 
   template:
