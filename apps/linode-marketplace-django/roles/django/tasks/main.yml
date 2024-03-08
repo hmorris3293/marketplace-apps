@@ -83,13 +83,6 @@
     executable: /bin/bash
   become_user: "{{ username }}"
 
-- name: set ownership for django_app
-  file:
-    path: '/var/www/django_app'
-    owner: holden
-    group: holden
-    recurse: yes
-
 - name: Install Django and Gunicorn
   pip:
     name: "{{ item }}"
@@ -108,7 +101,14 @@
     executable: /bin/bash
     chdir: '/var/www/django_app'
   become: true
-  become_user: "{{ username }}"
+  #become_user: "{{ username }}"
+
+- name: set ownership for django_app
+  file:
+    path: '/var/www/django_app'
+    owner: holden
+    group: holden
+    recurse: yes
 
 - name: copy settings template
   template:
@@ -192,16 +192,26 @@
 #  become: true
 #  become_user: "{{ username }}"  
 
-- name: Create Django superuser
-  command: django-admin shell -c "from django.contrib.auth.models import User; User.objects.create_superuser('{{ django_user }}', '{{ soa_email_address }}', '{{ django_password }}')"
-  args:
-    chdir: '/var/www/django_app'
+#- name: Create Django superuser
+#  command: django-admin shell -c "from django.contrib.auth.models import User; User.objects.create_superuser('{{ django_user }}', '{{ soa_email_address }}', '{{ django_password }}')"
+#  args:
+#    chdir: '/var/www/django_app'
+#  become: true
+#  become_user: "{{ username }}"
+
+- name: set django admin password
+  shell:
+    cmd: ./manage.py shell -c "from django.contrib.auth.models import User; u = User.objects.get(username='{{ django_user }}'); u.set_password('{{ django_password }}'); u.save()"
+    executable: /bin/bash
+    chdir: '/var/www/django_app/django_sample'
   become: true
-  become_user: "{{ username }}"
+    #  become_user: "{{ username }}"
 
 #- name: set django admin password
 #  community.general.django_manage:
-#    command: 'shell -c --noinput "from django.contrib.auth.models import User; u = User.objects.get(username={{ django_user }}); u.set_password({{ django_password }}); u.save()"'
+#    command: shell
+#    args:
+#      cmd: "-c 'from django.contrib.auth.models import User; u = User.objects.get(username=\"{{ django_user }}\"); u.set_password(\"{{ django_password }}\"); u.save()'"
 #    virtualenv: '/var/www/django_app/djangoenv'
 #    project_path: '/var/www/django_app/django_sample'
 #  become: true
@@ -215,20 +225,20 @@
 #  become: true
 #  become_user: "{{ username }}" 
 
-#- name: Collect static files
-#  command: "./manage.py collectstatic --noinput"
-#  args:
-#    chdir: "/var/www/django_app/django_sample"
-#  become: true
-#  become_user: "{{ username }}"
-
-- name: collect static files
-  community.general.django_manage:
-    command: 'collectstatic --noinput'
-    virtualenv: '/var/www/django_app/djangoenv'
-    project_path: '/var/www/django_app/django_sample'
+- name: Collect static files
+  command: "python manage.py collectstatic --noinput"
+  args:
+    chdir: "/var/www/django_app/django_sample"
   become: true
-  become_user: "{{ username }}" 
+  #become_user: "{{ username }}"
+
+#- name: collect static files
+#  community.general.django_manage:
+#    command: 'python manage.py collectstatic --noinput'
+#    virtualenv: '/var/www/django_app/djangoenv'
+#    project_path: '/var/www/django_app/django_sample'
+#  become: true
+#  become_user: "{{ username }}" 
 
 #- name: collect static files
 #  shell:
@@ -249,9 +259,9 @@
     src: gunicorn.service.j2
     dest: /etc/systemd/system/gunicorn.service
 
-- name: reload systemd
+- name: reload systemd daemon
   systemd:
-    state: reloaded
+    daemon_reload: yes
 
 - name: start and enable Gunicorn service
   systemd:
@@ -259,14 +269,7 @@
     state: started
     enabled: yes
 
-- name: deactivate virtual environment
-  shell:
-    cmd: 'deactivate'
-  become: true
-  become_user: "{{ username }}"
-
 # Nginx
-
 - name: update default config file 
   template:
     src: templates/default.conf.j2
@@ -289,7 +292,7 @@
 
 - name: vhost file 
   template:
-    src: templates/nginx.conf.j2
+    src: templates/vhost.j2
     dest: "/etc/nginx/sites-available/{{ _domain }}"   
 
 - name: create a symbolic link for the nginx configuration
@@ -306,7 +309,7 @@
 - name: start nginx after certbot gen
   systemd:
     name: nginx
-    state: start
+    state: started
 
 
 
