@@ -10,6 +10,8 @@ ansible-specdoc==0.0.14
 pyyaml==6.0.1
 dnspython==2.2.1
 docker==6.1.3
-#new
-#psycopg==3.1.9
+
+#for django
 psycopg2-binary==2.9.9
+django==5.0.3
+gunicorn==21.2.0

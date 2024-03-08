@@ -103,7 +103,7 @@
 
 - name: Start Django project
   shell:
-    cmd: "source /var/www/django_app/djangoenv/bin/activate && django-admin startproject django_sample"
+    cmd: 'django-admin startproject django_sample'
   args:
     executable: /bin/bash
     chdir: '/var/www/django_app'
@@ -118,9 +118,9 @@
   become: true  
   become_user: "{{ username }}"
 
-#- name: Generate a new SECRET_KEY
-#  command: 'django-admin shell -c "from django.core.management import utils; print(utils.get_random_secret_key())"'
-#  register: new_secret_key
+- name: Generate a new SECRET_KEY
+  command: 'django-admin shell -c "from django.core.management import utils; print(utils.get_random_secret_key())"'
+  register: new_secret_key
 
 #- name: Generate a new SECRET_KEY
 #  shell:
@@ -131,14 +131,14 @@
 #  become_user: "{{ username }}"   
 #  register: new_secret_key
 
-- name: gen secret key
-  community.general.django_manage:
-    command: 'shell -c "from django.core.management import utils; print(utils.get_random_secret_key())" --no-input'
-    virtualenv: '/var/www/django_app/djangoenv'
-    project_path: '/var/www/django_app/django_sample'
-  become: true
-  become_user: "{{ username }}"
-  register: new_secret_key
+#- name: gen secret key
+#  community.general.django_manage:
+#    command: 'shell -c "from django.core.management import utils; print(utils.get_random_secret_key())" --no-input'
+#    virtualenv: '/var/www/django_app/djangoenv'
+#    project_path: '/var/www/django_app/django_sample'
+#  become: true
+#  become_user: "{{ username }}"
+#  register: new_secret_key
 
 - name: Replace SECRET_KEY line in Django settings
   lineinfile:
@@ -192,20 +192,20 @@
 #  become: true
 #  become_user: "{{ username }}"  
 
-#- name: Create Django superuser
-#  command: django-admin shell -c "from django.contrib.auth.models import User; User.objects.create_superuser('{{ django_user }}', '{{ soa_email_address }}', '{{ django_password }}')"
-#  args:
-#    chdir: '/var/www/django_app'
-#  become: true
-#  become_user: "{{ username }}"
-
-- name: set django admin password
-  community.general.django_manage:
-    command: 'shell -c --noinput "from django.contrib.auth.models import User; u = User.objects.get(username='{{ django_user }}'); u.set_password('{{ django_password }}'); u.save()"'
-    virtualenv: '/var/www/django_app/djangoenv'
-    project_path: '/var/www/django_app/django_sample'
+- name: Create Django superuser
+  command: django-admin shell -c "from django.contrib.auth.models import User; User.objects.create_superuser('{{ django_user }}', '{{ soa_email_address }}', '{{ django_password }}')"
+  args:
+    chdir: '/var/www/django_app'
   become: true
-  become_user: "{{ username }}" 
+  become_user: "{{ username }}"
+
+#- name: set django admin password
+#  community.general.django_manage:
+#    command: 'shell -c --noinput "from django.contrib.auth.models import User; u = User.objects.get(username={{ django_user }}); u.set_password({{ django_password }}); u.save()"'
+#    virtualenv: '/var/www/django_app/djangoenv'
+#    project_path: '/var/www/django_app/django_sample'
+#  become: true
+#  become_user: "{{ username }}" 
 
 #- name: set django admin password
 #  shell:
