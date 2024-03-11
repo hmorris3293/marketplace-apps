@@ -13,5 +13,4 @@
     cmd: service solr restart
     
 - name: configure solr
-   import_task: 
-     - solr-config.yml
+  include_tasks: solr-config.yml

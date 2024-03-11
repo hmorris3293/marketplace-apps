@@ -35,6 +35,7 @@ function udf {
 
   # sudo username
   username: ${USER_NAME}
+  webserver_stack: standalone
 EOF
   if [[ -n ${SOA_EMAIL_ADDRESS} ]]; then
     echo "soa_email_address: ${SOA_EMAIL_ADDRESS}" >> ${group_vars};

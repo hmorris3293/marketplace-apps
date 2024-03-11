@@ -85,3 +85,38 @@
       count: "1"
       param0: "TONIDOCLOUD_GEOIP_ENABLED"
       value0: "1"
+
+# reset admin password
+- name: run PHP script to reset admin password
+  command: 'php resetadminpw.php -p "{{ filecloud_admin_password }}"'
+  args:
+    chdir: '/var/www/html/resources/backup/'
+
+# ssl
+- name: setting up ssl certificate
+  import_role:
+    name: certbot_ssl
+
+- name: moving vhost template
+  template:
+    src: templates/vhost.j2
+    dest: "/etc/apache2/sites-available/{{ _domain }}.conf"
+    owner: root
+    group: root
+    mode: 0644
+
+- name: symlinking our vhost
+  file:
+    src: "/etc/apache2/sites-available/{{ _domain }}.conf"
+    dest: "/etc/apache2/sites-enabled/{{ _domain }}.conf"
+    owner: root
+    group: root
+    mode: 0644
+    state: link
+  notify: reload apache2
+
+- name: disable apache default site
+  file:
+    path: /etc/apache2/sites-enabled/000-default.conf
+    state: absent
+  notify: reload apache2
