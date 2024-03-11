@@ -93,6 +93,11 @@
     chdir: '/var/www/html/resources/backup/'
 
 # ssl
+- name: Stop Apache2
+  systemd:
+    name: apache2
+    state: stopped
+
 - name: setting up ssl certificate
   import_role:
     name: certbot_ssl
@@ -113,10 +118,10 @@
     group: root
     mode: 0644
     state: link
-  notify: reload apache2
+
 
 - name: disable apache default site
   file:
     path: /etc/apache2/sites-enabled/000-default.conf
     state: absent
-  notify: reload apache2
+  notify: start apache2

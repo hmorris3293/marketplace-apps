@@ -1,4 +1,4 @@
-- name: reload apache2
+- name: start apache2
   service:
     name: apache2
-    state: reloaded
+    state: started
