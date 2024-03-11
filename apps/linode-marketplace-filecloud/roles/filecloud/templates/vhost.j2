@@ -19,7 +19,7 @@ DocumentRoot /var/www/html
  CustomLog ${APACHE_LOG_DIR}/access.log combined
  
  SSLEngine On
- SSLCertificateFile /etc/letsencrypt/live/{{ _domain }}fullchain.pem
+ SSLCertificateFile /etc/letsencrypt/live/{{ _domain }}/fullchain.pem
  SSLCertificateKeyFile /etc/letsencrypt/live/{{ _domain }}/privkey.pem
  SSLCertificateChainFile /etc/letsencrypt/live/{{ _domain }}/chain.pem
   
