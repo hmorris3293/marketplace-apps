@@ -166,7 +166,7 @@
       Content-Type: "application/x-www-form-urlencoded"
     return_content: yes
     validate_certs: no
-    register: login_response
+  register: login_response
 
 - name: Configuring Solr
   uri:
