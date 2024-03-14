@@ -123,15 +123,18 @@
 - name: copying fcskel into dest
   copy:
     src: /var/www/html/thirdparty/overrides/solarium/Solarium/fcskel
-    dest: /opt/solrfcdata/var/solr/data/
+    dest: /var/solr/data/
+    #dest: /opt/solrfcdata/var/solr/data/
 
 - name: renaming fcskel to fccore
   shell:
-    cmd: mv /opt/solrfcdata/var/solr/data/fcskel /opt/solrfcdata/var/solr/data/fccore
+    cmd: mv /var/solr/data/fcskel /var/solr/data/fccore
+    #cmd: mv /opt/solrfcdata/var/solr/data/fcskel /opt/solrfcdata/var/solr/data/fccore
 
 - name: changing owner of fccore
   file:
-    path: /opt/solrfcdata/var/solr/data/fccore
+    path: /var/solr/data/fccore
+    #path: /opt/solrfcdata/var/solr/data/fccore
     owner: solr
     state: directory
     recurse: yes
