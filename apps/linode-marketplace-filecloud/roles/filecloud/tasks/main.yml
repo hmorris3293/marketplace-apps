@@ -118,45 +118,74 @@
     state: directory
     recurse: yes
 
+#- name: logging into filecloud
+#  uri:
+#    url: http://{{ ansible_default_ipv4.address }}/admin/adminlogin?adminuser=admin&adminpassword={{ filecloud_admin_password }}
+#    method: POST
+#    body_format: form-urlencoded
+#    status_code: 200
+#    force_basic_auth: yes
+#  register: login_cookies
+
+#- name: saving cookies to variable
+#  set_fact:
+#    login: "{{ login_cookies.cookies }}"
+
+#- name: extracting tonidocloud_ah value
+#  set_fact:
+#    tonidocloud_ah: "{{ login['tonidocloud-ah'] }}"
+
+#- name: extracting tonidocloud_as value
+#  set_fact:
+#    tonidocloud_as: "{{ login['tonidocloud-as'] }}"
+
+#- name: extracting x_xsrf_token value
+#  set_fact:
+#    x_xsrf_token: "{{ login['X-XSRF-TOKEN'] }}"
+
+#- name: Configuring Solr
+#  uri:
+#    url: http://{{ ansible_default_ipv4.address }}/admin/confcreate
+#    method: POST
+#    headers:
+#      Cookie: X-XSRF-TOKEN={{ x_xsrf_token }}; X-XSRF-TOKEN-admin={{ x_xsrf_token }}; tonidocloud-ah={{ tonidocloud_ah }}; tonidocloud-as={{ tonidocloud_as }}; tonidocloud-au=admin
+#    body_format: form-urlencoded
+#    force_basic_auth: yes
+
 - name: logging into filecloud
   uri:
-    url: http://{{ ansible_default_ipv4.address }}/admin/adminlogin?adminuser=admin&adminpassword={{ filecloud_admin_password }}
+    url: "http://{{ ansible_default_ipv4.address }}/admin/"
     method: POST
     body_format: form-urlencoded
+    body:
+      op: adminlogin
+      adminuser: admin
+      adminpassword: "{{ filecloud_admin_password }}"
     status_code: 200
-    force_basic_auth: yes
-  register: login_cookies
-
-- name: saving cookies to variable
-  set_fact:
-    login: "{{ login_cookies.cookies }}"
-
-- name: extracting tonidocloud_ah value
-  set_fact:
-    tonidocloud_ah: "{{ login['tonidocloud-ah'] }}"
-
-- name: extracting tonidocloud_as value
-  set_fact:
-    tonidocloud_as: "{{ login['tonidocloud-as'] }}"
-
-- name: extracting x_xsrf_token value
-  set_fact:
-    x_xsrf_token: "{{ login['X-XSRF-TOKEN'] }}"
+    headers:
+      Content-Type: "application/x-www-form-urlencoded"
+    return_content: yes
+    validate_certs: no
+    register: login_response
 
 - name: Configuring Solr
   uri:
-    url: http://{{ ansible_default_ipv4.address }}/admin/confcreate
+    url: "http://{{ ansible_default_ipv4.address }}/admin/"
     method: POST
-    headers:
-      Cookie: X-XSRF-TOKEN={{ x_xsrf_token }}; X-XSRF-TOKEN-admin={{ x_xsrf_token }}; tonidocloud-ah={{ tonidocloud_ah }}; tonidocloud-as={{ tonidocloud_as }}; tonidocloud-au=admin
     body_format: form-urlencoded
-    force_basic_auth: yes
+    body:
+      op: confcreate
+    headers:
+      Content-Type: "application/x-www-form-urlencoded"
+    return_content: yes
+    validate_certs: no
+    cookies: "{{ login_response.cookies }}"
 
 - name: restart Solr service 
   systemd:
     name: solr
     state: restarted
-    
+
 # Apache ssl
 - name: stop apache2
   systemd:
