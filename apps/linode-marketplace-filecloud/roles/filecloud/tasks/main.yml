@@ -86,16 +86,9 @@
       param0: "TONIDOCLOUD_GEOIP_ENABLED"
       value0: "1"
 
-# reset admin password
-- name: run PHP script to reset admin password
-  command: 'php resetadminpw.php -p "{{ filecloud_admin_password }}"'
-  args:
-    chdir: '/var/www/html/resources/backup/'
-
 # Solr installation
 - name: installing solr
   command: 'filecloudcp -s'
-  become: yes
     
 - name: checking if fccore is deleted
   file: 
@@ -143,48 +136,25 @@
 #  set_fact:
 #    x_xsrf_token: "{{ login['X-XSRF-TOKEN'] }}"
 
-#- name: Configuring Solr
-#  uri:
-#    url: http://{{ ansible_default_ipv4.address }}/admin/confcreate
-#    method: POST
-#    headers:
-#      Cookie: X-XSRF-TOKEN={{ x_xsrf_token }}; X-XSRF-TOKEN-admin={{ x_xsrf_token }}; tonidocloud-ah={{ tonidocloud_ah }}; tonidocloud-as={{ tonidocloud_as }}; tonidocloud-au=admin
-#    body_format: form-urlencoded
-#    force_basic_auth: yes
-
-- name: logging into filecloud
-  uri:
-    url: "http://{{ ansible_default_ipv4.address }}/admin/"
-    method: POST
-    body_format: form-urlencoded
-    body:
-      op: adminlogin
-      adminuser: admin
-      adminpassword: "{{ filecloud_admin_password }}"
-    status_code: 200
-    headers:
-      Content-Type: "application/x-www-form-urlencoded"
-    return_content: yes
-    validate_certs: no
-  register: login_response
-
 - name: Configuring Solr
   uri:
-    url: "http://{{ ansible_default_ipv4.address }}/admin/"
+    url: http://{{ ansible_default_ipv4.address }}/admin/confcreate
     method: POST
-    body_format: form-urlencoded
-    body:
-      op: confcreate
     headers:
-      Content-Type: "application/x-www-form-urlencoded"
-    return_content: yes
-    validate_certs: no
-    cookies: "{{ login_response.cookies }}"
+      Cookie: X-XSRF-TOKEN={{ x_xsrf_token }}; X-XSRF-TOKEN-admin={{ x_xsrf_token }}; tonidocloud-ah={{ tonidocloud_ah }}; tonidocloud-as={{ tonidocloud_as }}; tonidocloud-au=admin
+    body_format: form-urlencoded
+    force_basic_auth: yes
 
 - name: restart Solr service 
   systemd:
     name: solr
     state: restarted
+
+# reset admin password
+- name: run PHP script to reset admin password
+  command: 'php resetadminpw.php -p "{{ filecloud_admin_password }}"'
+  args:
+    chdir: '/var/www/html/resources/backup/'
 
 # Apache ssl
 - name: stop apache2
