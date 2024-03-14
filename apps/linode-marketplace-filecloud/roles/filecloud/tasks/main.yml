@@ -98,12 +98,12 @@
 - name: download Solr 9.5.0
   get_url:
     url: https://dlcdn.apache.org/solr/solr/9.5.0/solr-9.5.0.tgz
-    dest: /tmp/solr-9.5.0.tgz
+    dest: /opt/solr-9.5.0.tgz
 
 - name: extract Solr 9.5.0
   unarchive:
-    src: /tmp/solr-9.5.0.tgz
-    dest: /opt
+    src: /opt/solr-9.5.0.tgz
+    dest: /opt/
     remote_src: yes
     extra_opts: --strip-components=1
     creates: /opt/solr-9.5.0
