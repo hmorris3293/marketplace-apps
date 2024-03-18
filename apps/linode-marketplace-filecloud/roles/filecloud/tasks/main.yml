@@ -94,14 +94,17 @@
       value0: "1"
 
 # solr
-- name: installing solr
-  command: filecloudcp -s
+- name:  installing solr
+  shell:
+    cmd: 'filecloudcp -s'
+  args:
+    executable: /bin/bash
+  become: true
 
 - name: copying fcskel into dest
   copy:
     src: /var/www/html/thirdparty/overrides/solarium/Solarium/fcskel
     dest: /opt/solrfcdata/var/solr/data/
-    recurse: yes
 
 - name: changing owner of fccore
   file:
