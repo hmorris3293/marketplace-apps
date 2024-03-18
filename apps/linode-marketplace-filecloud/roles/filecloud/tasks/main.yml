@@ -94,8 +94,8 @@
       value0: "1"
 
 # solr
-- name:
-  shell: filecloudcp -s
+- name: installing solr
+  command: filecloudcp -s
 
 #- name:  installing solr
 #  shell:
