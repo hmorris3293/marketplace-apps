@@ -93,6 +93,32 @@
       param0: "TONIDOCLOUD_GEOIP_ENABLED"
       value0: "1"
 
+# solr
+- name: installing solr
+  command: filecloudcp -s
+
+- name: copying fcskel into dest
+  copy:
+    src: /var/www/html/thirdparty/overrides/solarium/Solarium/fcskel
+    dest: /opt/solrfcdata/var/solr/data/
+    recurse: yes
+
+- name: changing owner of fccore
+  file:
+    path: /opt/solrfcdata/var/solr/data/fccore
+    owner: solr
+    state: directory
+    recurse: yes
+
+- name: Configuring Solr
+  uri:
+    url: http://{{ ansible_default_ipv4.address }}/admin/confcreate
+    method: POST
+    headers:
+      Cookie: X-XSRF-TOKEN={{ x_xsrf_token }}; X-XSRF-TOKEN-admin={{ x_xsrf_token }}; tonidocloud-ah={{ tonidocloud_ah }}; tonidocloud-as={{ tonidocloud_as }}; tonidocloud-au=admin
+    body_format: form-urlencoded
+    force_basic_auth: yes
+
 # Apache ssl
 - name: stop apache2
   systemd:
