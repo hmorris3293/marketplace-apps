@@ -4,10 +4,10 @@
   hostname:
     name: "cpanel"
 
-- name: Remove NetworkManager package
-  yum:
-    name: NetworkManager
-    state: absent
+# - name: Remove NetworkManager package
+#   yum:
+#     name: NetworkManager
+#     state: absent
 
 - name: Fetch cPanel
   get_url:
