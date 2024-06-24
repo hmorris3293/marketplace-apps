@@ -1,0 +1,40 @@
+# Copyright (c) HashiCorp, Inc.
+# SPDX-License-Identifier: MPL-2.0
+
+# Full configuration options can be found at https://github.com/openbao/openbao/tree/main/website/content/docs/configuration
+## UI not available as of 06/24/2024
+#ui = true
+
+#mlock = true
+#disable_mlock = true
+
+storage "raft" {
+  path = "/opt/openbao/data"
+}
+
+#storage "consul" {
+#  address = "127.0.0.1:8500"
+#  path    = "openbao"
+#}
+
+# HTTP listener
+#listener "tcp" {
+#  address = "127.0.0.1:8200"
+#  tls_disable = 1
+#}
+
+# HTTPS listener
+listener "tcp" {
+  address       = "127.0.0.1:8200"
+  tls_cert_file = "/opt/openbao/tls/openbao.crt"
+  tls_key_file  = "/opt/openbao/tls/openbao.key"
+}
+
+api_addr = "https://127.0.0.1:8200"
+cluster_addr = "https://127.0.0.1:8201"
+
+# Example AWS KMS auto unseal
+#seal "awskms" {
+#  region = "us-east-1"
+#  kms_key_id = "REPLACE-ME"
+#}

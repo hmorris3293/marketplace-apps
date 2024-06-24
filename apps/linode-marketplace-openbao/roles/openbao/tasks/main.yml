@@ -1,0 +1,87 @@
+---
+ # openbao
+- name: install required packages
+  apt:
+    name: "{{ item }}"
+    state: present
+  with_items:
+    - wget
+    - unzip
+
+- name: download openbao {{ openbao_version }}
+  get_url: 
+    url: "{{ openbao_download_link }}"
+    dest: "/tmp/openbao.zip"
+
+- name: unzip openbao deb file
+  unarchive:
+    src: "/tmp/openbao.zip"
+    dest: "/tmp"
+
+- name: Install the .deb package
+  apt:
+    deb: "{{ openbao_deb_file }}"
+
+# SSL 
+- name: generate RSA private key
+  openssl_privatekey:
+    path: /opt/openbao/tls/openbao.key
+    size: 4096
+    owner: openbao
+    group: openbao
+
+- name: generate self-signed certificate
+  openssl_certificate:
+    path: /opt/openbao/tls/openbao.crt
+    privatekey_path: /opt/openbao/tls/openbao.key
+    privatekey_passphrase: ""
+    #csr_path: /opt/openbao/tls/openbao.csr
+    provider: selfsigned
+    subjects:
+      - "/O=openbao/CN=openbao"
+    extensions:
+      - name: subjectAltName
+        value: "IP:127.0.0.1"
+    owner: openbao
+    group: openbao
+    mode: '0640'
+    days: 3650
+
+# make backup of default
+- name: creating openbao config backup
+  copy:
+    src: "/etc/openbao/openbao.hcl"
+    dest: "/etc/openbao/openbao.hcl.bak"
+    remote_src: yes
+    owner: openbao
+    group: openbao
+    mode: '0644'
+
+# update openbao config
+- name: update openbao config
+  template:
+    src: "templates/openbao.hcl.j2"
+    dest: "/etc/openbao/openbao.hcl"  
+
+# update systemd file openbao 
+- name: update openbao config
+  template:
+    src: "templates/openbao.service"
+    dest: "/lib/systemd/system/openbao.service" 
+
+- name: reload systemd daemon
+  systemd:
+    daemon_reload: yes     
+
+- name: enable openbao service
+  systemd:
+    name: openbao
+    enabled: yes
+    state: started
+
+- name: execute bao operator init command and capture output
+  command: bao operator init -key-shares=3 -key-threshold=2 | grep 'Token\|Unseal'
+  register: bao_output
+
+- debug:
+    var: bao_output.stdout_lines
