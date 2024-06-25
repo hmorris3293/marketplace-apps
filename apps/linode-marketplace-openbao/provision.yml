@@ -16,5 +16,4 @@
         insertafter: EOF
         path: group_vars/linode/vars
         block: | 
-          postgres_db_password: {{ lookup('password', '/dev/null length=45 chars=ascii_letters,digits') }}
-          django_password: {{ lookup('password', '/dev/null length=45 chars=ascii_letters,digits') }}
+          ca_password: {{ lookup('password', '/dev/null length=45 chars=ascii_letters,digits') }}
