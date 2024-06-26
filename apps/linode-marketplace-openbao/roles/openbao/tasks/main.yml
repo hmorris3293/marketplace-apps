@@ -86,12 +86,18 @@
     organization_name: '{{ organization_name }}'
     email_address: '{{ email_address }}'
     common_name: 'openbao'
+    basic_constraints:
+      - 'CA:TRUE'
+    basic_constraints_critical: yes
+    key_usage:
+      - keyCertSign
+    key_usage_critical: true
     subject_alt_name:
           - IP:{{ privateip }}
     owner: openbao
     group: openbao
     mode: '0644'
-  register: csr
+  register: ca_csr
 
 - name: generate ca crt
   community.crypto.x509_certificate:
