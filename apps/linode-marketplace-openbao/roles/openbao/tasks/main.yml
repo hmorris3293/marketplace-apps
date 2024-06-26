@@ -167,8 +167,8 @@
     enabled: yes
     state: started
 
-- name: source env var & bao operator init command and capture output
-  shell: source ~/.bashrc && bao operator init -key-shares=3 -key-threshold=2 | grep 'Token\|Unseal'
+- name: bao operator init command and capture output
+  shell: "bao operator init -address=http://{{ privateip }}:8200 -key-shares=3 -key-threshold=2"
   register: bao_output
 
 - debug:
