@@ -171,6 +171,7 @@
   shell: "bao status -address=https://{{ privateip }}:8200"
   args:
     executable: /bin/bash
+  ignore_errors: true
 
 - name: bao operator init command and capture output
   shell: "bao operator init -address=https://{{ privateip }}:8200 -key-shares=3 -key-threshold=2"
