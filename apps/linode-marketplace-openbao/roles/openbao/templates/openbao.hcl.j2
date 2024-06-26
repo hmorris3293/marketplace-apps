@@ -19,19 +19,19 @@ storage "raft" {
 
 # HTTP listener
 #listener "tcp" {
-#  address = "127.0.0.1:8200"
+#  address = "{{ privateip }}:8200"
 #  tls_disable = 1
 #}
 
 # HTTPS listener
 listener "tcp" {
-  address       = "127.0.0.1:8200"
+  address       = "{{ privateip }}:8200"
   tls_cert_file = "/opt/openbao/tls/openbao.crt"
   tls_key_file  = "/opt/openbao/tls/openbao.key"
 }
 
-api_addr = "https://127.0.0.1:8200"
-cluster_addr = "https://127.0.0.1:8201"
+api_addr = "https://{{ privateip }}:8200"
+cluster_addr = "https://{{ privateip }}:8201"
 
 # Example AWS KMS auto unseal
 #seal "awskms" {

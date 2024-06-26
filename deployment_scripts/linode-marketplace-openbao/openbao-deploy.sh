@@ -10,7 +10,7 @@ fi
 #<UDF name="disable_root" label="Disable root access over SSH?" oneOf="Yes,No" default="No">
 
 ## Domain Settings
-#<UDF name="token_password" label="Your Linode API token. This is needed to create your server's DNS records" default="">
+#<UDF name="token_password" label="Your Linode API token. Required for Private IP check and DNS records">
 #<UDF name="subdomain" label="Subdomain" example="The subdomain for the DNS record: www (Requires Domain)" default="">
 #<UDF name="domain" label="Domain" example="The domain for the DNS record: example.com (Requires API token)" default="">
 
@@ -38,6 +38,14 @@ function udf {
 
   # sudo username
   username: ${USER_NAME}
+  # ssl config
+  country_name: ${COUNTRY_NAME}
+  state_or_province_name: ${STATE_OR_PROVINCE_NAME}
+  locality_name: ${LOCALITY_NAME}
+  organization_name: ${ORGANIZATION_NAME}
+  email_address: ${EMAIL_ADDRESS}
+  ca_common_name: ${CA_COMMON_NAME}
+  privateip: ${LINODE_IP}
 EOF
 
   if [ "$DISABLE_ROOT" = "Yes" ]; then
@@ -66,11 +74,44 @@ EOF
   fi
 
 }
+function add_privateip {
+  echo "[info] Adding instance private IP"
+  curl -H "Content-Type: application/json" \
+      -H "Authorization: Bearer ${TOKEN_PASSWORD}" \
+      -X POST -d '{
+        "type": "ipv4",
+        "public": false
+      }' \
+      https://api.linode.com/v4/linode/instances/${LINODE_ID}/ips
+}
+
+function get_privateip {
+  curl -s -H "Content-Type: application/json" \
+    -H "Authorization: Bearer ${TOKEN_PASSWORD}" \
+   https://api.linode.com/v4/linode/instances/${LINODE_ID}/ips | \
+   jq -r '.ipv4.private[].address'
+}
+
+function configure_privateip {
+  LINODE_IP=$(get_privateip)
+  if [ ! -z "${LINODE_IP}" ]; then
+          echo "[info] Linode private IP present"
+  else
+          echo "[warn] No private IP found. Adding.."
+          add_privateip
+          LINODE_IP=$(get_privateip)
+          ip addr add ${LINODE_IP}/17 dev eth0 label eth0:1
+  fi
+}
+
 
 function run {
   # install dependancies
   apt-get update
   apt-get install -y git python3 python3-pip python3-venv jq
+
+  # Private IP needed for openbao
+  configure_privateip
 
   # clone repo and set up ansible environment
   git -C /tmp clone ${GIT_REPO}
@@ -85,7 +126,6 @@ function run {
   pip install -r requirements.txt
   ansible-galaxy install -r collections.yml
   
-
   # populate group_vars
   udf
   # run playbooks
