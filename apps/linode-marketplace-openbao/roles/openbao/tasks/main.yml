@@ -169,9 +169,13 @@
 
 - name: check bao status before init
   shell: "source ~/.bashrc && bao status"
+  args:
+    executable: /bin/bash
 
 - name: bao operator init command and capture output
   shell: "bao operator init -address=http://{{ privateip }}:8200 -key-shares=3 -key-threshold=2"
+  args:
+    executable: /bin/bash
   register: bao_output
 
 - debug:
