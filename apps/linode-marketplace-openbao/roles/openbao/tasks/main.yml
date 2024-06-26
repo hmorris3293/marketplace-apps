@@ -22,12 +22,6 @@
   apt:
     deb: "{{ openbao_deb_file }}"
 
-# add env file
-- name: update openbao config
-  template:
-    src: "templates/openbao.env"
-    dest: "/etc/openbao/openbao.env"  
-
 - name: add VAULT_ADDR to .bashrc
   lineinfile:
     path: ~/.bashrc
@@ -43,7 +37,7 @@
 # create root ca for signing
 - name: generate ca key
   community.crypto.openssl_privatekey:
-    path: '/opt/openbao/tls/ca.key'
+    path: "{{ openbao_ssl_path }}ca.key"
     passphrase: '{{ ca_password }}'
     cipher: auto
     return_content: true
@@ -54,8 +48,8 @@
 
 - name: generate ca csr
   community.crypto.openssl_csr:
-    path: '/opt/openbao/tls/ca.csr'
-    privatekey_path: '/opt/openbao/tls/ca.key'
+    path: "{{ openbao_ssl_path }}ca.csr"
+    privatekey_path: "{{ openbao_ssl_path }}ca.key"
     privatekey_passphrase: '{{ ca_password }}'
     country_name: '{{ country_name }}'
     state_or_province_name: '{{ state_or_province_name }}'
@@ -78,10 +72,10 @@
 
 - name: generate ca crt
   community.crypto.x509_certificate:
-    path: '/opt/openbao/tls/ca.crt'
-    privatekey_path: '/opt/openbao/tls/ca.key'
+    path: "{{ openbao_ssl_path }}ca.crt"
+    privatekey_path: "{{ openbao_ssl_path }}ca.key"
     privatekey_passphrase: '{{ ca_password }}'
-    csr_path: '/opt/openbao/tls/ca.csr'
+    csr_path: "{{ openbao_ssl_path }}ca.csr"
     selfsigned_not_after: +3650d
     provider: selfsigned
     owner: openbao
@@ -93,7 +87,7 @@
 # generate ssl keys
 - name: generate server key
   community.crypto.openssl_privatekey:
-    path: '/opt/openbao/tls/openbao.key'
+    path: "{{ openbao_ssl_path }}openbao.key"
     owner: openbao
     group: openbao
     mode: 0600
@@ -102,8 +96,8 @@
 # generate csrs
 - name: generate server csr
   community.crypto.openssl_csr:
-    path: '/opt/openbao/tls/openbao.csr'
-    privatekey_path: '/opt/openbao/tls/openbao.key'
+    path: "{{ openbao_ssl_path }}openbao.csr"
+    privatekey_path: "{{ openbao_ssl_path }}openbao.key"
     country_name: '{{ country_name }}'
     state_or_province_name: '{{ state_or_province_name }}'
     locality_name: '{{ locality_name }}'
@@ -118,9 +112,9 @@
 # sign cert with ca and get client cert
 - name: generate server cert signed with ca cert
   community.crypto.x509_certificate:
-    path: '/opt/openbao/tls/openbao.crt'
-    privatekey_path: '/opt/openbao/tls/openbao.key'
-    csr_path: '/opt/openbao/tls/openbao.csr'
+    path: "{{ openbao_ssl_path }}openbao.crt"
+    privatekey_path: "{{ openbao_ssl_path }}openbao.key"
+    csr_path: "{{ openbao_ssl_path }}openbao.csr"
     ownca_content: '{{ ca_crt.certificate }}'
     ownca_privatekey_content: '{{ ca_key.privatekey }}'
     ownca_privatekey_passphrase: '{{ ca_password }}'
@@ -134,7 +128,7 @@
 
 - name: copy ca certificate
   copy:
-    src: /opt/openbao/tls/ca.crt
+    src: "{{ openbao_ssl_path }}ca.crt"
     dest: /usr/local/share/ca-certificates/ca.crt
     mode: '0644'
 
@@ -144,8 +138,8 @@
 # make backup of default
 - name: creating openbao config backup
   copy:
-    src: "/etc/openbao/openbao.hcl"
-    dest: "/etc/openbao/openbao.hcl.bak"
+    src: "{{ openbao_config }}"
+    dest: "{{ openbao_config }}.bak"
     remote_src: yes
     owner: openbao
     group: openbao
@@ -155,7 +149,7 @@
 - name: update openbao config
   template:
     src: "templates/openbao.hcl.j2"
-    dest: "/etc/openbao/openbao.hcl"  
+    dest: "{{ openbao_config }}"  
 
 # update systemd file openbao 
 - name: update openbao config
@@ -173,8 +167,8 @@
     enabled: yes
     state: started
 
-- name: execute bao operator init command and capture output
-  shell: bao operator init -key-shares=3 -key-threshold=2 | grep 'Token\|Unseal'
+- name: source env var & bao operator init command and capture output
+  shell: source ~/.bashrc && bao operator init -key-shares=3 -key-threshold=2 | grep 'Token\|Unseal'
   register: bao_output
 
 - debug:

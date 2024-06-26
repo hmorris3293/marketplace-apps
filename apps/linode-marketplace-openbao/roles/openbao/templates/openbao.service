@@ -9,7 +9,7 @@ StartLimitBurst=3
 
 [Service]
 Type=notify
-EnvironmentFile=/etc/openbao/openbao.env
+Environment=VAULT_ADDR=https://{{ privateip }}:8200
 User=openbao
 Group=openbao
 ProtectSystem=full
