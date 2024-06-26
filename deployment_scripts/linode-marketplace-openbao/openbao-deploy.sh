@@ -44,7 +44,6 @@ function udf {
   locality_name: ${LOCALITY_NAME}
   organization_name: ${ORGANIZATION_NAME}
   email_address: ${EMAIL_ADDRESS}
-  ca_common_name: ${CA_COMMON_NAME}
   privateip: ${LINODE_IP}
 EOF
 
