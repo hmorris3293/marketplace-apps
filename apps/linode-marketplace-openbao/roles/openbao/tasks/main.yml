@@ -174,7 +174,7 @@
     state: started
 
 - name: execute bao operator init command and capture output
-  command: bao operator init -key-shares=3 -key-threshold=2 | grep 'Token\|Unseal'
+  shell: bao operator init -key-shares=3 -key-threshold=2 | grep 'Token\|Unseal'
   register: bao_output
 
 - debug:
