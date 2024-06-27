@@ -65,6 +65,7 @@
     key_usage_critical: true
     subject_alt_name:
           - IP:{{ privateip }}
+          - IP:{{ ansible_default_ipv4.address }}
     owner: openbao
     group: openbao
     mode: '0644'
@@ -106,6 +107,7 @@
     common_name: 'openbao'
     subject_alt_name:
           - IP:{{ privateip }}
+          - IP:{{ ansible_default_ipv4.address }}
     owner: openbao
     group: openbao
 
@@ -167,17 +169,9 @@
     enabled: yes
     state: started
 
-- name: check bao status before init
-  shell: "bao status -address=https://{{ privateip }}:8200"
-  args:
-    executable: /bin/bash
-  ignore_errors: true
-
 - name: bao operator init command and capture output
   shell: "bao operator init -address=https://{{ privateip }}:8200 -key-shares=3 -key-threshold=2"
   args:
     executable: /bin/bash
   register: bao_output
 
-- debug:
-    var: bao_output.stdout_lines
