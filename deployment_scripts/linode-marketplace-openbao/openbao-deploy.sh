@@ -10,7 +10,6 @@ fi
 #<UDF name="disable_root" label="Disable root access over SSH?" oneOf="Yes,No" default="No">
 # <UDF name="client_ips" label="List of IP addresses to whitelist" example="192.168.1.2, 192.168.1.3" default="" />
 
-
 ## Domain Settings
 #<UDF name="token_password" label="Your Linode API token. Required for Private IP check and DNS records">
 #<UDF name="subdomain" label="Subdomain" example="The subdomain for the DNS record: www (Requires Domain)" default="">
@@ -24,7 +23,6 @@ fi
 # <UDF name="locality_name" label="Locality" example="Example: Philadelphia" />
 # <UDF name="organization_name" label="Organization" example="Example: Akamai Technologies"  />
 # <UDF name="email_address" label="Email Address" example="Example: user@domain.tld" />
-
 
 # git repo
 export GIT_REPO="https://github.com/akamai-compute-marketplace/marketplace-apps.git"
@@ -121,7 +119,6 @@ function configure_privateip {
           ip addr add ${LINODE_IP}/17 dev eth0 label eth0:1
   fi
 }
-
 
 function run {
   # install dependancies

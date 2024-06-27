@@ -1,20 +1,19 @@
-# Linode Django Deployment One-Click APP
+# Linode Openbao Deployment One-Click APP
 
-Django is a web development framework for the Python programming language. It enables rapid development, while favoring pragmatic and clean design. 
+OpenBao is an open source solution to manage, store, and distribute sensitive data including secrets, certificates, and keys. This project is a forked alternative to Vault managed by the Linux Foundation, and development is driven by the community. 
+
+* Warning: While Openbao is a fork of a production ready 1.14.x release of Hashicorp Vault, the Openbao codebase is still early in development and is subject to change as development takes place, we recommend following the [release cycles](https://github.com/openbao/openbao/releases) for any breaking changes to minimize any downtime on a production enviornment *
 
 ## Software Included
 
 | Software  | Version   | Description   |
 | :---      | :----     | :---          |
-| Django    | 5.0.3    | Python web development framework |
-| Nginx  | 1.18.0   | High speed web server and proxy |
-| Postgresql | 14.2 | Relational Database Management System |
-| Python3 | 3.10 | High-level and general purpose programming language |
+| Openbao    | v2.0.0-alpha20240329    | Secrets Management tool |
 
 
 **Supported Distributions:**
 
-- Ubuntu 22.04 LTS
+- Ubuntu 24.04 LTS
 
 ## Linode Helpers Included
 
@@ -37,30 +36,38 @@ SHELL:
 ```
 export TOKEN="YOUR API TOKEN"
 export ROOT_PASS="aComplexP@ssword"
-export SOA_EMAIL_ADDRESS="email@domain.com"
-export DJANGO_USER="admin"
-export DJANGO_PASSWORD="aComplexP@ssword"
+export SUDO_USER="admin"
 
 curl -H "Content-Type: application/json" \
--H "Authorization: Bearer ${TOKEN}" \
+-H "Authorization: Bearer $TOKEN" \
 -X POST -d '{
     "authorized_users": [
-        "user1",
-        "user2"
+        "user1"
     ],
-    "backups_enabled": true,
+    "backups_enabled": false,
     "booted": true,
-    "image": "linode/ubuntu2204",
-    "label": "linode123",
-    "private_ip": true,
+    "image": "linode/ubuntu24.04",
+    "label": "openbao",
+    "private_ip": false,
     "region": "us-southeast",
     "root_pass": "${ROOT_PASS}",
     "stackscript_data": {
-        "djangouser": "${DJANGO_USER}",
-        "djangouserpassword": "${DJANGO_PASSWORD}",
-        "djangouseremail": "${SOA_EMAIL_ADDRESS}"
+        "disable_root": "No",
+        "sslheader": "Yes",
+        "user_name": "${SUDO_USER}",
+        "token_password": "${{TOKEN}}",
+        "country_name": "US",
+        "state_or_province_name": "pennsylvania",
+        "locality_name": "philadelphia",
+        "organization_name": "akamai",
+        "email_address": "user@domain.tld",
+        "client_ips": "192.168.1.2, 192.168.1.3",
+        "soa_email_address": "user@domain.tld"
     },
-    "stackscript_id": 00000000000,
+    "stackscript_id": 0000000,
+    "tags": [
+        "openbao"
+    ],
     "type": "g6-dedicated-4"
 }' https://api.linode.com/v4/linode/instances
 ```
@@ -69,22 +76,19 @@ CLI:
 ```
 export TOKEN="YOUR API TOKEN"
 export ROOT_PASS="aComplexP@ssword"
-export SOA_EMAIL_ADDRESS="email@domain.com"
-export DJANGO_USER="admin"
-export DJANGO_PASSWORD="aComplexP@ssword"
+export SUDO_USER="admin"
 
 linode-cli linodes create \
-  --label linode123 \
-  --root_pass ${ROOT_PASS} \
+  --backups_enabled true \
   --booted true \
-  --stackscript_id 00000000000 \
-  --stackscript_data '{"djangouseremail": "${SOA_EMAIL_ADDRESS}", "disable_root": "no/yes",
-  "djangouser": "${DJANGO_USER}", "djangouserpassword": "${DJANGO_PASSWORD}" }' \
-  --region us-east \
-  --type g6-standard-2 \
-  --authorized_keys "ssh-rsa AAAA_valid_public_ssh_key_123456785== user@their-computer"
-  --authorized_users "myUser"
-  --authorized_users "secondaryUser"
+  --image 'linode/ubuntu24.04' \
+  --label openbao \
+  --private_ip true \
+  --region us-ord \
+  --root_pass "${ROOT_PASS}" \
+  --stackscript_data '{"disable_root": "No","sslheader":"Yes","user_name":"${SUDO_USER}","token_password":"${TOKEN}","country_name":"US","state_or_province_name":"pennsylvania","locality_name":"philadelphia","organization_name":"akamai","email_address":"user@domain.tld","client_ips":"192.168.1.2, 192.168.1.3","soa_email_address":"user@domain.tld"}' \
+  --stackscript_id 00000 \
+  --type g6-dedicated-4
 ```
 
 
