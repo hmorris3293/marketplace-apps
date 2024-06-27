@@ -60,9 +60,9 @@ EOF
   if [ -z ${IPS} ]; then
     echo "[INFO] No valid client IP addressed found"
   else
-    cat << EOF >> ${VARS_PATH}
-  client_ips:
-  ${IPS}
+    cat << EOF >> ${group_vars}
+client_ips:
+${IPS}
 EOF
   fi
 

@@ -25,7 +25,7 @@ storage "raft" {
 
 # HTTPS Public listener
 listener "tcp" {
-  address       = "{{ ansible_default_ipv4.address }}":8200"
+  address       = "{{ ansible_default_ipv4.address }}:8200"
   tls_cert_file = "/opt/openbao/tls/openbao.crt"
   tls_key_file  = "/opt/openbao/tls/openbao.key"
 }
