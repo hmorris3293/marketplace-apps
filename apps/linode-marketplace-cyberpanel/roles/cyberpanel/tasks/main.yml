@@ -21,4 +21,4 @@
     - /opt/requirements.txt
 
 - name: set random admin password
-  command: "adminPass {{ admin_password }}
+  command: "adminPass {{ admin_password }}"
