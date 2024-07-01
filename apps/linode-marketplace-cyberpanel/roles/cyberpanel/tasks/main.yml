@@ -1,31 +1,24 @@
 ---
  # cyberpanel tasks as block
  # cyberpanel scripts want to be ran in /root/
-  - name: Install Cyberpanel
-    block:
-    - name: download Cyberpanel
-      ansible.builtin.get_url: 
-        url: https://raw.githubusercontent.com/litespeedtech/ls-cloud-image/master/Setup/cybersetup.sh  
-        dest: /root/cybersetup.sh 
-        mode: 0755
-    
-    - name: run Cyberpanel installer
-      ansible.builtin.command: 
-        chdir: /root
-        cmd: ./cybersetup.sh
+- name: download cyberpanel install script
+  get_url:
+    url: https://cyberpanel.net/install.sh
+    dest: /opt/install.sh
+    mode: '0755'
 
-    - name: download Cyberpanel init script
-      ansible.builtin.get_url:
-        url: https://raw.githubusercontent.com/litespeedtech/ls-cloud-image/master/Cloud-init/per-instance.sh
-        dest: /root/per-instance.sh
-        mode: 0755
+- name: run the install script with inputs
+  shell: printf "%s\n" 1 1 | bash /opt/install.sh
 
-    - name: run Cyberpanel init script
-      ansible.builtin.command:
-        chdir: /root
-        cmd: ./per-instance.sh  
+- name: clean up installation files
+  file:
+    path: "{{ item }}"
+    state: absent
+  with_items:
+    - /opt/cyberpanel
+    - /opt/cyberpanel.sh
+    - /opt/install.sh
+    - /opt/requirements.txt
 
-    - name: remove temporary httpd dir
-      ansible.builtin.file:
-        path: /tmp/lshttpd/
-        state: absent
+- name: set random admin password
+  command: "adminPass {{ admin_password }}

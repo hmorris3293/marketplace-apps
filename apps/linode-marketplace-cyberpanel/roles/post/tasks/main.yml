@@ -14,4 +14,7 @@
     content: |
       Sudo Username: {{ username }}
       Sudo Password: {{ password }}
+      # Cyberpanel
+      Username: admin
+      Password: {{ admin_password }}
       
