@@ -4,21 +4,19 @@
 - name: download cyberpanel install script
   get_url:
     url: https://cyberpanel.net/install.sh
-    dest: /opt/install.sh
+    dest: /root/install.sh
     mode: '0755'
 
 - name: run the install script with inputs
-  shell: printf "%s\n" 1 1 | bash /opt/install.sh
+  shell: printf "%s\n" 1 1 | bash /root/install.sh
 
 - name: clean up installation files
   file:
     path: "{{ item }}"
     state: absent
   with_items:
-    - /opt/cyberpanel
-    - /opt/cyberpanel.sh
-    - /opt/install.sh
-    - /opt/requirements.txt
+    - /root/cyberpanel.sh
+    - /root/install.sh
 
 - name: set random admin password
   command: "adminPass {{ admin_password }}"
