@@ -2,7 +2,7 @@
 
 OpenBao is an open source solution to manage, store, and distribute sensitive data including secrets, certificates, and keys. This project is a forked alternative to Vault managed by the Linux Foundation, and development is driven by the community. 
 
-* Warning: While Openbao is a fork of a production ready 1.14.x release of Hashicorp Vault, the Openbao codebase is still early in development and is subject to change as development takes place, we recommend following the [release cycles](https://github.com/openbao/openbao/releases) for any breaking changes to minimize any downtime on a production enviornment *
+* Warning: Openbao is now in GA! We recommend following the [release cycles](https://github.com/openbao/openbao/releases) for any breaking changes to minimize any downtime on a production enviornment *
 
 ## Software Included
 
