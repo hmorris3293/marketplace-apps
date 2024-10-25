@@ -8,7 +8,13 @@
 - name: running mysql secure installation
   import_role:
     name: securemysql
+  when: database == 'mariadb'
 
+- name: running mysql secure installation
+  import_role:
+    name: ubuntu_securemysql
+  when: database == 'mysql'
+  
 - name: create database user and grant all database privileges
   mysql_user:
     name: "{{ db_user }}"
