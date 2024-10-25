@@ -71,44 +71,11 @@ EOF
   fi
 
 }
-function add_privateip {
-  echo "[info] Adding instance private IP"
-  curl -H "Content-Type: application/json" \
-      -H "Authorization: Bearer ${TOKEN_PASSWORD}" \
-      -X POST -d '{
-        "type": "ipv4",
-        "public": false
-      }' \
-      https://api.linode.com/v4/linode/instances/${LINODE_ID}/ips
-}
-
-function get_privateip {
-  curl -s -H "Content-Type: application/json" \
-    -H "Authorization: Bearer ${TOKEN_PASSWORD}" \
-   https://api.linode.com/v4/linode/instances/${LINODE_ID}/ips | \
-   jq -r '.ipv4.private[].address'
-}
-
-function configure_privateip {
-  LINODE_IP=$(get_privateip)
-  if [ ! -z "${LINODE_IP}" ]; then
-          echo "[info] Linode private IP present"
-  else
-          echo "[warn] No private IP found. Adding.."
-          add_privateip
-          LINODE_IP=$(get_privateip)
-          echo "Address=$LINODE_IP/17" | tee -a /etc/systemd/network/05-eth0.network
-          systemctl restart systemd-networkd    
-  fi
-}
 
 function run {
   # install dependancies
   apt-get update
   apt-get install -y git python3 python3-pip python3-venv jq
-
-  # Private IP needed for openbao
-  configure_privateip
 
   # clone repo and set up ansible environment
   git -C /tmp clone ${GIT_REPO}
