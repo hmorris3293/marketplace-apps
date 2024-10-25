@@ -9,6 +9,11 @@
   import_role:
     name: securemysql
 
-
+- name: create database user and grant all database privileges
+  mysql_user:
+    name: "{{ db_user }}"
+    password: "{{ db_user_password }}"
+    priv: '*.*:ALL'
+    state: present
 
 
