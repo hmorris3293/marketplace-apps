@@ -1,0 +1,22 @@
+-
+# motd and creds gen
+- name: copy MOTD template to /etc/motd
+  template:
+    src: templates/motd.j2
+    dest: /etc/motd
+
+- name: writing mysql/mariadb creds into file
+  copy:
+    dest: "/home/{{ username }}/.credentials"
+    owner: "{{ username }}"
+    group: "{{ username }}"
+    mode: '0600'
+    content: |
+      Sudo username: {{ username }}
+      Sudo password: {{ password }}
+      # Database
+      DB Root User Password: {{ mysql_root_password }}
+      DB User: {{ db_user}}
+      DB User Password: {{ db_user_password }}
+      
+      **PLEASE REMOVE THIS FILE ONCE YOU'VE LOGGED THESE CREDENTIALS IN A SECURE PASSWORD MANAGER**

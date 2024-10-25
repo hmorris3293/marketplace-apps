@@ -1,0 +1,14 @@
+---
+ # mysql/mariadb
+- name: install required packages
+  apt:
+    name: "{{ database }}-server"
+    state: present
+
+- name: running mysql secure installation
+  import_role:
+    name: securemysql
+
+
+
+
