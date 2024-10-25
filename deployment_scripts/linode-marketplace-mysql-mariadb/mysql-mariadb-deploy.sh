@@ -44,7 +44,6 @@ function udf {
   database: ${DATABASE}
   db_user: ${DBUSER}
 EOF
-  fi
 
   if [ "$DISABLE_ROOT" = "Yes" ]; then
     echo "disable_root: yes" >> ${group_vars};
