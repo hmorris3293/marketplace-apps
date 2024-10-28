@@ -4,8 +4,8 @@
   apt:
     name: "{{ database }}-server"
     state: present
-    environment:
-      DEBIAN_FRONTEND: noninteractive
+    update_cache: yes
+
 
 - name: running mysql secure installation
   import_role:
