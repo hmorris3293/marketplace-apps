@@ -2,10 +2,14 @@
 # mysql_secure_installation (syntax for mariadb, deb11)
 
 - name: update mysql root password
-  mysql_query:
+  mysql_user:
     login_unix_socket: /var/run/mysqld/mysqld.sock
-    login_db: mysql
-    query: "ALTER USER 'root'@'localhost' IDENTIFIED WITH mysql_native_password BY '{{ mysql_root_password }}';"
+    name: root
+    host: localhost
+    password: "{{ mysql_root_password }}"
+    priv: "*.*:ALL,GRANT"
+    auth_plugin: mysql_native_password
+    state: present
 
 - name: delete anonymous users
   mysql_user:
@@ -14,10 +18,10 @@
     host_all: yes
     state: absent
 
-- name: remove remote acces
+- name: remove remote access
   mysql_user:
     login_unix_socket: /var/run/mysqld/mysqld.sock
-    name: ''
+    name: root
     host: '%'
     state: absent
 
