@@ -14,11 +14,13 @@
   mysql_user:
     name: ''
     state: absent
+    login_unix_socket: /var/run/mysqld/mysqld.sock
     host_all: true
 
 - name: Disable remote root login
   mysql_user:
     name: root
+    login_unix_socket: /var/run/mysqld/mysqld.sock
     host: "%"
     state: absent
 
