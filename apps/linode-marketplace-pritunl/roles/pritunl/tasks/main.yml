@@ -46,11 +46,6 @@
       - wireguard-tools
     state: present
 
-- name: update pritunl conf
-  template:
-      src: 'templates/pritunl.conf.j2'
-      dest: '/etc/pritunl.conf'
-
 - name: start and enable pritunl
   systemd:
     name: pritunl

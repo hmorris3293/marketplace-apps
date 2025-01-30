@@ -47,6 +47,51 @@
     state: present
 
 # ssl
+- name: create directory for ssl files
+  file:
+    path: /etc/ssl/mongodb
+    state: directory
+    owner: mongodb
+    group: mongodb
+    mode: '0755'
+
+- name: generate ca key
+  community.crypto.openssl_privatekey_pipe:
+    passphrase: '{{ ca_password }}'
+    cipher: auto
+  register: ca_key
+
+- name: generate ca csr
+  community.crypto.openssl_csr_pipe:
+    privatekey_content: '{{ ca_key.privatekey }}'
+    privatekey_passphrase: '{{ ca_password }}'
+    country_name: '{{ country_name }}'
+    state_or_province_name: '{{ state_or_province_name }}'
+    locality_name: '{{ locality_name }}'
+    organization_name: '{{ organization_name }}'
+    email_address: '{{ email_address }}'
+    common_name: '{{ ca_common_name }}'
+    use_common_name_for_san: false
+    basic_constraints:
+      - 'CA:TRUE'
+    basic_constraints_critical: yes
+    key_usage:
+      - keyCertSign
+    key_usage_critical: true
+  register: ca_csr
+
+- name: generate ca crt
+  community.crypto.x509_certificate:
+    path: /etc/ssl/mongodb/mongodb-ca-crt.pem
+    privatekey_content: '{{ ca_key.privatekey }}'
+    privatekey_passphrase: '{{ ca_password }}'
+    csr_content: '{{ ca_csr.csr }}'
+    selfsigned_not_after: +3650d
+    provider: selfsigned
+    owner: mongodb
+    group: mongodb
+    mode: '0640'
+
 - name: generate server key
   community.crypto.openssl_privatekey:
     path: /etc/ssl/mongodb/mongodb-server-key.pem
@@ -69,14 +114,17 @@
     use_common_name_for_san: false
   register: server_csr
 
-- name: generate self-signed server cert
+- name: generate server cert signed with ca cert
   community.crypto.x509_certificate:
     path: /etc/ssl/mongodb/mongodb-server-crt.pem
     return_content: yes
     privatekey_path: /etc/ssl/mongodb/mongodb-server-key.pem
     csr_content: '{{ server_csr.csr }}'
-    provider: selfsigned  
-    selfsigned_not_after: +3650d 
+    ownca_path: /etc/ssl/mongodb/mongodb-ca-crt.pem
+    ownca_privatekey_content: '{{ ca_key.privatekey }}'
+    ownca_privatekey_passphrase: '{{ ca_password }}'
+    ownca_not_after: +3650d
+    provider: ownca
     owner: mongodb
     group: mongodb
     mode: '0640'
