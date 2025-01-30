@@ -3,4 +3,4 @@ collections:
    version: 0.32.0
 
  - name: community.mongo
-   version: 1.7.9
+   version: 1.7.8
