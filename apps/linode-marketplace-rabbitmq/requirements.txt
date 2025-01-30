@@ -8,4 +8,5 @@ ansible-specdoc==0.0.14
 pyyaml==6.0.1
 dnspython==2.2.1
 pexpect==4.8
+pymongo==4.11
 passlib==1.7.4

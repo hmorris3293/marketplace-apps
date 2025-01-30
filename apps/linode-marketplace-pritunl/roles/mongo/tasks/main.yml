@@ -76,7 +76,7 @@
     privatekey_path: /etc/ssl/mongodb/mongodb-server-key.pem
     csr_content: '{{ server_csr.csr }}'
     provider: selfsigned  
-    not_after: +3650d 
+    selfsigned_not_after: +3650d 
     owner: mongodb
     group: mongodb
     mode: '0640'
