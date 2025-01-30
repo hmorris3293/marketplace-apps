@@ -34,7 +34,7 @@
   community.mongodb.mongodb_user:
     database: admin
     name: mongo-root
-    password: "{{ mongo_root_pass }}"
+    password: "{{ mongo_root_password }}"
     roles: root 
     state: present
 

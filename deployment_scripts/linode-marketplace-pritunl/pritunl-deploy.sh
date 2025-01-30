@@ -15,6 +15,14 @@ fi
 #<UDF name="domain" label="Domain" example="The domain for the DNS record: example.com (Requires API token)" default="">
 #<UDF name="soa_email_address" label="Email address for SOA email" default="">
 
+# SSL
+# <UDF name="sslheader" label="SSL Information" header="Yes" default="Yes" required="Yes">
+# <UDF name="country_name" label="Details for self-signed SSL certificates: Country or Region" oneof="AD,AE,AF,AG,AI,AL,AM,AO,AQ,AR,AS,AT,AU,AW,AX,AZ,BA,BB,BD,BE,BF,BG,BH,BI,BJ,BL,BM,BN,BO,BQ,BR,BS,BT,BV,BW,BY,BZ,CA,CC,CD,CF,CG,CH,CI,CK,CL,CM,CN,CO,CR,CU,CV,CW,CX,CY,CZ,DE,DJ,DK,DM,DO,DZ,EC,EE,EG,EH,ER,ES,ET,FI,FJ,FK,FM,FO,FR,GA,GB,GD,GE,GF,GG,GH,GI,GL,GM,GN,GP,GQ,GR,GS,GT,GU,GW,GY,HK,HM,HN,HR,HT,HU,ID,IE,IL,IM,IN,IO,IQ,IR,IS,IT,JE,JM,JO,JP,KE,KG,KH,KI,KM,KN,KP,KR,KW,KY,KZ,LA,LB,LC,LI,LK,LR,LS,LT,LU,LV,LY,MA,MC,MD,ME,MF,MG,MH,MK,ML,MM,MN,MO,MP,MQ,MR,MS,MT,MU,MV,MW,MX,MY,MZ,NA,NC,NE,NF,NG,NI,NL,NO,NP,NR,NU,NZ,OM,PA,PE,PF,PG,PH,PK,PL,PM,PN,PR,PS,PT,PW,PY,QA,RE,RO,RS,RU,RW,SA,SB,SC,SD,SE,SG,SH,SI,SJ,SK,SL,SM,SN,SO,SR,SS,ST,SV,SX,SY,SZ,TC,TD,TF,TG,TH,TJ,TK,TL,TM,TN,TO,TR,TT,TV,TW,TZ,UA,UG,UM,US,UY,UZ,VA,VC,VE,VG,VI,VN,VU,WF,WS,YE,YT,ZA,ZM,ZW" />
+# <UDF name="state_or_province_name" label="State or Province" example="Example: Pennsylvania" />
+# <UDF name="locality_name" label="Locality" example="Example: Philadelphia" />
+# <UDF name="organization_name" label="Organization" example="Example: Akamai Technologies"  />
+# <UDF name="email_address" label="Email Address" example="Example: user@domain.tld" />
+# <UDF name="common_name" label="Common Name" default="Mongo Server"  />
 
 # git repo
 export GIT_REPO="https://github.com/akamai-compute-marketplace/marketplace-apps.git"
@@ -38,6 +46,13 @@ function udf {
 
   # sudo username
   username: ${USER_NAME}
+  # ssl
+  country_name: ${COUNTRY_NAME}
+  state_or_province_name: ${STATE_OR_PROVINCE_NAME}
+  locality_name: ${LOCALITY_NAME}
+  organization_name: ${ORGANIZATION_NAME}
+  email_address: ${EMAIL_ADDRESS}
+  common_name: ${COMMON_NAME}
 EOF
 
   if [ "$DISABLE_ROOT" = "Yes" ]; then
