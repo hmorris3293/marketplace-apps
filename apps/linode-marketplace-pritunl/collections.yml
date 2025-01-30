@@ -2,5 +2,5 @@ collections:
  - name: linode.cloud
    version: 0.32.0
 
- - name: community.mongod
-   version: 1.7.9
+ - name: community.crypto
+   version: 2.24.0
