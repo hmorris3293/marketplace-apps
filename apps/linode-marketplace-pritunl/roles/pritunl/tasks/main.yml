@@ -1,9 +1,4 @@
 ---
-- name: Add MongoDB repository
-  copy:
-    dest: /etc/apt/sources.list.d/mongodb-org.list
-    content: |
-      deb [ signed-by=/usr/share/keyrings/mongodb-server-8.0.gpg ] https://repo.mongodb.org/apt/ubuntu noble/mongodb-org/8.0 multiverse
 
 - name: Add OpenVPN repository
   copy:
@@ -21,14 +16,6 @@
   apt:
     name: gnupg
     state: present
-
-- name: add mongodb gpg key
-  get_url:
-    url: https://www.mongodb.org/static/pgp/server-8.0.asc
-    dest: /tmp/mongodb-server-8.0.asc
-
-- name: decrypt and store mongodb gpg key
-  shell: gpg --dearmor --yes -o /usr/share/keyrings/mongodb-server-8.0.gpg /tmp/mongodb-server-8.0.asc
 
 - name: add openvpn gpg key
   get_url:
@@ -55,10 +42,8 @@
     name:
       - pritunl
       - openvpn
-      - mongodb-org
       - wireguard
       - wireguard-tools
-      - nginx
     state: present
 
 - name: update pritunl conf
@@ -66,48 +51,30 @@
       src: 'templates/pritunl.conf.j2'
       dest: '/etc/pritunl.conf'
 
-- name: start and enable mongodb
+- name: start and enable pritunl
   systemd:
-    name: "{{ item }}"
+    name: pritunl
     state: started
     enabled: yes
-  with_items:
-    - mongod
-    - pritunl
 
-- name: set ui port 8080
-  shell: pritunl set app.server_port 8443
+- name: set pritunl mongo uri
+  shell: "pritunl set-mongodb mongodb://pritunl:{{ mongo_pritunl_password }}@127.0.0.1:27017/pritunl?authSource=admin"
+  no_log: true
 
-- name: set pritunl redirect equal to true
-  shell: pritunl set app.redirect_server true
+# restart pritunl for pritunl to create collection for app
+- name: restarting pritunl
+  systemd:
+    name: pritunl
+    state: restarted
+
+- name: set pritunl-web user to run the web service
+  shell: pritunl set app.web_systemd true
 
 - name: get login creds
   shell: pritunl default-password
   register: pritunl_credentials
 
-- name: config file setup
-  template:
-    src: templates/nginx.conf.j2
-    dest: "/etc/nginx/sites-available/{{ _domain }}"    
-
-- name: create a symbolic link for the nginx configuration
-  file:
-    src: "/etc/nginx/sites-available/{{ _domain }}"
-    dest: "/etc/nginx/sites-enabled/{{ _domain }}"
-    state: link
-
-- name: unlink the default nginx configuration
-  file:
-    path: "/etc/nginx/sites-enabled/default"
-    state: absent
-  notify: reload nginx service
-  
-# ssl_certbot
-- name: setting up ssl certificate
-  import_role:
-    name: certbot_ssl
-
-# restart pritunl
+# restart pritunl to pick up systemd change
 - name: restarting pritunl
   systemd:
     name: pritunl

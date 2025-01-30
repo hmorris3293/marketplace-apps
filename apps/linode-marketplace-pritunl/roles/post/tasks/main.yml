@@ -13,6 +13,13 @@
       content: |
         Sudo Username: {{ username }}
         Sudo Password: {{ password }}
+        # Mongo
+        Mongo Root User: mongo-root
+        Mongo Root User Password: {{ mongo_root_password }}
+        Mongo Pritunl User: pritunl
+        Mongo Pritunl User Password: {{ mongo_pritunl_password }}
+        
+        # Pritunl
         Pritunl Credentials:
         {{ pritunl_credentials.stdout}}
 
