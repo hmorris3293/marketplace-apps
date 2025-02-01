@@ -70,8 +70,10 @@
     locality_name: '{{ locality_name }}'
     organization_name: '{{ organization_name }}'
     email_address: '{{ email_address }}'
-    common_name: '{{ common_name }}'
-    use_common_name_for_san: false
+    common_name: "localhost"
+    subject_alt_name:
+      - "IP:127.0.0.1"
+      - "DNS:localhost"
     basic_constraints:
       - 'CA:TRUE'
     basic_constraints_critical: yes
@@ -110,8 +112,10 @@
     locality_name: '{{ locality_name }}'
     organization_name: '{{ organization_name }}'
     email_address: '{{ email_address }}'
-    common_name: '{{ common_name }}'
-    use_common_name_for_san: false
+    common_name: "localhost"
+    subject_alt_name:
+      - "IP:127.0.0.1"
+      - "DNS:localhost"
   register: server_csr
 
 - name: generate server cert signed with ca cert
