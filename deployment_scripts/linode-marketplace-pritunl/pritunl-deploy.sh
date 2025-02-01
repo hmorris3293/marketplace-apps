@@ -22,7 +22,6 @@ fi
 # <UDF name="locality_name" label="Locality" example="Example: Philadelphia" />
 # <UDF name="organization_name" label="Organization" example="Example: Akamai Technologies"  />
 # <UDF name="email_address" label="Email Address" example="Example: user@domain.tld" />
-# <UDF name="common_name" label="Common Name" default="Mongo Server"  />
 
 # git repo
 export GIT_REPO="https://github.com/akamai-compute-marketplace/marketplace-apps.git"
@@ -52,7 +51,6 @@ function udf {
   locality_name: ${LOCALITY_NAME}
   organization_name: ${ORGANIZATION_NAME}
   email_address: ${EMAIL_ADDRESS}
-  common_name: ${COMMON_NAME}
 EOF
 
   if [ "$DISABLE_ROOT" = "Yes" ]; then
