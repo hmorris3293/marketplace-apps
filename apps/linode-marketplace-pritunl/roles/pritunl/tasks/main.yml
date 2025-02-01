@@ -53,7 +53,7 @@
     enabled: yes
 
 - name: set pritunl mongo uri
-  shell: "pritunl set-mongodb mongodb://pritunl:{{ mongo_pritunl_password }}@127.0.0.1:27017/pritunl?authSource=admin"
+  shell: "pritunl set-mongodb mongodb://pritunl:{{ mongo_pritunl_password }}@127.0.0.1:27017/pritunl?authSource=pritunl"
   no_log: true
 
 # restart pritunl for pritunl to create collection for app
