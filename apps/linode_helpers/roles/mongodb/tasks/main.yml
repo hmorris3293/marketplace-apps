@@ -1,0 +1,12 @@
+---
+- name: install mongodb {{ mongo_version }}
+  import_tasks: install.yml
+
+- name: create mongo root & admin user
+  import_tasks: users.yml
+
+- name: generate ssl & configure mongodb for authentication
+  import_tasks: ssl.yml
+
+
+  
