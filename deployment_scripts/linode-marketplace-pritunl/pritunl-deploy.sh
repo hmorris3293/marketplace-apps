@@ -23,6 +23,9 @@ fi
 # <UDF name="organization_name" label="Organization" example="Example: Akamai Technologies"  />
 # <UDF name="email_address" label="Email Address" example="Example: user@domain.tld" />
 
+# MongoDB
+#<UDF name="mongo_version" label="MongoDB version" oneOf="8.0">
+
 # git repo
 export GIT_REPO="https://github.com/akamai-compute-marketplace/marketplace-apps.git"
 export WORK_DIR="/tmp/marketplace-apps" 
@@ -51,6 +54,8 @@ function udf {
   locality_name: ${LOCALITY_NAME}
   organization_name: ${ORGANIZATION_NAME}
   email_address: ${EMAIL_ADDRESS}
+  # mongo
+  mongo_version: ${MONGO_VERSION}
 EOF
 
   if [ "$DISABLE_ROOT" = "Yes" ]; then
