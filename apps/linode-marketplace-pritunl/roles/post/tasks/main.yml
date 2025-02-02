@@ -21,5 +21,6 @@
         CA Password: {{ ca_password}}
         # Pritunl
         Pritunl Credentials:
-        {{ pritunl_credentials.stdout}}
+        Pritunl Username: pritunl
+        Pritunl Password: {{ pritunl_credentials.stdout | regex_findall('password: \"(.*?)\"') | first }}
 
