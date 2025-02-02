@@ -111,7 +111,7 @@
 
 - name: updating mongod.conf
   template:
-    src: mongod.conf.j2
+    src: templates/mongod.conf.j2
     dest: "/etc/mongod.conf"
     owner: mongodb
     group: mongodb
