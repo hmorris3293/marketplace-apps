@@ -55,9 +55,8 @@
 - name: set pritunl mongo uri
   shell: "pritunl set-mongodb mongodb://pritunl:{{ mongo_pritunl_password }}@127.0.0.1:27017/pritunl?authSource=pritunl"
   no_log: true
-
-# restart pritunl for pritunl to create collection for app
-- name: restarting pritunl
+ 
+- name: restarting pritunl to create the db for app
   systemd:
     name: pritunl
     state: restarted
@@ -69,8 +68,7 @@
   shell: pritunl default-password
   register: pritunl_credentials
 
-# restart pritunl to pick up systemd change
-- name: restarting pritunl
+- name: restarting pritunl to pick up systemd change
   systemd:
     name: pritunl
     state: restarted
