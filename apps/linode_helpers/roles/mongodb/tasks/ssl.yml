@@ -1,4 +1,9 @@
 ---
+
+- name: set fact for mongo_template_path
+  set_fact:
+    mongo_template_path: "/tmp/marketplace-apps/apps/linode-helpers/roles/mongodb/templates"
+
 # ssl
 - name: create directory for ssl files
   file:
@@ -111,7 +116,7 @@
 
 - name: updating mongod.conf
   template:
-    src: 'templates/mongod.conf.j2'
+    src: '{{ mongo_template_path }}/mongod.conf.j2'
     dest: "/etc/mongod.conf"
     owner: mongodb
     group: mongodb
