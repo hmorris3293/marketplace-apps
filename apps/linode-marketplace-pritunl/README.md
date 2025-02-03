@@ -7,6 +7,8 @@ User-friendly VPN for both individual and commercial use. Choose from three simp
 | Software  | Version   | Description   |
 | :---      | :----     | :---          |
 | Pritunl    | latest    | VPN service |
+| Mongodb    | 8.0    | database |
+
 
 **Supported Distributions:**
 
@@ -72,7 +74,7 @@ linode-cli linodes create \
   --root_pass ${ROOT_PASS} \
   --booted true \
   --stackscript_id 925722 \
-  --stackscript_data '{"soa_email_address": "${SOA_EMAIL_ADDRESS}", 
+  --stackscript_data "soa_email_address": "${SOA_EMAIL_ADDRESS}", 
   --region us-east \
   --type g6-standard-2 \
   --authorized_keys "ssh-rsa AAAA_valid_public_ssh_key_123456785== user@their-computer"
