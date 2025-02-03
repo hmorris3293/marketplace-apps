@@ -1,12 +1,32 @@
 ---
-- name: install mongodb {{ mongo_version }}
-  import_tasks: install.yml
+# To utilize this mongodb helper, you will need a UDF for "mongo_version" to your stackscript.
+# This has been tested confirmed with mongo version 8.0
+- name: add mongodb repository
+  copy:
+    dest: /etc/apt/sources.list.d/mongodb-org.list
+    content: |
+      deb [ signed-by=/usr/share/keyrings/mongodb-server-{{ mongo_version }}.gpg ] https://repo.mongodb.org/apt/ubuntu noble/mongodb-org/{{ mongo_version }} multiverse
 
-- name: create mongo root & admin user
-  import_tasks: users.yml
+- name: add mongodb gpg key
+  get_url:
+    url: https://www.mongodb.org/static/pgp/server-{{ mongo_version }}.asc
+    dest: /tmp/mongodb-server-{{ mongo_version }}.asc
 
-- name: generate ssl & configure mongodb for authentication
-  import_tasks: ssl.yml
+- name: decrypt and store mongodb gpg key
+  shell: gpg --dearmor --yes -o /usr/share/keyrings/mongodb-server-{{ mongo_version }}.gpg /tmp/mongodb-server-{{ mongo_version }}.asc
 
+- name: apt update
+  apt:
+    update_cache: yes
 
-  
+- name: install required packages
+  apt:
+    name:
+      - mongodb-org
+    state: present
+
+- name: start and enable mongodb
+  systemd:
+    name: mongod
+    state: started
+    enabled: yes
