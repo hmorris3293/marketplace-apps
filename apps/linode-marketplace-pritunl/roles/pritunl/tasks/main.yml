@@ -1,12 +1,12 @@
 ---
 
-- name: Add OpenVPN repository
+- name: add openvpn repository
   copy:
     dest: /etc/apt/sources.list.d/openvpn.list
     content: |
       deb [ signed-by=/usr/share/keyrings/openvpn-repo.gpg ] https://build.openvpn.net/debian/openvpn/stable noble main
 
-- name: Add Pritunl repository
+- name: add pritunl repository
   copy:
     dest: /etc/apt/sources.list.d/pritunl.list
     content: |
@@ -67,6 +67,7 @@
 - name: get login creds
   shell: pritunl default-password
   register: pritunl_credentials
+  no_log: true
 
 - name: restarting pritunl to pick up systemd change
   systemd:
