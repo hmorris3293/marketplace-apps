@@ -17,8 +17,6 @@
 
 - name: install aaPanel using shell with echo
   command: echo "y" | /tmp/install_7.0_en.sh aapanel
-  args:
-    executable: /bin/bash
   register: aapanel_install
 
 - name: gather deployment details
