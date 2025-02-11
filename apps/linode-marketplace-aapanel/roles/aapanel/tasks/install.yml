@@ -16,11 +16,11 @@
 #  register: aapanel_install
 
 - name: install aaPanel using shell with echo
-  command: echo "y" | /tmp/install_7.0_en.sh aapanel
+  shell: echo "y" | /tmp/install_7.0_en.sh aapanel
   register: aapanel_install
 
-- name: gather deployment details
+- name: Gather deployment details safely
   set_fact:
-    aapanel_internal_url: "{{ aapanel_install.stdout | regex_findall('aaPanel Internal Address: (https://[0-9\\.]+:[0-9]+/\\S+)') | first }}"
-    aapanel_username: "{{ aapanel_install.stdout | regex_findall('Username: (\\S+)') | first }}"
-    aapanel_password: "{{ aapanel_install.stdout | regex_findall('Password: (\\S+)') | first }}"
+    aapanel_internal_url: "{{ (aapanel_install.stdout | regex_findall('aaPanel Internal Address: (https://[0-9\\.]+:[0-9]+/\\S+)')) | default([], true) | first | default('') }}"
+    aapanel_username: "{{ (aapanel_install.stdout | regex_findall('Username: (\\S+)')) | default([], true) | first | default('') }}"
+    aapanel_password: "{{ (aapanel_install.stdout | regex_findall('Password: (\\S+)')) | default([], true) | first | default('') }}"
