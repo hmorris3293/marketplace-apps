@@ -7,12 +7,19 @@
     dest: "/tmp/install_7.0_en.sh"
     mode: '0755'
 
-- name: Execute aaPanel install script with expect
-  expect:
-    command: /bin/bash /tmp/install_7.0_en.sh aapanel
-    responses:
-      "Do you want to install aaPanel to the /www directory now\\?\\(y/n\\):": "y"
-  timeout: 300
+#- name: Execute aaPanel install script with expect
+#  expect:
+#    command: /tmp/install_7.0_en.sh aapanel
+#    responses:
+#      "Do you want to install aaPanel to the /www directory now\\?\\(y/n\\):": "y"
+#  timeout: 00
+#  register: aapanel_install
+
+- name: install aaPanel using shell with echo
+  shell: echo "y" | /bin/bash /tmp/install_7.0_en.sh aapanel
+  args:
+    executable: /bin/bash
+  timeout: 1200
   register: aapanel_install
 
 - name: gather deployment details
