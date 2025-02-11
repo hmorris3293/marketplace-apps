@@ -16,10 +16,9 @@
 #  register: aapanel_install
 
 - name: install aaPanel using shell with echo
-  shell: echo "y" | /bin/bash /tmp/install_7.0_en.sh aapanel
+  shell: echo "y" | /tmp/install_7.0_en.sh aapanel
   args:
     executable: /bin/bash
-  timeout: 1200
   register: aapanel_install
 
 - name: gather deployment details
