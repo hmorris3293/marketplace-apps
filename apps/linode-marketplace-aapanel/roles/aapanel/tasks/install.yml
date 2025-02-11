@@ -19,8 +19,8 @@
   shell: echo "y" | /tmp/install_7.0_en.sh aapanel
   register: aapanel_install
 
-- name: Gather deployment details safely
+- name: gather deployment details
   set_fact:
     aapanel_internal_url: "{{ (aapanel_install.stdout | regex_findall('aaPanel Internal Address: (https://[0-9\\.]+:[0-9]+/\\S+)')) | default([], true) | first | default('') }}"
-    aapanel_username: "{{ (aapanel_install.stdout | regex_findall('Username: (\\S+)')) | default([], true) | first | default('') }}"
-    aapanel_password: "{{ (aapanel_install.stdout | regex_findall('Password: (\\S+)')) | default([], true) | first | default('') }}"
+    aapanel_username: "{{ (aapanel_install.stdout | regex_findall('username:\\s*(\\S+)') | first | default('') }}"
+    aapanel_password: "{{ (aapanel_install.stdout | regex_findall('password:\\s*(\\S+)') | first | default('') }}"
