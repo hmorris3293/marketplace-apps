@@ -16,7 +16,7 @@
 #  register: aapanel_install
 
 - name: install aaPanel using shell with echo
-  shell: echo "y" | /tmp/install_7.0_en.sh aapanel
+  command: echo "y" | /tmp/install_7.0_en.sh aapanel
   args:
     executable: /bin/bash
   register: aapanel_install
