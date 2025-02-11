@@ -15,13 +15,17 @@
 #  timeout: 00
 #  register: aapanel_install
 
-#- name: install aaPanel using shell with echo
-#  shell: timeout 120 echo "y" | /tmp/install_7.0_en.sh aapanel | tee /tmp/aapanel_install.log
-#  register: aapanel_install
-
-- name: Run aaPanel installation with echo in script module
-  script: bash -c 'echo "y" | /tmp/install_7.0_en.sh aapanel'
+- name: Run aaPanel installation with echo in shell module
+  shell: echo "y" | /tmp/install_7.0_en.sh aapanel | tee /tmp/aapanel_install.log
   register: aapanel_install
+  failed_when: aapanel_install.rc != 0
+
+- name: Wait for installation to complete (if necessary)
+  wait_for:
+    path: /tmp/aapanel_install.log
+    state: file
+    timeout: 300
+  when: aapanel_install.rc == 0
 
 - name: gather deployment details
   set_fact:
