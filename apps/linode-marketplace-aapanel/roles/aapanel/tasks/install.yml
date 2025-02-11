@@ -16,7 +16,7 @@
 #  register: aapanel_install
 
 - name: install aaPanel using shell with echo
-  shell: echo "y" | /tmp/install_7.0_en.sh aapanel
+  shell: echo "y" | /tmp/install_7.0_en.sh aapanel | tee /tmp/aapanel_install.log
   register: aapanel_install
 
 - name: gather deployment details
