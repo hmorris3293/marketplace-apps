@@ -7,6 +7,12 @@
     dest: "/tmp/install_7.0_en.sh"
     mode: '0755'
 
+- name: add exit 0 to the end of the file
+  lineinfile:
+    path: /tmp/install_7.0_en.sh
+    line: 'exit 0'
+    create: yes
+    insertafter: EOF
 #- name: Execute aaPanel install script with expect
 #  expect:
 #    command: /tmp/install_7.0_en.sh aapanel
