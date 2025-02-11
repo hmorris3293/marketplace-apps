@@ -20,12 +20,12 @@
   register: aapanel_install
   failed_when: aapanel_install.rc != 0
 
-- name: Wait for installation to complete (if necessary)
-  wait_for:
-    path: /tmp/aapanel_install.log
-    state: file
-    timeout: 300
-  when: aapanel_install.rc == 0
+- name: Wait for "Installed successfully!" in the log file
+  shell: grep -q "Installed successfully!" /tmp/aapanel_install.log
+  register: wait_for_success
+  retries: 10
+  delay: 30
+  until: wait_for_success.rc == 0
 
 - name: gather deployment details
   set_fact:
