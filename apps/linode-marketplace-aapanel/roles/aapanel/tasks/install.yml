@@ -7,12 +7,6 @@
     dest: "/tmp/install_7.0_en.sh"
     mode: '0755'
 
-- name: add exit 0 to the end of the file
-  lineinfile:
-    path: /tmp/install_7.0_en.sh
-    line: 'exit 0'
-    create: yes
-    insertafter: EOF
 #- name: Execute aaPanel install script with expect
 #  expect:
 #    command: /tmp/install_7.0_en.sh aapanel
@@ -20,12 +14,14 @@
 #      "Do you want to install aaPanel to the /www directory now\\?\\(y/n\\):": "y"
 #  timeout: 00
 #  register: aapanel_install
-
+# make it async
 - name: Run aaPanel installation with echo in shell module
   shell: echo "y" | /tmp/install_7.0_en.sh aapanel | tee /tmp/aapanel_install.log
   register: aapanel_install
-  failed_when: aapanel_install.rc != 0
-
+  #failed_when: aapanel_install.rc != 0
+  async: 0
+  poll: 0
+  
 - name: Wait for "Installed successfully!" in the log file
   shell: grep -q "Installed successfully!" /tmp/aapanel_install.log
   register: wait_for_success
