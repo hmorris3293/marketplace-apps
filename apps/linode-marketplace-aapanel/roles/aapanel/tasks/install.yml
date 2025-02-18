@@ -19,7 +19,7 @@
   shell: echo "y" | /tmp/install_7.0_en.sh aapanel | tee /tmp/aapanel_install.log
   register: aapanel_install
   #failed_when: aapanel_install.rc != 0
-  async: 0
+  async: 120
   poll: 0
   
 - name: Wait for "Installed successfully!" in the log file
