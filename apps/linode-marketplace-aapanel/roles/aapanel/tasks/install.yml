@@ -10,8 +10,8 @@
 - name: run aaPanel installation script
   shell: echo "y" | /tmp/install_7.0_en.sh aapanel | tee /tmp/aapanel_install.log
   register: aapanel_install
-  async: 120
-  poll: 0
+#  async: 120
+#  poll: 0
   
 #- name: wait for "Installed successfully!" in the log file
 #  shell: grep -q "Installed successfully!" /tmp/aapanel_install.log
@@ -20,13 +20,13 @@
 #  delay: 30
 #  until: wait_for_success.rc == 0
 
-- name: wait for aaPanel installation to complete
-  async_status:
-    jid: "{{ aapanel_install.ansible_job_id }}"
-  register: aapanel_result
-  until: "'Installed successfully' in aapanel_result.stdout"
-  retries: 20
-  delay: 10
+#- name: wait for aaPanel installation to complete
+#  async_status:
+#    jid: "{{ aapanel_install.ansible_job_id }}"
+#  register: aapanel_result
+#  until: "'Installed successfully' in aapanel_result.stdout"
+#  retries: 20
+#  delay: 10
 
 - name: gather deployment details
   set_fact:
