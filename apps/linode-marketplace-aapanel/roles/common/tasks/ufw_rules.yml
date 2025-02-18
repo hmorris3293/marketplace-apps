@@ -42,3 +42,9 @@
     port: '11204'
     proto: tcp
 
+- name: Allow all access to tcp port 30888
+  community.general.ufw:
+    rule: allow
+    port: '30888'
+    proto: tcp
+

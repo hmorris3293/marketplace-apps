@@ -9,27 +9,13 @@
 
 - name: run aaPanel installation script
   shell: echo "y" | /tmp/install_7.0_en.sh aapanel | tee /tmp/aapanel_install.log
-  register: aapanel_install
-#  async: 120
-#  poll: 0
-  
-#- name: wait for "Installed successfully!" in the log file
-#  shell: grep -q "Installed successfully!" /tmp/aapanel_install.log
-#  register: wait_for_success
-#  retries: 5
-#  delay: 30
-#  until: wait_for_success.rc == 0
 
-#- name: wait for aaPanel installation to complete
-#  async_status:
-#    jid: "{{ aapanel_install.ansible_job_id }}"
-#  register: aapanel_result
-#  until: "'Installed successfully' in aapanel_result.stdout"
-#  retries: 20
-#  delay: 10
+- name: obtain credentials
+  command: bt 14
+  register: aapanel_credentials
 
 - name: gather deployment details
   set_fact:
-    aapanel_internal_url: "{{ (aapanel_install.stdout | regex_findall('aaPanel Internal Address: (https://[0-9\\.]+:[0-9]+/\\S+)') | default([], true) | first | default('')) if aapanel_install.stdout is defined else '' }}"
-    aapanel_username: "{{ (aapanel_install.stdout | regex_findall('username:\\s*(\\S+)') | first | default('')) if aapanel_install.stdout is defined else '' }}"
-    aapanel_password: "{{ (aapanel_install.stdout | regex_findall('password:\\s*(\\S+)') | first | default('')) if aapanel_install.stdout is defined else '' }}"
+    aapanel_internal_url: "{{ aapanel_credentials.stdout | regex_search('https?://[\\d\\.]+(:\\d+)?(/[\\S]*)?') }}"
+    aapanel_username: "{{ aapanel_credentials.stdout | regex_findall('username:\\s*(\\S+)') | first }}"
+    aapanel_password: "{{ aapanel_credentials.stdout | regex_findall('password:\\s*(\\S+)') | first }}"

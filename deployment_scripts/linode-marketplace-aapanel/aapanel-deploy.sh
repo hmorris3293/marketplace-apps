@@ -15,7 +15,6 @@ fi
 #<UDF name="domain" label="Domain" example="The domain for the DNS record: example.com (Requires API token)" default="">
 #<UDF name="soa_email_address" label="Email address (for SOA record))" default="">
 
-
 # git repo
 export GIT_REPO="https://github.com/akamai-compute-marketplace/marketplace-apps.git"
 export WORK_DIR="/tmp/marketplace-apps" 
@@ -70,7 +69,7 @@ EOF
 function run {
   # install dependancies
   apt-get update
-  apt-get install -y git python3 python3-pip  libpq-dev
+  apt-get install -y git python3 python3-pip libpq-dev
 
   # clone repo and set up ansible environment
   git -C /tmp clone ${GIT_REPO}
