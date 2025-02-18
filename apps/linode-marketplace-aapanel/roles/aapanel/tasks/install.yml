@@ -20,10 +20,10 @@
 #  delay: 30
 #  until: wait_for_success.rc == 0
 
-- name: wait for installation to complete
+- name: Wait for installation to complete
   retries: 5
   delay: 30
-  until: "'Installed successfully!' in aapanel_install.stdout"
+  until: aapanel_install.stdout is search("Installed successfully!")
 
 - name: gather deployment details
   set_fact:
