@@ -7,27 +7,23 @@
     dest: "/tmp/install_7.0_en.sh"
     mode: '0755'
 
-#- name: Execute aaPanel install script with expect
-#  expect:
-#    command: /tmp/install_7.0_en.sh aapanel
-#    responses:
-#      "Do you want to install aaPanel to the /www directory now\\?\\(y/n\\):": "y"
-#  timeout: 00
-#  register: aapanel_install
-# make it async
-- name: Run aaPanel installation with echo in shell module
+- name: run aaPanel installation script
   shell: echo "y" | /tmp/install_7.0_en.sh aapanel | tee /tmp/aapanel_install.log
   register: aapanel_install
-  #failed_when: aapanel_install.rc != 0
   async: 120
   poll: 0
   
-- name: Wait for "Installed successfully!" in the log file
-  shell: grep -q "Installed successfully!" /tmp/aapanel_install.log
-  register: wait_for_success
-  retries: 10
+#- name: wait for "Installed successfully!" in the log file
+#  shell: grep -q "Installed successfully!" /tmp/aapanel_install.log
+#  register: wait_for_success
+#  retries: 5
+#  delay: 30
+#  until: wait_for_success.rc == 0
+
+- name: wait for installation to complete
+  retries: 5
   delay: 30
-  until: wait_for_success.rc == 0
+  until: "'Installed successfully!' in aapanel_install.stdout"
 
 - name: gather deployment details
   set_fact:
