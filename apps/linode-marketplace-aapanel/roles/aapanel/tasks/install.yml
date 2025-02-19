@@ -21,10 +21,12 @@
     aapanel_password: "{{ aapanel_credentials.stdout | regex_findall('password:\\s*(\\S+)') | first }}"
     aapanel_port: "{{ aapanel_credentials.stdout | regex_findall(':([0-9]+)(?=/)') | first }}"
 
-
 # The port is randomized, so have to allow it after aapanel is installed
 - name: Allow all access to tcp port {{ aapanel_port }}
   community.general.ufw:
     rule: allow
     port: '{{ aapanel_port }}'
     proto: tcp
+
+- name: restart aapanel service
+  command: bt restart
