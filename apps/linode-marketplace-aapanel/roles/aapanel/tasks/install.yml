@@ -27,11 +27,4 @@
     rule: allow
     port: '{{ aapanel_port }}'
     proto: tcp
-
-- name: restart aapanel service
-  command: bt restart
-
-- name: wait for port {{ aapanel_port }} to be accessible
-  ansible.builtin.wait_for:
-    port: "{{ aapanel_port }}"
-    timeout: 45  
+  notify: restart aapanel
