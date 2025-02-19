@@ -16,3 +16,6 @@
         # aaPanel
         aaPanel Username: {{ aapanel_username }}
         aaPanel Password: {{ aapanel_password }}
+
+  - name: restart aapanel
+    command: bt restart
