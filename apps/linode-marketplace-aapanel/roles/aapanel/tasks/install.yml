@@ -33,5 +33,5 @@
 
 - name: wait for port {{ aapanel_port }} to be accessible
   ansible.builtin.wait_for:
-    port: {{ aapanel_port }}
-    timeout: 30  
+    port: "{{ aapanel_port }}"
+    timeout: 45  
