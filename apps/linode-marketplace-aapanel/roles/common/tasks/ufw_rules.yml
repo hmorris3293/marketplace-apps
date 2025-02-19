@@ -36,15 +36,6 @@
     port: '888'
     proto: tcp
 
-- name: Allow all access to tcp port 11204
-  community.general.ufw:
-    rule: allow
-    port: '11204'
-    proto: tcp
 
-- name: Allow all access to tcp port 30888
-  community.general.ufw:
-    rule: allow
-    port: '30888'
-    proto: tcp
+
 
