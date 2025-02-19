@@ -27,4 +27,3 @@
     rule: allow
     port: '{{ aapanel_port }}'
     proto: tcp
-  notify: restart aapanel

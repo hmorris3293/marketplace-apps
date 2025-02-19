@@ -1,5 +1,0 @@
----
-# handlers
-
-- name: restart aapanel
-  command: bt restart
