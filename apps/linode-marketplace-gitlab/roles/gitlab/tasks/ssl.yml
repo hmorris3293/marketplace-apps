@@ -1,0 +1,15 @@
+---
+# ssl_certbot
+- name: setting up ssl certificate
+  import_role:
+    name: certbot_ssl
+
+- name: configure gitlab
+  template:
+    src: gitlab.rb.j2
+    dest: /etc/gitlab/gitlab.rb
+
+- name: reconfigure gitlab
+  shell: gitlab-ctl reconfigure
+
+  

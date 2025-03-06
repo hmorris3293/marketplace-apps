@@ -1,0 +1,5 @@
+---
+# default variables
+
+fullchain: '/etc/letsencrypt/live/{{ _domain }}/fullchain.pem'
+privatekey: '/etc/letsencrypt/live/{{ _domain }}/privkey.pem'

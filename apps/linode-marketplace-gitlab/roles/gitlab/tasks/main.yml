@@ -1,0 +1,11 @@
+---
+# main
+
+- name: install required packages
+  import_tasks: install.yml
+
+- name: install postfix
+  import_tasks: postfix.yml
+
+- name: install ssl certs
+  import_tasks: ssl.yml  
