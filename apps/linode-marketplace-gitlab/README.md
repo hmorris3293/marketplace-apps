@@ -1,15 +1,15 @@
-# Akamai Compute Backstage Deployment One-Click APP
+# Akamai Compute Gitlab Deployment One-Click APP
 
-Backstage is an open-source platform for building developer portals, designed to simplify and unify software development processes. It provides a centralized hub for managing services, tools, and documentation, enabling teams to improve efficiency, collaboration, and scalability across projects.
+GitLab is a complete solution for all aspects of your software development. At its core, GitLab serves as your centralized remote Git repository. GitLab also features built-in tools that represent every task in your development workflow, from planning to testing to releasing.
+
+Self-hosting your software development with GitLab offers total control of your codebase. At the same time, its familiar interface will ease collaboration for you and your team. GitLab is the most popular self-hosted Git repository software, so you’ll benefit from a robust set of integrated tools and an active community.
 
 ## Software Included
 
 | Software  | Version   | Description   |
 | :---      | :----     | :---          |
-| Backstage    | Latest    | Platform for building developer portals |
-| Postgresql | 16.6 | Database management system | 
-| Yarn | 4.4.1 | Package manager for Javascript projects | 
-| NVM | latest | Node Version Manager to manage multiple versions of node on system | 
+| Gitlab    | Latest    | Software development Git tool |
+| Postfix   | Latest    | Mail Transfer Agent | 
 
 
 **Supported Distributions:**
@@ -28,7 +28,7 @@ Backstage is an open-source platform for building developer portals, designed to
 
 ## Use our API
 
-Customers can choose to the deploy the Backstage app through the Linode Marketplace or directly using API. Before using the commands below, you will need to create an [API token](https://www.linode.com/docs/products/tools/linode-api/get-started/#create-an-api-token) or configure [linode-cli](https://www.linode.com/products/cli/) on an environment.
+Customers can choose to the deploy the Gitlab app through the Linode Marketplace or directly using API. Before using the commands below, you will need to create an [API token](https://www.linode.com/docs/products/tools/linode-api/get-started/#create-an-api-token) or configure [linode-cli](https://www.linode.com/products/cli/) on an environment.
 
 Make sure that the following values are updated at the top of the code block before running the commands:
 - TOKEN
@@ -37,13 +37,6 @@ Make sure that the following values are updated at the top of the code block bef
 - SOA_EMAIL_ADDRESS
 - SUBDOMAIN
 - DOMAIN
-- ALLOW_IPS
-- APP_NAME
-- GITHUB_OAUTH_CLIENT_ID
-- GITHUB_OAUTH_CLIENT_SECRET
-- GITHUB_USERNAME
-- GITHUB_PAT
-- BACKSTAGE_ORGNAME
 
 SHELL:
 ```
@@ -51,46 +44,29 @@ export TOKEN="YOUR API TOKEN"
 export ROOT_PASS="aComplexP@ssword"
 export USERNAME="user1"
 export SOA_EMAIL_ADDRESS="email@domain.com"
-export SUBDOMAIN=backstage-app""
-export DOMAIN="example.com"
-export ALLOW_IPS=""
-export APP_NAME="backstage-app"
-export GITHUB_OAUTH_CLIENT_ID=""
-export GITHUB_OAUTH_CLIENT_SECRET=""
-export GITHUB_USERNAME=""
-export GITHUB_PAT=""
-export BACKSTAGE_ORGNAME="Akamai Technologies"
 
 curl -H "Content-Type: application/json" \
--H "Authorization: Bearer $TOKEN" \
--X POST -d '{
-    "image": "linode/ubuntu24.04",
-    "private_ip": true,
-    "region": "us-mia",
-    "stackscript_data": {
-        "user_name": "${USERNAME}",
-        "disable_root": "No",
-        "token_password": "${TOKEN}",
-        "subdomain": "${SUBDOMAIN}",
-        "domain": "${DOMAIN}",
-        "soa_email_address": "${SOA_EMAIL_ADDRESS}",
-        "allowed_ips": "${ALLOW_IPS}",
-        "app_name": "${APP_NAME}",
-        "github_oauth_client_id": "${GITHUB_OAUTH_CLIENT_ID}",
-        "github_oauth_client_secret": "$GITHUB_OAUTH_CLIENT_SECRET",
-        "github_username": "$GITHUB_USERNAME",
-        "backstage_orgname": "${BACKSTAGE_ORGNAME}",
-        "github_pat": "${GITHUB_PAT}"
-    },
-    "stackscript_id": 000000,
-    "type": "g6-dedicated-4",
-    "label": "backstage-server",
-    "root_pass": "${ROOT_PASS}",
-    "authorized_users": [
-        "user1"
-    ],
-    "disk_encryption": "enabled"
-}' https://api.linode.com/v4/linode/instances
+    -H "Authorization: Bearer ${TOKEN}" \
+    -X POST -d '{
+      "backups_enabled": true,
+      "swap_size": 512,
+      "image": "linode/ubuntu2404",
+      "root_pass": "${ROOT_PASS}",
+      "stackscript_id": 401707,
+      "stackscript_data": {
+        "soa_email_address": "${SOA_EMAIL_ADDRESS}"
+      },
+      "authorized_users": [
+        "myUser",
+        "secondaryUser"
+      ],
+      "booted": true,
+      "label": "linode123",
+      "type": "g6-standard-2",
+      "region": "us-east",
+      "group": "Linode-Group"
+    }' \
+https://api.linode.com/v4/linode/instances
 ```
 
 CLI:
@@ -98,28 +74,19 @@ CLI:
 export TOKEN="YOUR API TOKEN"
 export ROOT_PASS="aComplexP@ssword"
 export USERNAME="user1"
-export SOA_EMAIL_ADDRESS="email@example.com"
-export SUBDOMAIN=backstage-app""
-export DOMAIN="example.com"
-export ALLOW_IPS=""
-export APP_NAME="backstage-app"
-export GITHUB_OAUTH_CLIENT_ID=""
-export GITHUB_OAUTH_CLIENT_SECRET=""
-export GITHUB_USERNAME=""
-export GITHUB_PAT=""
-export BACKSTAGE_ORGNAME="Akamai Technologies"
+export SOA_EMAIL_ADDRESS="email@domain.com"
 
 linode-cli linodes create \
-  --image 'linode/ubuntu24.04' \
-  --private_ip true \
-  --region us-mia \
-  --stackscript_data '{"user_name": "{USERNAME}","disable_root":"No","token_password":"${TOKEN}","subdomain":"${SUBDOMAIN}","domain":"${DOMAIN}","soa_email_address":"${SOA_EMAIL_ADDRESS}","allowed_ips":"${ALLOW_IPS}","app_name":"${APP_NAME}","github_oauth_client_id":"${GITHUB_OAUTH_CLIENT_ID}","github_oauth_client_secret":"${GITHUB_OAUTH_CLIENT_SECRET}","github_username":"${GITHUB_USERNAME}","backstage_orgname":"${BACKSTAGE_ORGNAME}","github_pat":"${GITHUB_PAT}"}' \
-  --stackscript_id 000000 \
-  --type g6-dedicated-4 \
-  --label backstage-server \
+  --label linode123 \
   --root_pass ${ROOT_PASS} \
-  --authorized_users user1 \
-  --disk_encryption enabled
+  --booted true \
+  --stackscript_id 401707 \
+  --stackscript_data '{"soa_email_address": "${SOA_EMAIL_ADDRESS}", \
+  --region us-east \
+  --type g6-standard-2 \
+  --authorized_keys "ssh-rsa AAAA_valid_public_ssh_key_123456785== user@their-computer"
+  --authorized_users "myUser"
+  --authorized_users "secondaryUser"
 ```
 
 ## Resources

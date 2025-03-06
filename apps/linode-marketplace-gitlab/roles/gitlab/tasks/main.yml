@@ -6,6 +6,3 @@
 
 - name: install postfix
   import_tasks: postfix.yml
-
-- name: install ssl certs
-  import_tasks: ssl.yml  

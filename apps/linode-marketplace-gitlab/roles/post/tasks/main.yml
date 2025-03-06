@@ -13,3 +13,6 @@
       content: |
         Sudo Username: {{ username }}
         Sudo Password: {{ password }}
+
+        Gitlab User: root
+        Gitlab Password: {{ gitlab_root_password }}

@@ -1,4 +1,5 @@
 external_url "https://{{ _domain }}"
+gitlab_rails['gitlab_signup_enabled'] = false
 
 letsencrypt['enable'] = true
 letsencrypt['contact_emails'] = ["{{ soa_email_address }}"]
