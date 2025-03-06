@@ -10,9 +10,9 @@ fi
 #<UDF name="disable_root" label="Disable root access over SSH?" oneOf="Yes,No" default="No">
 
 ## Domain Settings
-#<UDF name="token_password" label="Your Linode API token. This is needed to create your server's DNS records">
-#<UDF name="subdomain" label="Subdomain" example="The subdomain for the DNS record: www (Requires Domain)">
-#<UDF name="domain" label="Domain" example="The domain for the DNS record: example.com (Requires API token)">
+#<UDF name="token_password" label="Your Linode API token. This is needed to create your server's DNS records" default="">
+#<UDF name="subdomain" label="Subdomain" example="The subdomain for the DNS record: www (Requires Domain)" default="">
+#<UDF name="domain" label="Domain" example="The domain for the DNS record: example.com (Requires API token)" default="">
 
 ## gitlab setup
 #<UDF name="soa_email_address" label="Email address (for the Let's Encrypt SSL certificate)" example="user@example.com">
