@@ -9,12 +9,16 @@
       - ca-certificates
       - tzdata
       - perl
+      - gnupg
+      - apt-transport-https
     state: latest
     update_cache: true
 
 - name: add gitLab package repository install
   shell: curl -fsSL https://packages.gitlab.com/install/repositories/gitlab/gitlab-ce/script.deb.sh | bash
-
+  args:
+    executable: /bin/bash
+    
 - name: install gitlab
   apt:
     name: gitlab-ce

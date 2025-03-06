@@ -1,9 +1,8 @@
-external_url '{{ _domain }}'
+external_url "https://{{ _domain }}"
 
-nginx['enable'] = true
-nginx['redirect_http_to_https'] = true
-nginx['ssl_certificate'] = '{{ fullchain }}'
-nginx['ssl_certificate_key'] = '{{ privatekey }}'
+letsencrypt['enable'] = true
+letsencrypt['contact_emails'] = ["{{ soa_email_address }}"]
+letsencrypt['auto_renew'] = true
 
 gitlab_rails['smtp_enable'] = true
 gitlab_rails['smtp_address'] = "localhost"
