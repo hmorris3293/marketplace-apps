@@ -32,6 +32,8 @@
 
 - name: reconfigure gitlab
   shell: gitlab-ctl reconfigure
+  args:
+    executable: /bin/bash
 
 - name: obtain defaut password
   slurp:
