@@ -32,8 +32,8 @@
 
 - name: reconfigure gitlab
   shell: gitlab-ctl reconfigure
-  args:
-    executable: /bin/bash
+  async: 120
+  poll: 30
 
 - name: obtain defaut password
   slurp:
