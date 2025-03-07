@@ -32,7 +32,7 @@
 
 - name: reconfigure gitlab
   shell: gitlab-ctl reconfigure
-  async: 360
+  async: 480
   poll: 0
 
 - name: obtain defaut password
