@@ -35,7 +35,7 @@
   async: 600
   poll: 10
 
-- name: obtain defaut password
+- name: obtain default password
   slurp:
     src: /etc/gitlab/initial_root_password
   register: gitlab_password
@@ -43,5 +43,5 @@
 
 - name: Extract the password using regex
   set_fact:
-    gitlab_root_password: "{{ gitlab_password_file['content'] | b64decode | regex_findall('Password: (.+)') | first }}"
+    gitlab_root_password: "{{ gitlab_password['content'] | b64decode | regex_findall('Password: (.+)') | first }}"
   no_log: true
