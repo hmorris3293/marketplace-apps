@@ -47,6 +47,7 @@
   no_log: true
 
 - name: disable gitlab user signups
-  command: gitlab-rails runner 'ApplicationSetting.find_by(id: 1)&.update!(signup_enabled: false)'
+  command: >
+    gitlab-rails runner 'ApplicationSetting.find_by(id: 1)&.update!(signup_enabled: false)'
   become: yes
   become_user: git
