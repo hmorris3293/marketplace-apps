@@ -14,8 +14,16 @@
     dest: /tmp/install-pihole.sh
     mode: '0755'
 
-- name: run Pi-hole installer
+- name: run pi-hole installer in background
   shell: /tmp/install-pihole.sh --unattended
+  async: 500  
+  poll: 0  
+
+- name: wait for port 8080
+  wait_for:
+    port: 8080
+    delay: 5
+    timeout: 600
 
 - name: update config to listen on 8080/8443
   replace:
