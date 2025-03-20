@@ -16,6 +16,8 @@
 
 - name: run Pi-hole installer
   command: bash /tmp/install-pihole.sh --unattended
+  async: 600
+  poll: 10
 
 - name: update config to listen on 8080/8443
   replace:
@@ -25,4 +27,6 @@
 
 - name: reconfig pihole
   command: pihole -r
+  async: 400
+  poll: 10
 
