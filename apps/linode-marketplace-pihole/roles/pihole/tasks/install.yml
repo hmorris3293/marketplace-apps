@@ -15,7 +15,7 @@
     mode: '0755'
 
 - name: run Pi-hole installer
-  shell: bash /tmp/install-pihole.sh --unattended
+  shell: /tmp/install-pihole.sh --unattended
 
 - name: update config to listen on 8080/8443
   replace:
