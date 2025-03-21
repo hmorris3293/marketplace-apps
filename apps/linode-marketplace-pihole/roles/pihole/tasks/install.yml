@@ -9,7 +9,7 @@
     state: present
 
 - name: install pihole
-  command: curl -L https://install.pi-hole.net | bash /dev/stdin --unattended
+  shell: curl -L https://install.pi-hole.net | bash /dev/stdin --unattended
 
 #- name: download pi-hole installation script
 #  get_url:
