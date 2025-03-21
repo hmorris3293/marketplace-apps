@@ -8,9 +8,9 @@
       - git
     state: present
 
-  name: install pihole
+- name: install pihole
   command: curl -L https://install.pi-hole.net | bash /dev/stdin --unattended
-  
+
 #- name: download pi-hole installation script
 #  get_url:
 #    url: https://install.pi-hole.net
