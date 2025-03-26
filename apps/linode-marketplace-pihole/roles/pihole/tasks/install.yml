@@ -11,7 +11,7 @@
 - name: install pihole
   shell: curl -L https://install.pi-hole.net | bash /dev/stdin --unattended
   async: 500
-  poll: 20
+  poll: 0
 
 #- name: download pi-hole installation script
 #  get_url:
@@ -24,11 +24,11 @@
 #  async: 500  
 #  poll: 0  
 
-#- name: wait for port 8080
-#  wait_for:
-#    port: 8080
-#    delay: 5
-#    timeout: 600
+- name: wait for port 80
+  wait_for:
+    port: 80
+    delay: 5
+    timeout: 600
 
 - name: update config to listen on 8080/8443
   replace:
