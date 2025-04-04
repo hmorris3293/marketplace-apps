@@ -13,6 +13,19 @@
 #  async: 500
 #  poll: 25
 
+- name: create pihole directory
+  file:
+    path: /etc/pihole
+    state: directory
+    owner: root
+    group: root
+    mode: '0755'
+
+- name: create setupVars.conf
+  template:
+      src: 'templates/setupVars.conf.j2'
+      dest: '/etc/pihole/setupVars.conf'
+
 - name: download pihole install
   get_url:
     url: https://install.pi-hole.net
@@ -21,23 +34,6 @@
     
 - name: download pihole
   shell: bash /tmp/pihole.sh /dev/stdin --unattended > tee /tmp/pihole.log
-
-#- name: download pi-hole installation script
-#  get_url:
-#    url: https://install.pi-hole.net
-#    dest: /tmp/install-pihole.sh
-#    mode: '0755'
-
-#- name: run pi-hole installer in background
-#  shell: /tmp/install-pihole.sh --unattended
-#  async: 500  
-#  poll: 0  
-
-- name: wait for port 80
-  wait_for:
-    port: 80
-    delay: 5
-    timeout: 600
 
 - name: update config to listen on 8080/8443
   replace:
