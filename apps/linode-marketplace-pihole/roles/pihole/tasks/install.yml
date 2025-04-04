@@ -8,10 +8,19 @@
       - git
     state: present
 
-- name: install pihole
-  shell: curl -L https://install.pi-hole.net | bash /dev/stdin --unattended
+#- name: install pihole
+#  shell: curl -L https://install.pi-hole.net | bash /dev/stdin --unattended
 #  async: 500
 #  poll: 25
+
+- name: download pihole install
+  get_url:
+    url: https://install.pi-hole.net
+    dest: "/tmp/pihole.sh"
+    mode: '0755'
+    
+- name: download pihole
+  shell: bash pihole.sh /dev/stdin --unattended
 
 #- name: download pi-hole installation script
 #  get_url:
