@@ -20,7 +20,7 @@
     mode: '0755'
     
 - name: download pihole
-  shell: bash /tmp/pihole.sh /dev/stdin --unattended
+  shell: bash /tmp/pihole.sh /dev/stdin --unattended > tee /tmp/pihole.log
 
 #- name: download pi-hole installation script
 #  get_url:
