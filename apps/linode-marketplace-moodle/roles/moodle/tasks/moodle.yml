@@ -1,0 +1,50 @@
+---
+- name: create moodledata directory
+  file:
+    path: /var/moodledata
+    state: directory
+    owner: www-data
+    group: www-data
+    mode: '0770'
+
+- name: clone Moodle from Git
+  git:
+    repo: "git://git.moodle.org/moodle.git"
+    dest: "{{ moodle_dir }}"
+    version: "{{ moodle_branch }}""
+    force: yes
+
+- name: set permissions for moodle
+  file:
+    path: "{{ moodle_dir }}"
+    recurse: yes
+    owner: www-data
+    group: www-data
+
+- name: configure moodle
+  command: >
+    /usr/bin/php admin/cli/install.php
+    --chmod=777
+    --lang=en_us
+    --wwwroot=https://{{ _domain }}
+    --dataroot=/var/moodledata
+    --dbtype=mysqli
+    --dbhost=localhost
+    --dbname=moodle
+    --dbuser={{ db_user }}
+    --dbpass={{ db_user_password }}
+    --dbport=3306
+    --dbsocket=1
+    --prefix=mdl_
+    --fullname="moodle"
+    --shortname="moodle"
+    --summary="Moodle: Powered By Linode Marketplace"
+    --adminuser={{ admin_user }}
+    --adminpass={{ admin_password }}
+    --adminemail={{ soa_email_address }}
+    --upgradekey=
+    --non-interactive
+    --agree-license
+  args:
+    chdir: "{{ moodle_dir }}"
+  become_user: www-data
