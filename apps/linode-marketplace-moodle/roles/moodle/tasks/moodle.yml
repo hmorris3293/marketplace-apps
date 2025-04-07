@@ -11,7 +11,7 @@
   git:
     repo: "git://git.moodle.org/moodle.git"
     dest: "{{ moodle_dir }}"
-    version: "{{ moodle_branch }}""
+    version: "{{ moodle_branch }}"
     force: yes
 
 - name: set permissions for moodle
