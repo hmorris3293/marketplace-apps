@@ -7,7 +7,7 @@ Pi-hole is a DNS sinkhole that filters out requests to ad-serving domains, block
 | Software  | Version   | Description   |
 | :---      | :----     | :---          |
 | pihole   | latest   | DNS sinkhole |
-| nginx   | latest   | web service |
+| nginx   | latest   | Web service |
 
 
 **Supported Distributions:**
@@ -80,4 +80,4 @@ linode-cli linodes create \
 
 - [Create Linode via API](https://www.linode.com/docs/api/linode-instances/#linode-create)
 - [Stackscript referece](https://www.linode.com/docs/guides/writing-scripts-for-use-with-linode-stackscripts-a-tutorial/#user-defined-fields-udfs)
-- [aaPanel Docs](https://www.aapanel.com/docs/)
+- [Pi-Hole](https://pi-hole.net/)
