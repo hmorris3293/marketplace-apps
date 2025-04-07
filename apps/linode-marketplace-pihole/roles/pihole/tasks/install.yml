@@ -36,7 +36,6 @@
   args:
     executable: /bin/bash
     chdir: /tmp
-    warn: false
   register: pihole_result
 
 #- name: install pihole
