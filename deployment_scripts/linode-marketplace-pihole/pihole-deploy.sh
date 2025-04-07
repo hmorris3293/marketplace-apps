@@ -96,7 +96,7 @@ function installation_complete {
   echo "Installation Complete"
 }
 # main
-run && installation_complete && reboot
+run && installation_complete 
 if [ "${DEBUG}" == "NO" ]; then
   cleanup
 fi

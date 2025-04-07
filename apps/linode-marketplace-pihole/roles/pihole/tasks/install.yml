@@ -51,3 +51,6 @@
 - name: reconfig pihole
   command: pihole -r
 
+- name: set pihole password
+  command: pihole setpassword {{ pihole_password }}
+
