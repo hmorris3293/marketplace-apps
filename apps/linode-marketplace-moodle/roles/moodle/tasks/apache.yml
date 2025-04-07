@@ -1,4 +1,9 @@
 ---
+# ssl_certbot
+- name: setting up ssl certificate
+  import_role:
+    name: certbot_ssl
+
 - name: install required packages
   apt:
     name:
@@ -19,16 +24,11 @@
       - unzip
     state: present
 
-- name: atart and enable apache
+- name: start and enable apache
   systemd:
     name: apache2
     state: started
     enabled: true
-
-# ssl_certbot
-- name: setting up ssl certificate
-  import_role:
-    name: certbot_ssl
 
 - name: creating document root
   file:
