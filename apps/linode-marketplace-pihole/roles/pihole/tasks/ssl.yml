@@ -1,12 +1,12 @@
 # install ssl
+- name: setting up ssl certificate
+  import_role:
+    name: certbot_ssl
+
 - name: install nginx
   apt:
     name: nginx
     state: present
-
-- name: setting up ssl certificate
-  import_role:
-    name: certbot_ssl
 
 - name: config file setup
   template:
