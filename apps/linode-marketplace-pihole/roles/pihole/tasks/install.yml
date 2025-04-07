@@ -27,16 +27,12 @@
     dest: /tmp/pihole-install.sh
     mode: '0755'
 
-- name: install pihole unattended 
-  shell: |
-    bash /tmp/pihole-install.sh --unattended
-  become: yes
+- name: install pihole
+  shell: bash pihole-install.sh --unattended
+  args:
+    chdir: /tmp
   environment:
     DEBIAN_FRONTEND: noninteractive
-  args:
-    executable: /bin/bash
-    chdir: /tmp
-  register: pihole_result
 
 - name: update config to listen on 8080/8443
   replace:
