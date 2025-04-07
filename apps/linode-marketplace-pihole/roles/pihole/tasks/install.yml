@@ -21,13 +21,13 @@
       src: 'templates/setupVars.conf.j2'
       dest: '/etc/pihole/setupVars.conf'
 
-- name: Download Pi-hole install script
+- name: download pihole install script
   get_url:
     url: https://install.pi-hole.net
     dest: /tmp/pihole-install.sh
     mode: '0755'
 
-- name: Install Pi-hole unattended without pty
+- name: install pihole unattended 
   shell: |
     bash /tmp/pihole-install.sh --unattended
   become: yes
