@@ -1,6 +1,6 @@
-# aapanel ansible playbook
+# pihole ansible playbook
 
-- name: aapanel setup
+- name: pihole setup
   hosts: localhost
   connection: local
   gather_facts: true
