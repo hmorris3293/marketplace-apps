@@ -14,12 +14,12 @@
     single_branch: yes
     version: "{{ moodle_branch }}"
 
-- name: set permissions for moodle
-  file:
-    path: "{{ moodle_dir }}"
-    recurse: yes
-    owner: www-data
-    group: www-data
+#- name: set permissions for moodle
+#  file:
+#    path: "{{ moodle_dir }}"
+#    recurse: yes
+#    owner: www-data
+#    group: www-data
 
 - name: configure moodle
   shell: >
@@ -48,3 +48,10 @@
   args:
     chdir: "{{ moodle_app }}"
   become_user: www-data
+
+- name: set permissions for moodle
+  file:
+    path: "{{ moodle_dir }}"
+    recurse: yes
+    owner: www-data
+    group: www-data
