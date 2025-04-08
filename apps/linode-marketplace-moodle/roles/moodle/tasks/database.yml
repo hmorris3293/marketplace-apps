@@ -1,0 +1,18 @@
+---
+# database
+- name: install mariadb helper
+  import_role:
+    name: database
+
+- name: Create Moodle database
+  mysql_db:
+    name: moodle
+    state: present
+
+- name: Create Moodle DB user
+  mysql_user:
+    name: "{{ db_user }}"
+    password: "{{ db_user_password }}"
+    priv: "moodle.*:ALL"
+    host: "localhost"
+    state: present
