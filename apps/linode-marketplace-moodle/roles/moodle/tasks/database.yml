@@ -8,6 +8,9 @@
   mysql_db:
     name: moodle
     state: present
+    login_user: root
+    login_password: "{{ mysql_root_password }}" 
+  
 
 - name: Create Moodle DB user
   mysql_user:
