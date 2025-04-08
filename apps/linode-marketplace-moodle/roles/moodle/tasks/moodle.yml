@@ -7,12 +7,12 @@
     group: www-data
     mode: '0770'
 
-- name: clone Moodle from Git
+- name: clone moodle branch
   git:
-    repo: "git://git.moodle.org/moodle.git"
+    repo: https://github.com/moodle/moodle.git
     dest: "{{ moodle_dir }}"
+    single_branch: yes
     version: "{{ moodle_branch }}"
-    force: yes
 
 - name: set permissions for moodle
   file:
