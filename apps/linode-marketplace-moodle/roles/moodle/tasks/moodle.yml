@@ -40,7 +40,7 @@
     --shortname="moodle"
     --summary="Moodle: Powered By Linode Marketplace"
     --adminuser={{ admin_user }}
-    --adminpass={{ admin_password }}
+    --adminpass={{ admin_user_password }}
     --adminemail={{ soa_email_address }}
     --upgradekey=
     --non-interactive

@@ -24,6 +24,13 @@
       - unzip
     state: present
 
+- name: update max_input_vars for php
+  lineinfile:
+    path: /etc/php/8.3/apache2/php.ini 
+    regexp: '^max_input_vars\s*='
+    line: 'max_input_vars = 5000'
+    backup: yes
+
 - name: start and enable apache
   systemd:
     name: apache2
