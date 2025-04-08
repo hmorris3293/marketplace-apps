@@ -22,13 +22,13 @@
     group: www-data
 
 - name: configure moodle
-  command: >
+  shell: >
     /usr/bin/php admin/cli/install.php
     --chmod=777
     --lang=en_us
     --wwwroot=https://{{ _domain }}
     --dataroot=/var/moodledata
-    --dbtype=mysqli
+    --dbtype=mariadb
     --dbhost=localhost
     --dbname=moodle
     --dbuser={{ db_user }}
