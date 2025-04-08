@@ -10,7 +10,7 @@
 - name: clone moodle branch
   git:
     repo: https://github.com/moodle/moodle.git
-    dest: "{{ moodle_dir }}"
+    dest: "{{ moodle_app }}"
     single_branch: yes
     version: "{{ moodle_branch }}"
 
@@ -46,5 +46,5 @@
     --non-interactive
     --agree-license
   args:
-    chdir: "{{ moodle_dir }}"
+    chdir: "{{ moodle_dir }}/moodle"
   become_user: www-data

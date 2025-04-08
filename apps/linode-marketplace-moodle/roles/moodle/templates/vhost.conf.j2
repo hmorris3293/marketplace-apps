@@ -20,7 +20,7 @@
    ServerName {{ _domain }}
    {% endif %}
 
-    DocumentRoot /var/www/{{ _domain }}/public_html
+    DocumentRoot {{ moodle_app }}
 
     ErrorLog ${APACHE_LOG_DIR}/{{ _domain }}_error.log
     CustomLog ${APACHE_LOG_DIR}/{{ _domain }}_access.log combined
@@ -29,7 +29,7 @@
     SSLCertificateFile /etc/letsencrypt/live/{{ _domain }}/fullchain.pem
     SSLCertificateKeyFile /etc/letsencrypt/live/{{ _domain }}/privkey.pem
 
-    <Directory /var/www/{{ _domain }}/public_html>
+    <Directory {{ moodle_app }}>
         Options Indexes FollowSymLinks
         AllowOverride All
         Require all granted
