@@ -46,5 +46,5 @@
     --non-interactive
     --agree-license
   args:
-    chdir: "{{ moodle_dir }}/moodle"
+    chdir: "{{ moodle_app }}"
   become_user: www-data
