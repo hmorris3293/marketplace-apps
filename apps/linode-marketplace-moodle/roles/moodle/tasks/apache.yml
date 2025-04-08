@@ -30,6 +30,20 @@
     state: started
     enabled: true
 
+- name: enable required apache modules
+  apache2_module:
+    name: "{{ item }}"
+    state: present
+  loop:
+    - ssl
+    - headers
+    - rewrite
+
+- name: restart apache to pick up changes
+  service:
+    name: apache2
+    state: restarted
+
 - name: creating document root
   file:
     path: "{{ moodle_dir }}"
@@ -59,12 +73,6 @@
   service:
     name: apache2
     enabled: yes
-
-- name: enable apache rewrite module
-  apache2_module:
-    name: rewrite
-    state: present
-  notify: reload apache2
 
 - name: disable apache default site
   file:
