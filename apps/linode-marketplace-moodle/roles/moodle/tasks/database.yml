@@ -4,14 +4,14 @@
   import_role:
     name: database
 
-- name: Create Moodle database
+- name: create moodle database
   mysql_db:
     name: moodle
     state: present
     login_user: root
     login_password: "{{ mysql_root_password }}" 
 
-- name: Create Moodle DB user
+- name: create moodle db user
   mysql_user:
     name: "{{ db_user }}"
     password: "{{ db_user_password }}"
