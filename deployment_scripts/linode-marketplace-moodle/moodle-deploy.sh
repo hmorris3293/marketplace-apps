@@ -14,7 +14,7 @@ fi
 #<UDF name="subdomain" label="Subdomain" example="The subdomain for the DNS record: www (Requires Domain)" default="">
 #<UDF name="domain" label="Domain" example="The domain for the DNS record: example.com (Requires API token)" default="">
 
-## code-server setup
+## moodle setup
 #<UDF name="soa_email_address" label="Email address (for the Let's Encrypt SSL certificate and Moodle Admin User) " example="user@domain.tld">
 #<UDF name="db_user" label="The DB user for the Moodle database: *No Capital Letters or Special Characters*">
 #<UDF name="admin_user" label="The Admin user for the Moodle Instance: *No Capital Letters or Special Characters*">
