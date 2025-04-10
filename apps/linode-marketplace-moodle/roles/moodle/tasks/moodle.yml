@@ -14,13 +14,6 @@
     single_branch: yes
     version: "{{ moodle_branch }}"
 
-#- name: set permissions for moodle
-#  file:
-#    path: "{{ moodle_dir }}"
-#    recurse: yes
-#    owner: www-data
-#    group: www-data
-
 - name: configure moodle
   shell: >
     /usr/bin/php admin/cli/install.php
