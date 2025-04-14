@@ -70,7 +70,7 @@ linode-cli linodes create \
   --stackscript_data '{"user_name": "{USERNAME}" \
   --stackscript_id 970522 \
   --type g6-dedicated-4 \
-  --label piholeserver \
+  --label pihole-server \
   --root_pass ${ROOT_PASS} \
   --authorized_users user1 \
   --disk_encryption enabled
