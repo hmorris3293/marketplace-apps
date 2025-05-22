@@ -1,0 +1,31 @@
+---
+- name: install docker latest
+  import_role: 
+    name: docker
+
+- name: clone discourse_docker repo
+  git:
+    repo: https://github.com/discourse/discourse_docker.git
+    dest: /var/discourse
+    version: master
+
+- name: ensure containers directory exists
+  file:
+    path: /var/discourse/containers
+    state: directory
+    mode: '0700'
+
+- name: configure discourse
+  template:
+    src: app.yml.j2
+    dest: /var/discourse/containers/app.yml
+
+- name: bootstrap discourse
+  command: /var/discourse/launcher bootstrap app
+
+- name: start discourse container
+  command: /var/discourse/launcher start app
+
+
+
+

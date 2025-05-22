@@ -1,0 +1,9 @@
+---
+---
+# main
+
+- name: install required packages
+  import_tasks: postfix.yml
+
+- name: install discourse
+  import_tasks: discourse.yml

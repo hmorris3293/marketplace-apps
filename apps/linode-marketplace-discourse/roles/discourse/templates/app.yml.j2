@@ -1,0 +1,29 @@
+          templates:
+            - "templates/apt.source.yml"
+            - "templates/web.template.yml"
+            - "templates/web.ratelimited.template.yml"
+          expose:
+            - "80:80"
+            - "443:443"
+          params:
+            db_default_text_search_config: "pg_catalog.english"
+          env:
+            LANG: en_US.UTF-8
+            DISCOURSE_HOSTNAME: "{{ _domain }}"
+            DISCOURSE_DEVELOPER_EMAILS: "admin@{{ _domain }}"
+            DISCOURSE_SMTP_ADDRESS: localhost
+            DISCOURSE_SMTP_PORT: 25
+            DISCOURSE_SMTP_AUTHENTICATION: none
+            DISCOURSE_SMTP_OPENSSL_VERIFY_MODE: none
+            DISCOURSE_SMTP_ENABLE_START_TLS: false
+          hooks:
+            after_code:
+              - exec:
+                  cd: $home/plugins
+                  cmd:
+                    - git clone https://github.com/discourse/docker_manager.git
+          run:
+            - exec: echo "Beginning of custom commands"
+            - exec: apt-get update
+            - exec: apt-get install -y curl
+            - exec: echo "End of custom commands"
