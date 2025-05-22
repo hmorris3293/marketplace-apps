@@ -15,8 +15,8 @@ else
   set -e
 fi
 
-##Linode/SSH security settings
-#<UDF name="user_name" label="The limited sudo user to be created for the Linode: *All lowercase*">
+## Linode/SSH security settings
+#<UDF name="user_name" label="The limited sudo user to be created for the Linode: *No Capital Letters or Special Characters*">
 #<UDF name="disable_root" label="Disable root access over SSH?" oneOf="Yes,No" default="No">
 
 ## Domain Settings
@@ -24,28 +24,25 @@ fi
 #<UDF name="subdomain" label="Subdomain" example="The subdomain for the DNS record: www (Requires Domain)" default="">
 #<UDF name="domain" label="Domain" example="The domain for the DNS record: example.com (Requires API token)" default="">
 
-## Let's Encrypt Settings 
-#<UDF name="soa_email_address" label="Admin Email for Let's Encrypt SSL certificate">
+## discourse setup
+#<UDF name="soa_email_address" label="Email address (for the Let's Encrypt SSL certificate and Moodle Admin User) " example="user@domain.tld">
 
 # repo
 #GH_USER=""
-#GIT_BRANCH=""
-
-export GIT_BRANCH="${BRANCH}"
-
+#BRANCH=""
 
 # git user and branch
-if [[ -n ${GH_USER} && -n ${GIT_BRANCH} ]]; then
+if [[ -n ${GH_USER} && -n ${BRANCH} ]]; then
         echo "[info] git user and branch set.."
         export GIT_REPO="https://github.com/${GH_USER}/marketplace-apps.git"
 
 else
         export GH_USER="akamai-compute-marketplace"
-        export GIT_BRANCH="main"
+        export BRANCH="main"
         export GIT_REPO="https://github.com/${GH_USER}/marketplace-apps.git"
 fi
 
-export WORK_DIR="/tmp/marketplace-apps" 
+export WORK_DIR="/tmp/marketplace-apps"
 export MARKETPLACE_APP="apps/linode-marketplace-discourse"
 
 function provision_failed {
@@ -63,12 +60,13 @@ function provision_failed {
   curl -sk -X POST ${DATA_ENDPOINT} \
      -H "Authorization: ${token}" \
      -H "Content-Type: application/json" \
-     -d "{ \"app_label\":\"${APP_LABEL}\", \"status\":\"provision_failed\", \"branch\": \"${GIT_BRANCH}\", \
+     -d "{ \"app_label\":\"${APP_LABEL}\", \"status\":\"provision_failed\", \"branch\": \"${BRANCH}\", \
         \"gituser\": \"${GH_USER}\", \"runjob\": \"${RUNJOB}\", \"image\":\"${IMAGE}\", \
         \"type\":\"${TYPE}\", \"region\":\"${REGION}\", \"instance_env\":\"${INSTANCE_ENV}\" }"
-
+  
   exit $?
 }
+
 
 function cleanup {
   if [ -d "${WORK_DIR}" ]; then
@@ -78,43 +76,40 @@ function cleanup {
 }
 
 function udf {
+  
   local group_vars="${WORK_DIR}/${MARKETPLACE_APP}/group_vars/linode/vars"
-
-
   sed 's/  //g' <<EOF > ${group_vars}
+
   # sudo username
   username: ${USER_NAME}
-  soa_email_address: ${SOA_EMAIL_ADDRESS}
+  webserver_stack: standalone
 EOF
 
-
   if [ "$DISABLE_ROOT" = "Yes" ]; then
-    echo "disable_root: yes" >> ${group_vars}
-  else 
-    echo "Leaving root login enabled"
+    echo "disable_root: yes" >> ${group_vars};
+  else echo "Leaving root login enabled";
   fi
 
-  # vars
-  
   if [[ -n ${DOMAIN} ]]; then
-    echo "domain: ${DOMAIN}" >> ${group_vars}
+    echo "domain: ${DOMAIN}" >> ${group_vars};
   else
-    echo "default_dns: $(hostname -I | awk '{print $1}'| \
-      tr '.' '-' | awk {'print $1 ".ip.linodeusercontent.com"'})" >> ${group_vars}
+    echo "default_dns: $(hostname -I | awk '{print $1}'| tr '.' '-' | awk {'print $1 ".ip.linodeusercontent.com"'})" >> ${group_vars};
   fi
 
   if [[ -n ${SUBDOMAIN} ]]; then
-    echo "subdomain: ${SUBDOMAIN}" >> ${group_vars}
-  else 
-    echo "subdomain: www" >> ${group_vars}
+    echo "subdomain: ${SUBDOMAIN}" >> ${group_vars};
+  else echo "subdomain: www" >> ${group_vars};
   fi
- 
+
   if [[ -n ${TOKEN_PASSWORD} ]]; then
-    echo "token_password: ${TOKEN_PASSWORD}" >> ${group_vars}
-  else 
-    echo "No API token entered"
+    echo "token_password: ${TOKEN_PASSWORD}" >> ${group_vars};
+  else echo "No API token entered";
   fi
-      # staging or production mode (ci)
+
+  if [[ -n ${SOA_EMAIL_ADDRESS} ]]; then
+    echo "soa_email_address: ${SOA_EMAIL_ADDRESS}" >> ${group_vars};
+  fi
+    # staging or production mode (ci)
   if [[ "${MODE}" == "staging" ]]; then
     echo "[info] running in staging mode..."
     echo "mode: ${MODE}" >> ${group_vars}
@@ -128,30 +123,30 @@ EOF
 function run {
   # install dependancies
   apt-get update
-  apt-get install -y git python3 python3-pip python3-venv
+  apt-get install -y git python3 python3-pip
 
   # clone repo and set up ansible environment
-  git -C /tmp clone -b ${GIT_BRANCH} ${GIT_REPO}
+  git -C /tmp clone -b ${BRANCH} ${GIT_REPO}
 
   # venv
   cd ${WORK_DIR}/${MARKETPLACE_APP}
+  apt install python3-venv -y
   python3 -m venv env
   source env/bin/activate
   pip install pip --upgrade
   pip install -r requirements.txt
   ansible-galaxy install -r collections.yml
-  
+
   # populate group_vars
   udf
   # run playbooks
   ansible-playbook -v provision.yml && ansible-playbook -v site.yml
-  
+
 }
 
 function installation_complete {
   echo "Installation Complete"
 }
 # main
-run
+run 
 installation_complete
-
