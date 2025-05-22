@@ -1,4 +1,4 @@
-# jitsi
+# discourse
 - name: setting up environment 
   hosts: localhost
   connection: local

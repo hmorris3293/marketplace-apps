@@ -32,7 +32,6 @@ fi
 #GIT_BRANCH=""
 
 export GIT_BRANCH="${BRANCH}"
-unset BRANCH
 
 
 # git user and branch
