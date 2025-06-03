@@ -16,11 +16,19 @@ jobs:
 
       - name: Generate dependabot.yml
         run: |
+          mkdir -p .github
           echo "version: 2" > .github/dependabot.yml
           echo "updates:" >> .github/dependabot.yml
           find apps/ -type f -name requirements.txt | while read req; do
-            dir=$(dirname "$req" | sed 's/^/  - package-ecosystem: "pip"\n    directory: "\//' | sed 's/$/"/')
-            cat <<EOF >> .github/dependabot.yml
+          dir=$(dirname "$req")
+          cat <<EOF >> .github/dependabot.yml
+  - package-ecosystem: "pip"
+    directory: "/$dir"
+    schedule:
+      interval: "daily"
+    target-branch: "develop"
+EOF
+done
 $dir
     schedule:
       interval: "daily"
