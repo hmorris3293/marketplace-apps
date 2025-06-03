@@ -2,10 +2,11 @@ name: Update Dependabot Config
 
 on:
   schedule:
-    - cron: '0 5 * * *'   # Every day at 05:00 UTC
+    - cron: '0 5 * * *'
   push:
     paths:
       - 'apps/**/requirements.txt'
+  workflow_dispatch:
 
 jobs:
   update-dependabot:
@@ -16,17 +17,18 @@ jobs:
 
       - name: Generate dependabot.yml
         run: |
-          echo "version: 2" > .github/dependabot.yml
-          echo "updates:" >> .github/dependabot.yml
+          mkdir -p .github
+          echo 'version: 2' > .github/dependabot.yml
+          echo 'updates:' >> .github/dependabot.yml
           find apps/ -type f -name requirements.txt | while read req; do
-            dir=$(dirname "$req" | sed 's/^/  - package-ecosystem: "pip"\n    directory: "\//' | sed 's/$/"/')
-            cat <<EOF >> .github/dependabot.yml
-    schedule:
-      interval: "daily"
-    target-branch: "dependabot"
-EOF
+            dir=$(dirname "$req")
+            echo "  - package-ecosystem: \"pip\"" >> .github/dependabot.yml
+            echo "    directory: \"/$dir\"" >> .github/dependabot.yml
+            echo "    schedule:" >> .github/dependabot.yml
+            echo "      interval: \"daily\"" >> .github/dependabot.yml
+            echo "    target-branch: \"develop\"" >> .github/dependabot.yml
           done
-          
+
       - name: Commit and push if changed
         run: |
           git config user.name "github-actions[bot]"
@@ -34,3 +36,5 @@ EOF
           git add .github/dependabot.yml
           git diff --cached --quiet || git commit -m "Update dependabot.yml automatically"
           git push
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
