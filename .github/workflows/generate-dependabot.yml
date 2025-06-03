@@ -21,7 +21,6 @@ jobs:
           find apps/ -type f -name requirements.txt | while read req; do
             dir=$(dirname "$req" | sed 's/^/  - package-ecosystem: "pip"\n    directory: "\//' | sed 's/$/"/')
             cat <<EOF >> .github/dependabot.yml
-$dir
     schedule:
       interval: "daily"
     target-branch: "dependabot"
