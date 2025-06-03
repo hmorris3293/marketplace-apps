@@ -24,7 +24,7 @@ jobs:
 $dir
     schedule:
       interval: "daily"
-    target-branch: "develop"
+    target-branch: "dependabot"
 EOF
           done
           
