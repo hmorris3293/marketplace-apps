@@ -1,29 +1,11 @@
-name: Update Dependabot Config
+name: Test Dependabot Workflow
 
 on:
-  schedule:
-    - cron: '0 5 * * *'
-  push:
-    paths:
-      - 'apps/**/requirements.txt'
   workflow_dispatch:
 
 jobs:
-  update-dependabot:
+  test-job:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-
-      - name: Generate dependabot.yml
-        shell: bash
-        run: |
-          mkdir -p .github
-          echo 'version: 2' > .github/dependabot.yml
-          echo 'updates:' >> .github/dependabot.yml
-          find apps/ -type f -name requirements.txt | while read req; do
-            dir=$(dirname "$req")
-            echo "  - package-ecosystem: \"pip\"" >> .github/dependabot.yml
-            echo "    directory: \"/$dir\"" >> .github/dependabot.yml
-            echo "    schedule:" >> .github/dependabot.yml
-            echo "      interval: \"daily\"" >> .github/de
+      - name: Hello World
+        run: echo "It works"
