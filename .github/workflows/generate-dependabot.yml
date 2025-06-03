@@ -1,4 +1,4 @@
-name: Update Dependabot Config 
+name: Update Dependabot Config
 
 on:
   schedule:
