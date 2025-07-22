@@ -36,6 +36,12 @@
   args:
     creates: /etc/systemd/system/cribl.service
 
+- name: Restart cribl Service
+  systemd:
+    name: cribl
+    state: restarted
+    enabled: yes
+
 - name: Add user.json file to change default admin password
   template:
     src: templates/users.json.j2
