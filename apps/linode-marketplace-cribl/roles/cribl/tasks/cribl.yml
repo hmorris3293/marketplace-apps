@@ -1,59 +1,37 @@
 ---
-# docker
-- name: Install docker latest
-  import_role: 
-    name: docker
-
-- name: Install docker-compose
-  apt:
-    name: docker-compose
-    state: present
-    update_cache: yes
-
-- name: Config file setup
-  template:
-    src: templates/cribl.service.j2
-    dest: /etc/systemd/system/cribl.service
-
-- name: Create cribl directory
-  file:
-    path: /opt/cribl
-    state: directory
-
-- name: Add docker compose file
-  template:
-    src: templates/docker-compose.yml.j2
-    dest: /opt/cribl/docker-compose.yml
-
-- name: Reload systemd daemon
-  systemd:
-    daemon_reload: yes
-
-- name: Start cribl service
-  systemd_service: 
+- name: Create cribl system user 
+  user:
     name: cribl
-    state: started
-    enabled: true
+    system: yes
+    shell: /bin/false
+    state: present
+
+- name: Get latest Cribl 
+  uri:
+    url: https://cdn.cribl.io/dl/latest-x64
+    return_content: true
+  register: cribl_url
+
+- name: Download and extract Cribl to /opt
+  ansible.builtin.unarchive:
+    src: "{{ cribl_url.content }}"
+    dest: /opt/
+    remote_src: true
+
+- name: Update cribl config to listen on localhost
+  replace:
+    path: /opt/cribl/default/cribl/cribl.yml
+    regexp: '^(\s*host:\s*)0\.0\.0\.0\s*$'
+    replace: '\1 127.0.0.1'
+
+- name: Enable Cribl boot-start using systemd for user cribl
+  command: /opt/cribl/bin/cribl boot-start enable -m systemd -u cribl
+  args:
+    creates: /etc/systemd/system/cribl.service
 
 - name: Add user.json file to change default admin password
   template:
     src: templates/users.json.j2
-    dest: /tmp/users.json
+    dest: /opt/cribl/local/cribl/auth/users.json
 
-- name: Wait for Cribl UI to respond on port 9000
-  wait_for:
-    host: 127.0.0.1
-    port: 9000
-    delay: 5
-    timeout: 15
-    state: started
-
-- name: Copy users.json into container 
-  command: docker cp /tmp/users.json cribl_stream:/opt/cribl/local/cribl/auth/users.json
-  notify: restart cribl
-
-- name: Remove /tmp/users.json
-  file:
-    path: /tmp/users.json
-    state: absent
   
