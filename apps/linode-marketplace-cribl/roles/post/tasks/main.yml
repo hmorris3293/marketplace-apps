@@ -13,4 +13,5 @@
     content: |
       Sudo Username: {{ username }}
       Sudo Password: {{ password }}
+      Cribl Admin User: admin
       Cribl Admin Password: {{ cribl_admin_password }}
