@@ -13,7 +13,7 @@
   register: cribl_url
 
 - name: Download and extract Cribl to /opt
-  ansible.builtin.unarchive:
+  unarchive:
     src: "{{ cribl_url.content }}"
     dest: /opt/
     remote_src: true
@@ -24,6 +24,13 @@
     regexp: '^(\s*host:\s*)0\.0\.0\.0\s*$'
     replace: '\1 127.0.0.1'
 
+- name: Recursively chown /opt/cribl to cribl
+  file:
+    path: /opt/cribl
+    owner: cribl
+    group: cribl
+    recurse: yes
+
 - name: Enable Cribl boot-start using systemd for user cribl
   command: /opt/cribl/bin/cribl boot-start enable -m systemd -u cribl
   args:
@@ -33,5 +40,6 @@
   template:
     src: templates/users.json.j2
     dest: /opt/cribl/local/cribl/auth/users.json
+  notify: restart cribl
 
   
