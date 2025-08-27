@@ -34,12 +34,6 @@
     system: yes
     create_home: yes
 
-- name: Add airflow user to sudo group
-  user:
-    name: airflow
-    groups: sudo
-    append: yes
-
 - name: Clone pyenv repo
   git:
     repo: "https://github.com/pyenv/pyenv.git"
