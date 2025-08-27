@@ -1,4 +1,3 @@
----
 - name: Set deployment fact
   set_fact:
     airflow_home: /opt/airflow
@@ -41,63 +40,86 @@
     update: no
 
 - name: Configure pyenv in bashrc
-  lineinfile:
+  blockinfile:
     path: "{{ airflow_home }}/.bashrc"
-    regexp: 'pyenv init'
-    line: |
+    create: yes
+    block: |
       export PYENV_ROOT="$HOME/.pyenv"
       export PATH="$PYENV_ROOT/bin:$PATH"
       eval "$(pyenv init -)"
-  create: yes
 
 - name: Load pyenv for this session
   shell: |
-    export PYENV_ROOT="$HOME/.pyenv"
+    export PYENV_ROOT="{{ airflow_home }}/.pyenv"
     export PATH="$PYENV_ROOT/bin:$PATH"
-    eval "$(pyenv init -)"
-    pyenv --version
+    eval "$($PYENV_ROOT/bin/pyenv init -)"
+    $PYENV_ROOT/bin/pyenv --version
   args:
     executable: /bin/bash
 
-- name: Get pyenv install list
-  command: pyenv install --list
-  register: pyenv_versions
+- name: Get latest Python release from GitHub
+  uri:
+    url: https://api.github.com/repos/python/cpython/tags
+    return_content: yes
+  register: python_tags
 
-- name: Extract latest stable Python version
+    #- name: Extract latest stable Python version
+    #  set_fact:
+    #    python_version: >-
+    #      {{ python_tags.json
+    #         | map(attribute='name')
+    #         | select('match', '^v[0-9]+\\.[0-9]+\\.[0-9]+$')
+    #         | map('regex_replace', '^v', '')
+    #         | list
+    #         | first }}
+- name: python verison
   set_fact:
-    python_version: >-
-      {{ pyenv_versions.stdout_lines
-         | select('match', '^\\s*[0-9]+\\.[0-9]+\\.[0-9]+$')
-         | list
-         | last
-         | trim }}
+    python_version: 3.11
 
-- name: Install Python {{ python_version }} using pyenv
+- name: "Install Python {{ python_version }} using pyenv"
   shell: |
-    export PYENV_ROOT="$HOME/.pyenv"
+    export PYENV_ROOT="{{ airflow_home }}/.pyenv"
     export PATH="$PYENV_ROOT/bin:$PATH"
-    eval "$(pyenv init -)"
-    pyenv install -s {{ python_version }}
-    pyenv global {{ python_version }}
+    $PYENV_ROOT/bin/pyenv install -s {{ python_version }}
+    $PYENV_ROOT/bin/pyenv global {{ python_version }}
   args:
     executable: /bin/bash
-  creates: "{{ airflow_home }}/.pyenv/versions/{{ python_version }}"
+    creates: "{{ airflow_home }}/.pyenv/versions/{{ python_version }}"
+
+- name: "Create virtual environment for Airflow"
+  shell: |
+    export PYENV_ROOT="{{ airflow_home }}/.pyenv"
+    export PATH="$PYENV_ROOT/bin:$PATH"
+    $PYENV_ROOT/bin/pyenv exec python -m venv {{ airflow_home }}/airflow_venv
+  args:
+    executable: /bin/bash
+    creates: "{{ airflow_home }}/airflow_venv"
+
+- name: Get latest Apache Airflow release from GitHub
+  uri:
+    url: https://api.github.com/repos/apache/airflow/releases/latest
+    return_content: yes
+  register: airflow_latest
+  failed_when: false
+
+- name: Set latest Airflow version
+  set_fact:
+    airflow_version: "{{ airflow_latest.json.tag_name | regex_replace('^v', '') }}"
+  when: airflow_latest.json.tag_name is defined
 
 - name: Create virtual environment for Airflow
   shell: |
-    export PYENV_ROOT="$HOME/.pyenv"
+    export PYENV_ROOT="{{ airflow_home }}/.pyenv"
     export PATH="$PYENV_ROOT/bin:$PATH"
-    eval "$(pyenv init -)"
-    python -m venv ~/airflow_venv
+    $PYENV_ROOT/bin/pyenv exec python -m venv {{ airflow_home }}/airflow_venv
   args:
     executable: /bin/bash
-  creates: "{{ airflow_home }}/airflow_venv"
+    creates: "{{ airflow_home }}/airflow_venv"
 
-- name: Install Apache Airflow {{ airflow_version }} into venv
+- name: Install Apache Airflow into venv
   shell: |
-    source ~/airflow_venv/bin/activate
-    pip install "apache-airflow=={{ airflow_version }}" \
-      --constraint "https://raw.githubusercontent.com/apache/airflow/constraints-{{ airflow_version }}/constraints-3.11.txt"
+    source {{ airflow_home }}/airflow_venv/bin/activate
+    pip install "apache-airflow=={{ airflow_version }}" --constraint "https://raw.githubusercontent.com/apache/airflow/constraints-{{ airflow_version }}/constraints-{{ python_version }}.txt"
   args:
     executable: /bin/bash
 
