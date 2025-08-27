@@ -1,13 +1,28 @@
 ---
-- name: Install required build and Python dependencies
-  ansible.builtin.apt:
+- name: Set deployment fact
+  set_fact:
+    airflow_home: /opt/airflow
+
+- name: Ensure dependencies for pyenv are installed (Linux example)
+  apt:
     name:
+      - make
       - build-essential
       - libssl-dev
+      - zlib1g-dev
+      - libbz2-dev
+      - libreadline-dev
+      - libsqlite3-dev
+      - wget
+      - curl
+      - llvm
+      - libncurses5-dev
+      - libncursesw5-dev
+      - xz-utils
+      - tk-dev
       - libffi-dev
-      - python3-dev
-      - python3-pip
-      - python3-venv
+      - liblzma-dev
+      - git
     state: present
     update_cache: yes
 
@@ -24,3 +39,84 @@
     name: airflow
     groups: sudo
     append: yes
+
+- name: Clone pyenv repo
+  git:
+    repo: "https://github.com/pyenv/pyenv.git"
+    dest: "{{ airflow_home }}/.pyenv"
+    update: no
+
+- name: Configure pyenv in bashrc
+  lineinfile:
+    path: "{{ airflow_home }}/.bashrc"
+    regexp: 'pyenv init'
+    line: |
+      export PYENV_ROOT="$HOME/.pyenv"
+      export PATH="$PYENV_ROOT/bin:$PATH"
+      eval "$(pyenv init -)"
+  create: yes
+
+- name: Load pyenv for this session
+  shell: |
+    export PYENV_ROOT="$HOME/.pyenv"
+    export PATH="$PYENV_ROOT/bin:$PATH"
+    eval "$(pyenv init -)"
+    pyenv --version
+  args:
+    executable: /bin/bash
+
+- name: Get pyenv install list
+  command: pyenv install --list
+  register: pyenv_versions
+
+- name: Extract latest stable Python version
+  set_fact:
+    python_version: >-
+      {{ pyenv_versions.stdout_lines
+         | select('match', '^\\s*[0-9]+\\.[0-9]+\\.[0-9]+$')
+         | list
+         | last
+         | trim }}
+
+- name: Install Python {{ python_version }} using pyenv
+  shell: |
+    export PYENV_ROOT="$HOME/.pyenv"
+    export PATH="$PYENV_ROOT/bin:$PATH"
+    eval "$(pyenv init -)"
+    pyenv install -s {{ python_version }}
+    pyenv global {{ python_version }}
+  args:
+    executable: /bin/bash
+  creates: "{{ airflow_home }}/.pyenv/versions/{{ python_version }}"
+
+- name: Create virtual environment for Airflow
+  shell: |
+    export PYENV_ROOT="$HOME/.pyenv"
+    export PATH="$PYENV_ROOT/bin:$PATH"
+    eval "$(pyenv init -)"
+    python -m venv ~/airflow_venv
+  args:
+    executable: /bin/bash
+  creates: "{{ airflow_home }}/airflow_venv"
+
+- name: Install Apache Airflow {{ airflow_version }} into venv
+  shell: |
+    source ~/airflow_venv/bin/activate
+    pip install "apache-airflow=={{ airflow_version }}" \
+      --constraint "https://raw.githubusercontent.com/apache/airflow/constraints-{{ airflow_version }}/constraints-3.11.txt"
+  args:
+    executable: /bin/bash
+
+- name: Set AIRFLOW_HOME in environment
+  lineinfile:
+    path: "{{ airflow_home }}/.bashrc"
+    regexp: '^export AIRFLOW_HOME='
+    line: "export AIRFLOW_HOME={{ airflow_home }}"
+
+- name: Run Airflow standalone (background)
+  shell: |
+    source ~/airflow_venv/bin/activate
+    export AIRFLOW_HOME={{ airflow_home }}
+    nohup airflow standalone > ~/airflow-standalone.log 2>&1 &
+  args:
+    executable: /bin/bash
