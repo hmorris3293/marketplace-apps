@@ -2,137 +2,65 @@
   set_fact:
     airflow_home: /opt/airflow
 
-- name: Ensure dependencies for pyenv are installed (Linux example)
-  apt:
-    name:
-      - make
-      - build-essential
-      - libssl-dev
-      - zlib1g-dev
-      - libbz2-dev
-      - libreadline-dev
-      - libsqlite3-dev
-      - wget
-      - curl
-      - llvm
-      - libncurses5-dev
-      - libncursesw5-dev
-      - xz-utils
-      - tk-dev
-      - libffi-dev
-      - liblzma-dev
-      - git
-    state: present
-    update_cache: yes
+- name: Install Docker latest
+  import_role: 
+    name: docker
 
-- name: Create airflow system user
+- name: Install Docker Compose plugin
+  apt:
+    name: docker-compose-plugin
+    state: present
+    update_cache: true
+
+- name: Ensure airflow group exists
+  group:
+    name: airflow
+    gid: 50000
+    state: present
+
+- name: Ensure airflow user exists
   user:
     name: airflow
+    uid: 50000
+    group: airflow
     home: /opt/airflow
     shell: /bin/bash
-    system: yes
     create_home: yes
+    state: present
 
-- name: Clone pyenv repo
-  git:
-    repo: "https://github.com/pyenv/pyenv.git"
-    dest: "{{ airflow_home }}/.pyenv"
-    update: no
+- name: Create Airflow directories
+  file:
+    path: "/opt/airflow/{{ item }}"
+    state: directory
+    owner: airflow
+    group: airflow
+    mode: '0755'
+  loop:
+    - dags
+    - logs
+    - plugins
+    - backup
 
-- name: Configure pyenv in bashrc
-  blockinfile:
-    path: "{{ airflow_home }}/.bashrc"
-    create: yes
-    block: |
-      export PYENV_ROOT="$HOME/.pyenv"
-      export PATH="$PYENV_ROOT/bin:$PATH"
-      eval "$(pyenv init -)"
+- name: Ensure /opt/airflow ownership
+  file:
+    path: /opt/airflow
+    state: directory
+    recurse: yes
+    owner: airflow
+    group: airflow
 
-- name: Load pyenv for this session
-  shell: |
-    export PYENV_ROOT="{{ airflow_home }}/.pyenv"
-    export PATH="$PYENV_ROOT/bin:$PATH"
-    eval "$($PYENV_ROOT/bin/pyenv init -)"
-    $PYENV_ROOT/bin/pyenv --version
-  args:
-    executable: /bin/bash
+- name: Deploy Docker Compose template for Airflow
+  template:
+    src: docker-compose.yml.j2
+    dest: /opt/airflow/docker-compose.yml
+    owner: airflow
+    group: airflow
+    mode: '0644'
 
-- name: Get latest Python release from GitHub
-  uri:
-    url: https://api.github.com/repos/python/cpython/tags
-    return_content: yes
-  register: python_tags
-
-    #- name: Extract latest stable Python version
-    #  set_fact:
-    #    python_version: >-
-    #      {{ python_tags.json
-    #         | map(attribute='name')
-    #         | select('match', '^v[0-9]+\\.[0-9]+\\.[0-9]+$')
-    #         | map('regex_replace', '^v', '')
-    #         | list
-    #         | first }}
-- name: python verison
-  set_fact:
-    python_version: 3.11
-
-- name: "Install Python {{ python_version }} using pyenv"
-  shell: |
-    export PYENV_ROOT="{{ airflow_home }}/.pyenv"
-    export PATH="$PYENV_ROOT/bin:$PATH"
-    $PYENV_ROOT/bin/pyenv install -s {{ python_version }}
-    $PYENV_ROOT/bin/pyenv global {{ python_version }}
-  args:
-    executable: /bin/bash
-    creates: "{{ airflow_home }}/.pyenv/versions/{{ python_version }}"
-
-- name: "Create virtual environment for Airflow"
-  shell: |
-    export PYENV_ROOT="{{ airflow_home }}/.pyenv"
-    export PATH="$PYENV_ROOT/bin:$PATH"
-    $PYENV_ROOT/bin/pyenv exec python -m venv {{ airflow_home }}/airflow_venv
-  args:
-    executable: /bin/bash
-    creates: "{{ airflow_home }}/airflow_venv"
-
-- name: Get latest Apache Airflow release from GitHub
-  uri:
-    url: https://api.github.com/repos/apache/airflow/releases/latest
-    return_content: yes
-  register: airflow_latest
-  failed_when: false
-
-- name: Set latest Airflow version
-  set_fact:
-    airflow_version: "{{ airflow_latest.json.tag_name | regex_replace('^v', '') }}"
-  when: airflow_latest.json.tag_name is defined
-
-- name: Create virtual environment for Airflow
-  shell: |
-    export PYENV_ROOT="{{ airflow_home }}/.pyenv"
-    export PATH="$PYENV_ROOT/bin:$PATH"
-    $PYENV_ROOT/bin/pyenv exec python -m venv {{ airflow_home }}/airflow_venv
-  args:
-    executable: /bin/bash
-    creates: "{{ airflow_home }}/airflow_venv"
-
-- name: Install Apache Airflow into venv
-  shell: |
-    source {{ airflow_home }}/airflow_venv/bin/activate
-    pip install "apache-airflow=={{ airflow_version }}" --constraint "https://raw.githubusercontent.com/apache/airflow/constraints-{{ airflow_version }}/constraints-{{ python_version }}.txt"
-  args:
-    executable: /bin/bash
-
-- name: Set AIRFLOW_HOME in environment
-  lineinfile:
-    path: "{{ airflow_home }}/.bashrc"
-    regexp: '^export AIRFLOW_HOME='
-    line: "export AIRFLOW_HOME={{ airflow_home }}"
-
-- name: Run Airflow standalone (background)
-  shell: |
-    source ~/airflow_venv/bin/activate
-    export AIRFLOW_HOME={{ airflow_home }}
-    nohup airflow standalone > ~/airflow-standalone.log 2>&1 &
-  args:
-    executable: /bin/bash
+- name: Deploy .env file for Airflow
+  template:
+    src: env.j2
+    dest: /opt/airflow/.env
+    owner: airflow
+    group: airflow
+    mode: '0600'

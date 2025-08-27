@@ -16,8 +16,6 @@ fi
 declare -A UDF_VARS
 UDF_VARS["USER_NAME"]="admin"
 UDF_VARS["DISABLE_ROOT"]="No"
-UDF_VARS["MEMGRAPH_USERNAME"]="memgraph"
-
 
 # dynamic variables
 #if [[ -n "${CHANGE_ME}" ]]; then
@@ -36,14 +34,6 @@ if [[ -n "${SUBDOMAIN}" ]]; then
         UDF_VARS["SUBDOMAIN"]="${SUBDOMAIN}"
 else
         UDF_VARS["SUBDOMAIN"]="" # default
-fi
-
-# Memgraph vars
-
-if [[ -n "${MEMGRAPH_BOLT_ALLOW}" ]]; then
-        UDF_VARS["MEMGRAPH_BOLT_ALLOW"]="${MEMGRAPH_BOLT_ALLOW}"
-else
-        UDF_VARS["MEMGRAPH_BOLT_ALLOW"]="" # default
 fi
 
 set_vars() {
