@@ -74,29 +74,30 @@
     "apache-airflow=={{ airflow_version }}"
     --constraint "{{ constraint_url }}"
 
-- name: Create systemd unit file for Airflow Standalone
-  copy:
-    dest: /etc/systemd/system/airflow.service
-    content: |
-      [Unit]
-      Description=Apache Airflow Standalone
-      After=network.target
+- name: Template Airflow Scheduler systemd service
+  template:
+    src: airflow-scheduler.service.j2
+    dest: /etc/systemd/system/airflow-scheduler.service
+    owner: root
+    group: root
+    mode: '0644'
 
-      [Service]
-      User=airflow
-      Group=airflow
-      Environment="AIRFLOW_HOME=/opt/airflow"
-      Environment="PATH=/opt/airflow/airflow_venv/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
-      ExecStart=/opt/airflow/airflow_venv/bin/airflow standalone
-      Restart=always
-      RestartSec=10
+- name: Template Airflow API systemd service
+  template:
+    src: airflow-api.service.j2
+    dest: /etc/systemd/system/airflow-scheduler.service
+    owner: root
+    group: root
+    mode: '0644'
 
-      [Install]
-      WantedBy=multi-user.target
-
-- name: Enable and start Airflow service
+- name: Restart Airflow Services
   systemd:
-    name: airflow
+    name: "airflow-{{ item.name }}"
+    state: restarted
     enabled: yes
-    state: started
     daemon_reload: yes
+  loop:
+    - { name: "scheduler" }
+    - { name: "api-server" }
+  loop_control:
+    loop_var: item
