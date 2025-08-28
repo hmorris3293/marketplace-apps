@@ -51,8 +51,8 @@
     remove_orphans: true  
     detach: true      
   become: yes
-  async: 60      
-  poll: 0
+  async: 20     
+  poll: 10
 # - name: Airflow Service file
 #   template:
 #     src: airflow.service.j2
