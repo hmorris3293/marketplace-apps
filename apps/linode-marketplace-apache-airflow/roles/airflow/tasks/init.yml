@@ -47,10 +47,21 @@
   community.docker.docker_compose_v2:
     project_src: /opt/airflow
     state: present
-    recreate: always           # was 'yes'
-    remove_orphans: true       # string lowercase true
+    recreate: always        
+    remove_orphans: true      
   become: yes
 
+- name: Wait for containers to become healthy
+  community.docker.docker_container_info:
+    name: "{{ item.Name }}"
+  register: container_info
+  until: container_info.container.State.Health is defined and
+         container_info.container.State.Health.Status == "healthy"
+  retries: 30
+  delay: 10
+  loop: "{{ airflow_containers.containers }}"
+  loop_control:
+    label: "{{ item.Name }}"
 # - name: Airflow Service file
 #   template:
 #     src: airflow.service.j2
