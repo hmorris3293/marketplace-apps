@@ -23,14 +23,6 @@
 #   become: yes
 #   become_user: airflow
 
-- name: Create empty airflow.cfg file
-  file:
-    path: /opt/airflow/config/airflow.cfg
-    state: touch
-    owner: airflow
-    group: airflow
-    mode: '0644'
-
 - name: Run airflow-cli to list config
   command:
     cmd: docker compose run airflow-cli airflow config list
@@ -43,13 +35,14 @@
     chdir: /opt/airflow
   become: yes
 
-- name: Start Airflow stack with Docker Compose 
+- name: Start Airflow stack with Docker Compose
   community.docker.docker_compose_v2:
-    project_src: /opt/airflow       
-    state: present                  
-    recreate: yes                   
-    remove_orphans: yes            
+    project_src: /opt/airflow
+    state: present
+    recreate: always           # was 'yes'
+    remove_orphans: true       # string lowercase true
   become: yes
+
 # - name: Airflow Service file
 #   template:
 #     src: airflow.service.j2
