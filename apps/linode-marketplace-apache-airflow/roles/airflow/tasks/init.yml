@@ -23,7 +23,6 @@
 #   become: yes
 #   become_user: airflow
 
----
 - name: Create empty airflow.cfg file
   file:
     path: /opt/airflow/config/airflow.cfg
