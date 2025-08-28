@@ -43,20 +43,6 @@
     chdir: /opt/airflow
   become: yes
 
-- name: Update Airflow DB user password inside Postgres container
-  community.docker.docker_container:
-    name: airflow-postgres-password-reset
-    image: postgres:15 
-    command: >
-      psql -h postgres -U airflow -d airflow
-      -c "ALTER USER airflow WITH PASSWORD '{{ postgres_password }}';"
-    env:
-      PGPASSWORD: airflow  
-    #network_mode: "container:postgres" 
-    auto_remove: true
-    detach: false
-  become: yes
-
 - name: Start Airflow stack with Docker Compose
   community.docker.docker_compose_v2:
     project_src: /opt/airflow
