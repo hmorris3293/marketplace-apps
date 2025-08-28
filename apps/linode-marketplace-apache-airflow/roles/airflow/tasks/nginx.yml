@@ -2,7 +2,7 @@
 
 - name: webserver variable
   set_fact:
-    webserver: standalone
+    webserve_stack: standalone
     
 - name: Configure SSL with certbot
   import_role:
