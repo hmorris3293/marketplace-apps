@@ -1,27 +1,48 @@
 ---
+# - name: Run airflow-cli to list config
+#   community.docker.docker_compose:
+#     project_src: /opt/airflow
+#     files:
+#       - docker-compose.yml
+#     services:
+#       - airflow-cli
+#     command: airflow config list
+#     state: present
+#   become: yes
+#   become_user: airflow
+
+# - name: Run Airflow init container using Docker Compose
+#   community.docker.docker_compose:
+#     project_src: /opt/airflow
+#     files:
+#       - docker-compose.yml
+#     services:
+#       - airflow-init
+#     state: present
+#     restarted: yes
+#   become: yes
+#   become_user: airflow
+
+---
+- name: Create empty airflow.cfg file
+  file:
+    path: /opt/airflow/config/airflow.cfg
+    state: touch
+    owner: airflow
+    group: airflow
+    mode: '0644'
+
 - name: Run airflow-cli to list config
-  community.docker.docker_compose:
-    project_src: /opt/airflow
-    files:
-      - docker-compose.yml
-    services:
-      - airflow-cli
-    command: airflow config list
-    state: present
+  command:
+    cmd: docker compose run airflow-cli airflow config list
+    chdir: /opt/airflow
   become: yes
-  become_user: airflow
 
 - name: Run Airflow init container using Docker Compose
-  community.docker.docker_compose:
-    project_src: /opt/airflow
-    files:
-      - docker-compose.yml
-    services:
-      - airflow-init
-    state: present
-    restarted: yes
+  command:
+    cmd: docker compose up airflow-init
+    chdir: /opt/airflow
   become: yes
-  become_user: airflow
 
 - name: Airflow Service file
   template:
