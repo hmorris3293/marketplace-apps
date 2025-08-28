@@ -51,6 +51,17 @@
     remove_orphans: true  
     detach: true      
   become: yes
+  async: 60      
+  poll: 0
+
+- name: Wait for Airflow containers to become healthy
+  shell: |
+    docker ps --filter "health=healthy" --format '{{.Names}}' | wc -l
+  register: healthy_count
+  until: healthy_count.stdout|int >= 6
+  retries: 30
+  delay: 5
+  changed_when: false
 
 # - name: Airflow Service file
 #   template:
