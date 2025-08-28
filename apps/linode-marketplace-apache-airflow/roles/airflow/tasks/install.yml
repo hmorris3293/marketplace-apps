@@ -102,6 +102,6 @@
     daemon_reload: yes
   loop:
     - { name: "scheduler" }
-    - { name: "api-server" }
+    - { name: "api" }
   loop_control:
     loop_var: item
