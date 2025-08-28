@@ -44,14 +44,21 @@
     chdir: /opt/airflow
   become: yes
 
-- name: Airflow Service file
-  template:
-    src: airflow.service.j2
-    dest: /etc/systemd/system/airflow.service
+- name: Start Airflow stack with Docker Compose 
+  community.docker.docker_compose_v2:
+    project_src: /opt/airflow       
+    state: present                  
+    recreate: yes                   
+    remove_orphans: yes            
+  become: yes
+# - name: Airflow Service file
+#   template:
+#     src: airflow.service.j2
+#     dest: /etc/systemd/system/airflow.service
 
-- name: Restart Airflow Service
-  systemd:
-    name: airflow
-    state: started
-    enabled: true
-    daemon_reload: true
+# - name: Restart Airflow Service
+#   systemd:
+#     name: airflow
+#     state: started
+#     enabled: true
+#     daemon_reload: true
