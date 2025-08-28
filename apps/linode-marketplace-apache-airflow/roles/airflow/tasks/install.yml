@@ -69,10 +69,12 @@
   command: "{{ airflow_venv }}/bin/pip install --upgrade pip setuptools wheel"
 
 - name: Install Airflow with constraints
-  command: >
-    {{ airflow_venv }}/bin/pip install
-    "apache-airflow=={{ airflow_version }}"
-    --constraint "{{ constraint_url }}"
+  pip:
+    virtualenv: "{{ airflow_venv }}"
+    virtualenv_command: python3 -m venv
+    name: "apache-airflow=={{ airflow_version }}"
+    extra_args: "--constraint {{ constraint_url }}"
+    state: present
 
 - name: Template Airflow Scheduler systemd service
   template:
