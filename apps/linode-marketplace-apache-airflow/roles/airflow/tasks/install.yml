@@ -1,16 +1,7 @@
 - name: Set deployment fact
   set_fact:
     airflow_home: /opt/airflow
-
-- name: Install Docker latest
-  import_role:
-    name: docker
-
-- name: Install Docker Compose plugin
-  apt:
-    name: docker-compose-plugin
-    state: present
-    update_cache: true
+    airflow_venv: /opt/airflow/airflow_venv
 
 - name: Ensure airflow group exists
   group:
@@ -28,40 +19,83 @@
     create_home: yes
     state: present
 
+- name: Ensure system dependencies are installed
+  apt:
+    name:
+      - python3-pip
+      - python3-venv
+      - build-essential
+      - libssl-dev
+      - libffi-dev
+      - python3-dev
+      - curl
+    state: present
+    update_cache: yes
+
+- name: Get latest available Python3 version
+  ansible.builtin.shell: |
+    python3 --version | awk '{print $2}' | cut -d. -f1-2
+  register: python_version
+  changed_when: false
+
+- name: Get latest Airflow release version
+  ansible.builtin.uri:
+    url: https://pypi.org/pypi/apache-airflow/json
+    return_content: yes
+  register: airflow_pypi
+
+- name: Set Airflow version fact
+  set_fact:
+    airflow_version: "{{ (airflow_pypi.json.info.version) }}"
+
+- name: Build constraints URL
+  set_fact:
+    constraint_url: "https://raw.githubusercontent.com/apache/airflow/constraints-{{ airflow_version }}/constraints-{{ python_version.stdout }}.txt"
+
 - name: Create Airflow directories
   file:
-    path: "/opt/airflow/{{ item }}"
+    path: "{{ airflow_home }}"
     state: directory
     owner: airflow
     group: airflow
     mode: '0755'
-  loop:
-    - dags
-    - logs
-    - plugins
-    - backup
-    - config
 
-- name: Ensure /opt/airflow ownership
-  file:
-    path: /opt/airflow
-    state: directory
-    recurse: yes
-    owner: airflow
-    group: airflow
+- name: Create virtual environment for Airflow
+  command: python3 -m venv {{ airflow_venv }}
+  args:
+    creates: "{{ airflow_venv }}/bin/activate"
 
-- name: Deploy Docker Compose template for Airflow
-  template:
-    src: docker-compose.yml.j2
-    dest: /opt/airflow/docker-compose.yml
-    owner: airflow
-    group: airflow
-    mode: '0644'
+- name: Upgrade pip in venv
+  command: "{{ airflow_venv }}/bin/pip install --upgrade pip setuptools wheel"
 
-- name: Deploy .env file for Airflow
-  template:
-    src: env.j2
-    dest: /opt/airflow/.env
-    owner: airflow
-    group: airflow
-    mode: '0600'
+- name: Install Airflow with constraints
+  command: >
+    {{ airflow_venv }}/bin/pip install
+    "apache-airflow=={{ airflow_version }}"
+    --constraint "{{ constraint_url }}"
+
+- name: Create systemd unit file for Airflow Standalone
+  copy:
+    dest: /etc/systemd/system/airflow.service
+    content: |
+      [Unit]
+      Description=Apache Airflow Standalone
+      After=network.target
+
+      [Service]
+      User=airflow
+      Group=airflow
+      Environment="AIRFLOW_HOME={{ airflow_home }}"
+      ExecStart={{ airflow_venv }}/bin/airflow standalone
+      Restart=always
+      RestartSec=10
+
+      [Install]
+      WantedBy=multi-user.target
+
+- name: Enable and start Airflow service
+  systemd:
+    name: airflow
+    enabled: yes
+    state: started
+    daemon_reload: yes
