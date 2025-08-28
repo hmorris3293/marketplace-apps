@@ -89,7 +89,7 @@
 - name: Template Airflow API systemd service
   template:
     src: airflow-api.service.j2
-    dest: /etc/systemd/system/airflow-scheduler.service
+    dest: /etc/systemd/system/airflow-api.service
     owner: root
     group: root
     mode: '0644'
