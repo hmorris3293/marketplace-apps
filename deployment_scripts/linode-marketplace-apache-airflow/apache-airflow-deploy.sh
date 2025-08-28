@@ -82,7 +82,7 @@ function udf {
   sed 's/  //g' <<EOF > ${group_vars}
   # sudo username
   username: ${USER_NAME}
-  memgraph_username: ${MEMGRAPH_USERNAME}
+  webserver_stack: standalone
 EOF
 
   if [ "$DISABLE_ROOT" = "Yes" ]; then
@@ -105,6 +105,11 @@ EOF
     echo "token_password: ${TOKEN_PASSWORD}" >> ${group_vars};
   else echo "No API token entered";
   fi
+  
+  if [[ -n ${SOA_EMAIL_ADDRESS} ]]; then
+    echo "soa_email_address: ${SOA_EMAIL_ADDRESS}" >> ${group_vars};
+  fi
+
 
   # staging or production mode (ci)
   if [[ "${MODE}" == "staging" ]]; then
