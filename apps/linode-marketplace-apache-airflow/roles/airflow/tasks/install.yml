@@ -78,11 +78,6 @@
   async: 30      
   poll: 0
 
-- name: Initialize Airflow metadata database
-  command: "{{ airflow_venv }}/bin/airflow db migrate"
-  args:
-    creates: "{{ airflow_home }}/airflow.db"
-
 - name: Template Airflow Scheduler systemd service
   template:
     src: airflow-scheduler.service.j2
