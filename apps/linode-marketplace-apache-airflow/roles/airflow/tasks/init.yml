@@ -52,7 +52,7 @@
       -c "ALTER USER airflow WITH PASSWORD '{{ postgres_password }}';"
     env:
       PGPASSWORD: airflow  
-    network_mode: "container:postgres" 
+    #network_mode: "container:postgres" 
     auto_remove: true
     detach: false
   become: yes
