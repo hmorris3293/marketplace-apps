@@ -75,8 +75,8 @@
     name: "apache-airflow=={{ airflow_version }}"
     extra_args: "--constraint {{ constraint_url }}"
     state: present
-  async: 5       
-  poll: 5 
+  async: 30      
+  poll: 0
 
 - name: Template Airflow Scheduler systemd service
   template:
