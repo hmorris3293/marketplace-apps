@@ -23,6 +23,14 @@
 #   become: yes
 #   become_user: airflow
 
+- name: Ensure /opt/airflow is owned by airflow
+  file:
+    path: /opt/airflow
+    state: directory
+    recurse: yes
+    owner: airflow
+    group: airflow
+
 - name: Run airflow-cli to list config
   command:
     cmd: docker compose run airflow-cli airflow config list
