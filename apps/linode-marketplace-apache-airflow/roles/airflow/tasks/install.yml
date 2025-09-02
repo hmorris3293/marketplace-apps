@@ -111,6 +111,14 @@
   loop_control:
     loop_var: item
 
+- name: Wait until Airflow password file exists
+  stat:
+    path: /opt/airflow/airflow/simple_auth_manager_passwords.json.generated
+  register: airflow_password_file_stat
+  until: airflow_password_file_stat.stat.exists
+  retries: 5
+  delay: 5
+
 - name: Read Airflow generated password file
   slurp:
     src: /opt/airflow/airflow/simple_auth_manager_passwords.json.generated
