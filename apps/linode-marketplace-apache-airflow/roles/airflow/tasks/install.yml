@@ -75,8 +75,13 @@
     name: "apache-airflow=={{ airflow_version }}"
     extra_args: "--constraint {{ constraint_url }}"
     state: present
-  async: 30      
-  poll: 0
+#  async: 30      
+#  poll: 0
+
+- name: Initialize Airflow metadata database
+  command: "{{ airflow_venv }}/bin/airflow db migrate"
+  args:
+    creates: "{{ airflow_home }}/airflow.db"
 
 - name: Template Airflow Scheduler systemd service
   template:
