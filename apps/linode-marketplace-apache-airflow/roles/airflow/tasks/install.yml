@@ -110,3 +110,12 @@
     - { name: "api" }
   loop_control:
     loop_var: item
+
+- name: Read Airflow generated password file
+  slurp:
+    src: /opt/airflow/airflow/simple_auth_manager_passwords.json.generated
+  register: airflow_password_file
+
+- name: Parse JSON and set password as var
+  set_fact:
+    airflow_admin_password: "{{ (airflow_password_file['content'] | b64decode | from_json).admin }}"

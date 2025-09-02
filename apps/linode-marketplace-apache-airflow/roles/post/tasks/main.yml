@@ -13,7 +13,5 @@
     content: |
       Sudo Username: {{ username }}
       Sudo Password: {{ password }}
-      Apache Airflow User: airflow
-      Apache Airflow Password: {{ airflow_password }}
-      Postgres User: airflow
-      Postgres Password: {{ postgres_password }}
+      Apache Airflow User: admin
+      Apache Airflow Password: {{ airflow_admin_password }}
