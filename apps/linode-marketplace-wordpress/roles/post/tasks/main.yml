@@ -26,10 +26,10 @@
 
 # data exporter
 
-- name: adding prometheus exporters
+- name: add add_ons
   import_role:
-    name: data_exporter
-  when: prometheus_exporter != 'none'
+    name: add_ons
+  when: add_ons != 'none'
 
 # motd and creds gen
 - name: copy MOTD template to /etc/motd

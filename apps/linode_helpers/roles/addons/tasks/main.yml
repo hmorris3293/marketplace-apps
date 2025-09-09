@@ -1,0 +1,9 @@
+---
+- name: install newrelic
+  include_tasks:
+    file: newrelic.yml
+  loop: "{{ add_ons }}"
+  loop_control:
+    index_var: count
+  when: add_ons[count] == 'newrelic'
+

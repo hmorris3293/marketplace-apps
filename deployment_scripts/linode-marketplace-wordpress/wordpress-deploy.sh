@@ -22,6 +22,7 @@ trap "cleanup $? $LINENO" EXIT
 
 ## Misc
 #<UDF name="prometheus_exporter" label="Add Prometheus data exporter" manyOf="node_exporter,mysqld_exporter,none"  default="">
+#<UDF name="add_ons" label="Add agent installations scripts to your deployment" manyOf="node_exporter,mysqld_exporter,newrelic,sumologic,none"  default="none">
 
 # git repo
 export GIT_REPO="https://github.com/akamai-compute-marketplace/marketplace-apps.git"
@@ -53,7 +54,8 @@ function udf {
   # sudo username
   username: ${USER_NAME}
   # misc
-  prometheus_exporter: [${PROMETHEUS_EXPORTER}]  
+  prometheus_exporter: [${PROMETHEUS_EXPORTER}] 
+  add_ons: [${ADD_ONS}]  
 EOF
 
   if [ "$DISABLE_ROOT" = "Yes" ]; then
@@ -75,6 +77,7 @@ EOF
     echo "subdomain: ${SUBDOMAIN}" >> ${group_vars};
   else echo "subdomain: www" >> ${group_vars};
   fi
+
 }
 
 function run {
