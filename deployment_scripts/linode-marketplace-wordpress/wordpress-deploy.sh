@@ -21,7 +21,6 @@ trap "cleanup $? $LINENO" EXIT
 #<UDF name="domain" label="Domain" example="The domain for the DNS record: example.com (Requires API token)" default="">
 
 ## Misc
-#<UDF name="prometheus_exporter" label="Add Prometheus data exporter" manyOf="node_exporter,mysqld_exporter,none"  default="">
 #<UDF name="add_ons" label="Add agent installations scripts to your deployment" manyOf="node_exporter,mysqld_exporter,newrelic,sumologic,none"  default="none">
 
 # git repo
@@ -54,7 +53,6 @@ function udf {
   # sudo username
   username: ${USER_NAME}
   # misc
-  prometheus_exporter: [${PROMETHEUS_EXPORTER}] 
   add_ons: [${ADD_ONS}]  
 EOF
 

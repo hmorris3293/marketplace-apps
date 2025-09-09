@@ -25,8 +25,7 @@
   when: webserver_stack == 'lemp'
 
 # data exporter
-
-- name: add add_ons
+- name: add addons
   import_role:
     name: add_ons
   when: add_ons != 'none'
