@@ -1,13 +1,8 @@
 ---
-- name: Install newrelic if enabled
-  include_tasks: newrelic.yml
-  when: "'newrelic' in add_ons"
-
-- name: Install node_exporter if enabled
-  include_tasks: node-exporter.yml
-  when: "'node_exporter' in add_ons"
-
-- name: Install mysqld_exporter if enabled
-  include_tasks: mysqld-exporter.yml
-  when: "'mysqld_exporter' in add_ons"
-
+- name: Install add-ons
+  include_tasks: "{{ item.file }}"
+  loop:
+    - { name: "newrelic", file: "newrelic.yml" }
+    - { name: "node_exporter", file: "node-exporter.yml" }
+    - { name: "mysqld_exporter", file: "mysqld-exporter.yml" }
+  when: item.name in add_ons
