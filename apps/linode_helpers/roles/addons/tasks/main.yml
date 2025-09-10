@@ -1,25 +1,13 @@
 ---
-- name: install newrelic
-  include_tasks:
-    file: newrelic.yml
-  loop: "{{ add_ons }}"
-  loop_control:
-    index_var: count
-  when: add_ons[count] == 'newrelic'
+- name: Install newrelic if enabled
+  include_tasks: newrelic.yml
+  when: "'newrelic' in add_ons"
 
-- name: install prometheus node_exporter
-  include_tasks:
-    file: node-exporter.yml
-  loop: "{{ add_ons }}"
-  loop_control:
-    index_var: count
-  when: add_ons[count] == 'node_exporter'
+- name: Install node_exporter if enabled
+  include_tasks: node-exporter.yml
+  when: "'node_exporter' in add_ons"
 
-- name: install prometheus mysqld_exporter
-  include_tasks:
-    file: mysqld-exporter.yml
-  loop: "{{ add_ons }}"
-  loop_control:
-    index_var: count
-  when: add_ons[count] == 'mysqld_exporter'
+- name: Install mysqld_exporter if enabled
+  include_tasks: mysqld-exporter.yml
+  when: "'mysqld_exporter' in add_ons"
 
