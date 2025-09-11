@@ -33,10 +33,11 @@
     group: root
     mode: '0755'
 
-- name: Deploy New Relic setup profile script
-  template:
-    src: newrelic.sh.j2
-    dest: /etc/profile.d/newrelic.sh
+- name: Append New Relic setup profile script
+  blockinfile:
+    path: /etc/profile.d/addons.sh
+    block: "{{ lookup('template', 'newrelic.sh.j2') }}"
+    create: yes
     owner: root
     group: root
     mode: '0755'

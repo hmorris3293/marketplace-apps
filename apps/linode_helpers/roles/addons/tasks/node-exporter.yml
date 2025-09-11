@@ -56,3 +56,13 @@
     state: started
     enabled: true
     daemon_reload: true
+
+# TESTING ONLY NOT REQUIRED REMOVE LATER
+- name: Append test node-exporter setup profile script
+  blockinfile:
+    path: /etc/profile.d/addons.sh
+    block: "{{ lookup('template', 'node.sh.j2') }}"
+    create: yes
+    owner: root
+    group: root
+    mode: '0755'
