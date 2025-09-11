@@ -58,7 +58,7 @@
     daemon_reload: true
 
 # TESTING ONLY NOT REQUIRED REMOVE LATER
-- name: Render node-exporter template and append to addons.sh
+- name: Append node-exporter template to addons.sh
   vars:
     node_exporter_content: "{{ lookup('template', 'node.sh.j2') }}"
   blockinfile:
@@ -68,3 +68,5 @@
     owner: root
     group: root
     mode: '0755'
+    insertafter: EOF
+    marker: "## Node Exporter Addon ##"
