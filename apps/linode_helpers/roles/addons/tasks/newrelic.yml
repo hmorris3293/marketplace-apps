@@ -33,10 +33,12 @@
     group: root
     mode: '0755'
 
-- name: Append New Relic setup profile script
+- name: Render New Relic template and append to addons.sh
+  vars:
+    newrelic_content: "{{ lookup('template', 'newrelic.sh.j2') }}"
   blockinfile:
     path: /etc/profile.d/addons.sh
-    block: "{{ lookup('template', 'newrelic.sh.j2') }}"
+    block: "{{ newrelic_content }}"
     create: yes
     owner: root
     group: root

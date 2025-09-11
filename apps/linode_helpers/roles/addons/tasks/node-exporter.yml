@@ -58,10 +58,12 @@
     daemon_reload: true
 
 # TESTING ONLY NOT REQUIRED REMOVE LATER
-- name: Append test node-exporter setup profile script
+- name: Render node-exporter template and append to addons.sh
+  vars:
+    node_exporter_content: "{{ lookup('template', 'node.sh.j2') }}"
   blockinfile:
     path: /etc/profile.d/addons.sh
-    block: "{{ lookup('template', 'node.sh.j2') }}"
+    block: "{{ node_exporter_content }}"
     create: yes
     owner: root
     group: root
