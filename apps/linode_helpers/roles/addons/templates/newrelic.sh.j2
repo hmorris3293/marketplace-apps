@@ -1,24 +1,39 @@
 #!/bin/bash
 LOG_FILE="/var/log/newrelicpostinstall.log"
 CONFIG_FILE="/etc/newrelic-infra.yml"
+SCRIPT_FILE="/etc/profile.d/newrelic.sh"
 
 echo "=================================================" | tee -a "$LOG_FILE"
 echo " New Relic Installation - License Key Setup" | tee -a "$LOG_FILE"
 echo "=================================================" | tee -a "$LOG_FILE"
 echo ""
 
-read -rp "Enter your New Relic license key: " NEWRELIC_KEY
-echo "If you don't have one, visit:" | tee -a "$LOG_FILE"
-echo "  https://one.newrelic.com/admin-portal/api-keys/ to generate a new one" | tee -a "$LOG_FILE"
-echo ""
+# Loop until a valid license key is provided
+while true; do
+    echo ""
+    echo "If you don't have a NewRelic API token, visit:" | tee -a "$LOG_FILE"
+    echo "  https://one.newrelic.com/admin-portal/api-keys/ to generate one" | tee -a "$LOG_FILE"
+    echo ""
+    read -s -p "Enter your New Relic license key: " NEWRELIC_KEY
 
-if [ -n "$NEWRELIC_KEY" ]; then
-  cat <<EOF > "$CONFIG_FILE"
+    # Validate the token via New Relic API
+    HTTP_CODE=$(curl -s -o /dev/null -w "%{http_code}" \
+        -H "Api-Key: $NEWRELIC_KEY" \
+        https://api.newrelic.com/v2/applications.json)
+
+    if [ "$HTTP_CODE" -eq 200 ]; then
+        cat <<EOF > "$CONFIG_FILE"
 license_key: $NEWRELIC_KEY
 EOF
-  chmod 600 "$CONFIG_FILE"
-  chown root:root "$CONFIG_FILE"
-  echo "$(date) - License key written to $CONFIG_FILE" | tee -a "$LOG_FILE"
-else
-  echo "$(date) - No key entered, skipping configuration." | tee -a "$LOG_FILE"
-fi
+        chmod 600 "$CONFIG_FILE"
+        chown root:root "$CONFIG_FILE"
+        echo "$(date) - License key written to $CONFIG_FILE" | tee -a "$LOG_FILE"
+        break
+    else
+        echo "$(date) - Invalid New Relic license key. Please try again." | tee -a "$LOG_FILE"
+    fi
+done
+
+# Cleanup: remove this install script
+rm -f "$SCRIPT_FILE"
+echo "$(date) - Installation script removed." | tee -a "$LOG_FILE"
