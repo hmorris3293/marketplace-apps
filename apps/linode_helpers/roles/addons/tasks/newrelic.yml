@@ -33,7 +33,7 @@
     group: root
     mode: '0755'
 
-- name: Append New Relic template to addons.sh
+- name: Append New Relic template to addons.sh after "# BEGIN ADDONS"
   vars:
     newrelic_content: "{{ lookup('template', 'newrelic.sh.j2') }}"
   blockinfile:
@@ -43,8 +43,7 @@
     owner: root
     group: root
     mode: '0755'
-    insertafter: EOF
-    marker: "## NEW RELIC ADDON ##"
+    insertafter: '^# BEGIN ADDONS'
 
 - name: Ensure newrelic-infra service is enabled and started
   systemd:
