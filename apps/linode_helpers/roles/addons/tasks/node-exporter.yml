@@ -58,15 +58,14 @@
     daemon_reload: true
 
 # TESTING ONLY NOT REQUIRED REMOVE LATER
-- name: Append node-exporter template to addons.sh after "# BEGIN ADDONS"
-  vars:
-    node_exporter_content: "{{ lookup('template', 'node.sh.j2') }}"
-  blockinfile:
+- name: Insert Node Exporter line after "# BEGIN ADDONS"
+  lineinfile:
     path: /etc/profile.d/addons.sh
-    block: "{{ node_exporter_content }}"
+    insertafter: '^# BEGIN ADDONS'
+    line: "{{ lookup('template', 'node.sh.j2') }}"
     create: yes
     owner: root
     group: root
     mode: '0755'
-    insertafter: '^# BEGIN ADDONS'
+
 
