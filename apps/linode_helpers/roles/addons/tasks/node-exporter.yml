@@ -69,4 +69,4 @@
     group: root
     mode: '0755'
     insertafter: '^# BEGIN ADDONS'
-    marker: "## Node Exporter Addon ##"
+
