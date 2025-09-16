@@ -1,14 +1,11 @@
 ---
-- name: Create addons.sh if add_ons is not none
-  copy:
-    dest: /etc/profile.d/addons.sh
-    content: |
-      #!/bin/bash
-      LOG_FILE="/var/log/marketplace_addons.log"
-      ### Addon scripts go below ###
+- name: Create addons.sh
+  template:
+    src: 'templates/addons.sh.j2' 
+    dest: '/etc/profile.d/addons.sh'
     owner: root
     group: root
-    mode: '0755'
+    mode: 0755
   when: add_ons is defined and add_ons != 'none'
 
 - name: Install add-ons
@@ -19,17 +16,3 @@
     - { name: "mysqld_exporter", file: "mysqld-exporter.yml" }
   when: item.name in add_ons
 
-- name: Append cleanup snippet to addons.sh
-  blockinfile:
-    path: /etc/profile.d/addons.sh
-    block: |
-      # Cleanup: remove this install script
-      rm -f "$SCRIPT_FILE"
-      echo "$(date) - Installation script removed." | tee -a "$LOG_FILE"
-    create: yes
-    owner: root
-    group: root
-    mode: '0755'
-    insertafter: EOF
-    marker: ""  # disables BEGIN/END markers
-  when: add_ons is defined and add_ons != 'none'
