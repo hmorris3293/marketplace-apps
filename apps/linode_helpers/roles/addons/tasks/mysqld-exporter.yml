@@ -1,5 +1,8 @@
 ---
-
+- name: Set port for mysqld_exporter
+  set_fact:
+    check_port: 9104
+    
 - name: Gather listening sockets
   ansible.utils.netstat:
   register: netstat_info
