@@ -1,5 +1,4 @@
 ---
-
 - name: Install MySQL
   apt:
     pkg:
@@ -14,7 +13,7 @@
     state: started
     enabled: yes
 
-- name: Reset root password 
+- name: Ensure root user has a temporary password
   community.mysql.mysql_user:
     name: root
     host: localhost
@@ -22,13 +21,12 @@
     state: present
     login_unix_socket: /run/mysqld/mysqld.sock
 
-- name: Allow root login via Unix socket (no password required)
-  community.mysql.mysql_user:
-    name: root
-    host: localhost
-    plugin: auth_socket
-    state: present
+- name: Switch root authentication to unix_socket
+  community.mysql.mysql_query:
+    login_user: root
+    login_password: "{{ mysql_root_password }}"
     login_unix_socket: /run/mysqld/mysqld.sock
+    query: "ALTER USER 'root'@'localhost' IDENTIFIED WITH auth_socket;"
 
 - name: Remove all anonymous users
   community.mysql.mysql_user:
