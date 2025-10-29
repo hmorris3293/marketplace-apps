@@ -5,7 +5,7 @@
 - name: Check if port 3306 is listening locally
   wait_for:
     host: "127.0.0.1"
-    port: 3307
+    port: 3306
     timeout: 1
     state: started
   register: mysql_port_check
