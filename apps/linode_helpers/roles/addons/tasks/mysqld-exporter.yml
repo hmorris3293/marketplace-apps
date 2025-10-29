@@ -19,6 +19,7 @@
   fail:
     msg: "No service is listening on port 3306 — mysqld_exporter requires a running MySQL or MariaDB instance."
   when: not mysql_port_listening
+  ignore_errors: true
 
 - block:
     - name: Create prometheus user
@@ -109,3 +110,4 @@
         daemon_reload: true
 
   when: mysql_port_listening
+  
