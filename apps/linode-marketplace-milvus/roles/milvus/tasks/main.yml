@@ -8,4 +8,4 @@
 #  import_tasks: nginx.yml
 
 - name: Configure Milvus
-  import_tasks: config.yml
+  import_tasks: install.yml
