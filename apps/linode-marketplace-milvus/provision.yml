@@ -11,9 +11,3 @@
     - name: Generating sudo user and password
       import_tasks: ../linode_helpers/roles/sudouser/tasks/main.yml
       
-    - name: Generating Cribl Admin password
-      lineinfile:
-        insertafter: EOF
-        path: group_vars/linode/vars
-        line: |
-          cribl_admin_password: {{ lookup('password', '/dev/null length=32 chars=ascii_letters,digits') }} 
