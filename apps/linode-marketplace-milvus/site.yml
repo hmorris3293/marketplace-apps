@@ -34,4 +34,4 @@
         - common
         - milvus
         - post
-      when: "mode == 'production'" 
+      when: "mode == 'production'"
