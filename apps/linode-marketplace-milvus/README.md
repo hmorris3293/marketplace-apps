@@ -8,8 +8,7 @@ Deploy a production-ready instance of Milvus, the open-source vector database bu
 | :----------- | :----------------- | :------------------------------------------ |
 | Milvus | Latest | Open-source vector database for AI and similarity search      |
 | Nginx | Latest | Web Server Service     |
-   
-
+  
 
 **Supported Distributions:**
 - Ubuntu 24.04 LTS

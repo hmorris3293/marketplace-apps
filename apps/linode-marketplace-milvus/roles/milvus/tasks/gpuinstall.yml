@@ -1,0 +1,27 @@
+---
+- name: Include GPU config
+  include_tasks: gpuconfig.yml
+
+- name: Create Milvus directory
+  file:
+    path: /opt/milvus
+    state: directory
+    owner: root
+    group: root
+    mode: "0755"
+
+- name: Deploy docker-compose.yml
+  template:
+    src: gpu-docker-compose.yml.j2
+    dest: /opt/milvus/docker-compose.yml
+    mode: "0644"
+
+- name: Pull and start Milvus stack
+  community.docker.docker_compose:
+    project_src: /opt/milvus
+    state: present
+
+- name: Ensure Milvus is running
+  community.docker.docker_compose:
+    project_src: /opt/milvus
+    state: started
