@@ -19,4 +19,4 @@
 - name: Start Milvus Container
   community.docker.docker_compose_v2:
     project_src: /opt/milvus
-    state: started
+    state: restarted
