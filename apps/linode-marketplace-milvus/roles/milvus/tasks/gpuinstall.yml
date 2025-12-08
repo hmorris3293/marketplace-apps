@@ -16,12 +16,7 @@
     dest: /opt/milvus/docker-compose.yml
     mode: "0644"
 
-- name: Pull and start Milvus stack
-  community.docker.docker_compose:
-    project_src: /opt/milvus
-    state: present
-
-- name: Ensure Milvus is running
-  community.docker.docker_compose:
+- name: Start Milvus Container
+  community.docker.docker_compose_v2:
     project_src: /opt/milvus
     state: started
