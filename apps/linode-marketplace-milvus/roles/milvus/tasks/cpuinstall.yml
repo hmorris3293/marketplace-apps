@@ -18,5 +18,5 @@
 
 - name: Start Milvus Compose file
   community.docker.docker_compose_v2:
-    project_src: "{{ weaviate_compose_dir }}"
+    project_src: /opt/milvus
     state: present
