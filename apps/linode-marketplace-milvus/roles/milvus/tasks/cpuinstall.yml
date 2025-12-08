@@ -11,7 +11,12 @@
     dest: /opt/milvus/docker-compose.yml
     mode: "0644"
 
-- name: Ensure Milvus is running
+- name: Pull Milvus Docker image
   community.docker.docker_compose_v2:
     project_src: /opt/milvus
-    state: restarted
+    pull: always
+
+- name: Start Milvus Compose file
+  community.docker.docker_compose_v2:
+    project_src: "{{ weaviate_compose_dir }}"
+    state: present
