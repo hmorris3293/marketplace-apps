@@ -17,4 +17,4 @@
         path: group_vars/linode/vars
         line: | 
           minio_access_key: {{ lookup('password', '/dev/null length=15 chars=ascii_letters,digits') }}
-          minio_secret_key:: {{ lookup('password', '/dev/null length=30 chars=ascii_letters,digits') }}
+          minio_secret_key: {{ lookup('password', '/dev/null length=30 chars=ascii_letters,digits') }}
