@@ -10,8 +10,8 @@
     # generate creds
     - name: Generating sudo user and password
       import_tasks: ../linode_helpers/roles/sudouser/tasks/main.yml
-        - name: writing moodle to vars
-    - name: writing moodle to vars
+
+    - name: writing milvus to vars
       lineinfile: 
         insertafter: EOF
         path: group_vars/linode/vars
