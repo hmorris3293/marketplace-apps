@@ -4,8 +4,5 @@
 - name: Install Milvus
   import_tasks: install.yml
 
-#- name: Configure Nginx
-#  import_tasks: nginx.yml
-
 - name: Configure Milvus
   import_tasks: install.yml

@@ -8,7 +8,7 @@
   set_fact:
     has_gpu: "{{ gpu_check.rc == 0 }}"
 
-- name: install docker
+- name: Install Docker
   import_role:
     name: docker
 
