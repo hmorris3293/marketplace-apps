@@ -106,6 +106,12 @@
     group: root
     mode: "0755"
 
+- name: Add Milvus config
+  template:
+    src: gpu_milvus.yaml
+    dest: /opt/milvus/milvus.yaml
+    mode: "0644"
+
 - name: Deploy docker-compose.yml
   template:
     src: gpu-docker-compose.yml.j2
