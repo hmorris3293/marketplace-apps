@@ -1,13 +1,13 @@
 # Linode Milvus One-Click App
 
-Deploy a production-ready instance of Milvus, the open-source vector database built for AI, embeddings, and similarity search. This setup includes NGINX configured as a reverse proxy for secure external access, Certbot for automatic SSL certificate management, and system hardening via UFW and Fail2Ban. Ideal for powering retrieval-augmented generation (RAG), semantic search, and AI application backends.
+Deploy a production-ready instance of Milvus, the open-source vector database built for AI, embeddings, and similarity search. Ideal for powering retrieval-augmented generation (RAG), semantic search, and AI application backends.
 
 ## Software Included
 
 | Software     | Version            | Description                                 |
 | :----------- | :----------------- | :------------------------------------------ |
 | Milvus | Latest | Open-source vector database for AI and similarity search      |
-| Nginx | Latest | Web Server Service     |
+| Docker | Latest | Container Management tool      |
   
 
 **Supported Distributions:**
@@ -24,7 +24,6 @@ Deploy a production-ready instance of Milvus, the open-source vector database bu
 | Create DNS Record| Uses the Linode API to create DNS records for the specified domain/subdomain.                                             |
 | Secure SSH       | Hardens SSH settings including disabling root login and password-based authentication.                                    |
 | SSH Key          | Deploys custom or account SSH keys for secure access.                                                                      |
-| Certbot SSL      | Installs SSL certificates using Let's Encrypt and configures NGINX accordingly.                                            |
 
 ## Use our API
 
