@@ -98,14 +98,6 @@
     state: restarted
     
 # Milvus
-- name: Create Milvus directory
-  file:
-    path: /opt/milvus
-    state: directory
-    owner: root
-    group: root
-    mode: "0755"
-
 - name: Add Milvus config
   template:
     src: milvus.yaml
