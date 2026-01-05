@@ -14,7 +14,6 @@
     docker exec milvus-etcd
     etcdctl role add root 
 
-
 - name: Grant root role readwrite permissions
   command: >
     docker exec milvus-etcd
@@ -28,6 +27,8 @@
 - name: debug
   command: docker exec milvus-etcd etcdctl user list
 
+
+ocker exec -e ETCDCTL_API=3 milvus-etcd etcdctl user passwd root --password="holden123" --interactive=false
 # Restart containers
 - name: Bring down Docker Compose stack
   community.docker.docker_compose_v2:

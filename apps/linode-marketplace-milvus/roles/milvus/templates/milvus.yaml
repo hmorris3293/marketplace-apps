@@ -44,10 +44,10 @@ etcd:
     # please adjust in embedded Milvus: /tmp/milvus/logs/etcd.log
     path: stdout
   ssl:
-    enabled: false # Whether to support ETCD secure connection mode
-    tlsCert: /path/to/etcd-client.pem # path to your cert file
-    tlsKey: /path/to/etcd-client-key.pem # path to your key file
-    tlsCACert: /path/to/ca.pem # path to your CACert file
+    enabled: true # Whether to support ETCD secure connection mode
+    tlsCert: /opt/milvus/certs/client.crt # path to your cert file
+    tlsKey: /opt/milvus/certs/client.key # path to your key file
+    tlsCACert: /opt/milvus/certs/ca.key # path to your CACert file
     # TLS min version
     # Optional values: 1.0, 1.1, 1.2, 1.3。
     # We recommend using version 1.2 and above.
