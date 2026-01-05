@@ -4,10 +4,7 @@
     state: directory
     mode: '0755'
 
-############################
 # CA
-############################
-
 - name: Generate CA private key
   community.crypto.openssl_privatekey:
     path: /opt/milvus/certs/ca.key
@@ -34,10 +31,7 @@
     provider: selfsigned
     state: present
 
-############################
-# etcd SERVER
-############################
-
+# ETCD Server
 - name: Generate etcd server private key
   community.crypto.openssl_privatekey:
     path: /opt/milvus/certs/server.key
@@ -66,10 +60,7 @@
     ownca_privatekey_path: /opt/milvus/certs/ca.key
     state: present
 
-############################
-# etcd CLIENT (Milvus)
-############################
-
+# ETCD Client
 - name: Generate etcd client private key
   community.crypto.openssl_privatekey:
     path: /opt/milvus/certs/client.key
@@ -93,10 +84,6 @@
     ownca_path: /opt/milvus/certs/ca.crt
     ownca_privatekey_path: /opt/milvus/certs/ca.key
     state: present
-
-############################
-# Permissions
-############################
 
 - name: Set cert permissions
   file:

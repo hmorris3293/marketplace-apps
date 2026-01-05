@@ -19,7 +19,7 @@ etcd:
   # Endpoints used to access etcd service. You can change this parameter as the endpoints of your own etcd cluster.
   # Environment variable: ETCD_ENDPOINTS
   # etcd preferentially acquires valid address from environment variable ETCD_ENDPOINTS when Milvus is started.
-  endpoints: localhost:2379
+  endpoints: https://milvus-etcd:2379
   # Root prefix of the key to where Milvus stores data in etcd.
   # It is recommended to change this parameter before starting Milvus for the first time.
   # To share an etcd instance among multiple Milvus instances, consider changing this to a different value for each Milvus instance before you start them.
@@ -45,9 +45,9 @@ etcd:
     path: stdout
   ssl:
     enabled: true # Whether to support ETCD secure connection mode
-    tlsCert: /opt/milvus/certs/client.crt # path to your cert file
-    tlsKey: /opt/milvus/certs/client.key # path to your key file
-    tlsCACert: /opt/milvus/certs/ca.key # path to your CACert file
+    tlsCert: /certs/client.crt # path to your cert file
+    tlsKey: /certs/client.key # path to your key file
+    tlsCACert: /certs/ca.crt # path to your CACert file
     # TLS min version
     # Optional values: 1.0, 1.1, 1.2, 1.3。
     # We recommend using version 1.2 and above.
