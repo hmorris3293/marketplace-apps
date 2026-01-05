@@ -1,9 +1,12 @@
----
 - name: Ensure cert directory exists
   file:
     path: /opt/milvus/certs
     state: directory
     mode: '0755'
+
+############################
+# CA
+############################
 
 - name: Generate CA private key
   community.crypto.openssl_privatekey:
@@ -12,13 +15,28 @@
     type: RSA
     state: present
 
+- name: Generate CA CSR
+  community.crypto.openssl_csr:
+    path: /opt/milvus/certs/ca.csr
+    privatekey_path: /opt/milvus/certs/ca.key
+    common_name: milvus-etcd-ca
+    basic_constraints:
+      - CA:TRUE
+    key_usage:
+      - keyCertSign
+      - cRLSign
+
 - name: Generate self-signed CA certificate
   community.crypto.x509_certificate:
     path: /opt/milvus/certs/ca.crt
+    csr_path: /opt/milvus/certs/ca.csr
     privatekey_path: /opt/milvus/certs/ca.key
-    common_name: milvus-etcd-ca
     provider: selfsigned
     state: present
+
+############################
+# etcd SERVER
+############################
 
 - name: Generate etcd server private key
   community.crypto.openssl_privatekey:
@@ -36,6 +54,8 @@
       - DNS:milvus-etcd
       - DNS:localhost
       - IP:127.0.0.1
+    extended_key_usage:
+      - serverAuth
 
 - name: Sign etcd server certificate
   community.crypto.x509_certificate:
@@ -45,6 +65,10 @@
     ownca_path: /opt/milvus/certs/ca.crt
     ownca_privatekey_path: /opt/milvus/certs/ca.key
     state: present
+
+############################
+# etcd CLIENT (Milvus)
+############################
 
 - name: Generate etcd client private key
   community.crypto.openssl_privatekey:
@@ -58,6 +82,8 @@
     path: /opt/milvus/certs/client.csr
     privatekey_path: /opt/milvus/certs/client.key
     common_name: milvus-client
+    extended_key_usage:
+      - clientAuth
 
 - name: Sign etcd client certificate
   community.crypto.x509_certificate:
@@ -67,6 +93,10 @@
     ownca_path: /opt/milvus/certs/ca.crt
     ownca_privatekey_path: /opt/milvus/certs/ca.key
     state: present
+
+############################
+# Permissions
+############################
 
 - name: Set cert permissions
   file:
