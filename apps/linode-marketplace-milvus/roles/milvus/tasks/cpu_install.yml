@@ -1,10 +1,4 @@
 ---
-- name: Create Milvus directory
-  file:
-    path: /opt/milvus
-    state: directory
-    mode: "0755"
-
 - name: Deploy Milvus templates
   template:
     src: "{{ item.src }}"
@@ -18,10 +12,15 @@
     - src: env.j2
       dest: /opt/milvus/.env
   
-- name: Pull Milvus Docker image
+- name: Pull Milvus Docker images
   community.docker.docker_compose_v2:
     project_src: /opt/milvus
     pull: always
+    state: present
+  register: compose_result
+  retries: 5
+  delay: 10
+  until: compose_result is succeeded
 
 - name: Start Milvus Compose file
   community.docker.docker_compose_v2:
