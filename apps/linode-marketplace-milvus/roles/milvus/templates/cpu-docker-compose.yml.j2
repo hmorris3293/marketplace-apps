@@ -72,6 +72,15 @@ services:
     ports:
       - "127.0.0.1:19530:19530"
       - "127.0.0.1:9091:9091"
+    {% if has_gpu | default(false) %}
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              capabilities: ["gpu"]
+              device_ids: ["0"]
+    {% endif %}
     depends_on:
       - "etcd"
       - "minio"
