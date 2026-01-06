@@ -8,6 +8,13 @@
   set_fact:
     has_gpu: "{{ gpu_check.rc == 0 }}"
 
+- name: Writing GPU variables to vars file
+  lineinfile:
+    insertafter: EOF
+    path: group_vars/linode/vars
+    line: | 
+      has_gpu: {{ has_gpu }}
+
 - name: Install Docker
   import_role:
     name: docker
