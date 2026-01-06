@@ -7,6 +7,12 @@
   vars_files:
     - group_vars/linode/vars
   tasks:
+
+    - name: Ensure instance has GPU before continuing
+      import_tasks: ../linode_helpers/roles/gpu_utils/tasks/main.yml 
+      vars:
+        gpu_required: false
+        
     # generate creds
     - name: Generating sudo user and password
       import_tasks: ../linode_helpers/roles/sudouser/tasks/main.yml
