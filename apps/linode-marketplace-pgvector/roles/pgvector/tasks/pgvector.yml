@@ -6,11 +6,11 @@
 
 - name: Set postgres_version variable
   set_fact:
-    postgres_version: "{{ psql_version.stdout | regex_search('([0-9]+)\\.', '\\1') }}"
+    postgres_version: "{{ psql_version.stdout | regex_replace('^.* ([0-9]+)\\..*$', '\\1') }}"
 
 - name: Install pgvector for detected PostgreSQL version
   apt:
-    name: postgresql-{{ postgres_version }}-pgvector
+    name: "postgresql-{{ postgres_version }}-pgvector"
     state: present
     update_cache: yes
 
