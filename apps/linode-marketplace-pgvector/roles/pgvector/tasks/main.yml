@@ -1,7 +1,4 @@
 ---
-- name: Install NVIDIA drivers
-  import_tasks: drivers.yml
-
 - name: Install Postgres
   import_tasks: postgresql.yml
   
