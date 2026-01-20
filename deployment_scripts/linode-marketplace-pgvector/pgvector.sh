@@ -34,8 +34,8 @@ fi
 #<UDF name="soa_email_address" label="Email address for new DNS zone" example="user@domain.tld (Requires API token)" default="">
 
 ## PGvector Settings
-#<UDF name="postgresql_app_db" label="Postgres Database Name" example="appname" default="">
-#<UDF name="postgresql_admin_user" label="Postgres Database Admin Username *No Special Characters and the name can NOT be postgres*" example="admin" default="">
+#<UDF name="postgresql_app_db" label="Postgres Database Name" example="appname">
+#<UDF name="postgresql_admin_user" label="Postgres Database Admin Username *No Special Characters and the name can NOT be postgres*" example="admin">
 
 
 # BEGIN CI-ADDONS
