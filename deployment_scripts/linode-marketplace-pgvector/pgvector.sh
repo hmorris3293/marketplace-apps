@@ -33,6 +33,11 @@ fi
 #<UDF name="domain" label="Domain" example="The domain for the DNS record: example.com (Requires API token)" default="">
 #<UDF name="soa_email_address" label="Email address for new DNS zone" example="user@domain.tld (Requires API token)" default="">
 
+## PGvector Settings
+#<UDF name="postgresql_app_db" label="Postgres Database Name" example="appname" default="">
+#<UDF name="postgresql_admin_user" label="Postgres Database Admin Username *No Special Characters and the name can NOT be postgres*" example="admin" default="">
+
+
 # BEGIN CI-ADDONS
 ## Addons
 #<UDF name="add_ons" label="Optional data exporter Add-ons for your deployment" manyOf="node_exporter,mysqld_exporter,newrelic,alloy,none" default="none">
@@ -87,6 +92,8 @@ function udf {
   sed 's/  //g' <<EOF > ${group_vars}
   # sudo username
   username: ${USER_NAME}
+  postgresql_app_db: ${POSTGRESQL_APP_DB}
+  postgresql_admin_user: ${POSTGRESQL_ADMIN_USER}
   
   # BEGIN CI-UDF-ADDONS
   # addons

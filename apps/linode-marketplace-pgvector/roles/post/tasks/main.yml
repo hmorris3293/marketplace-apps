@@ -21,4 +21,6 @@
       Sudo Username: {{ username }}
       Sudo Password: {{ password }}
       Postgres Password: {{ postgresql_password }}
+      Postgres Admin User: {{ postgres_admin_user }}
+      Postgres Admin Password: {{ postgresql_admin_password }}
       
