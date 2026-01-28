@@ -33,12 +33,15 @@
 
 - name: Set mise tarball URL
   set_fact:
-    mise_tarball: "{{ (version_output.content | from_json).assets | selectattr('name', 'match', 'linux-x64.*tar.zst') | map(attribute='browser_download_url') | first }}"
+    mise_tarball_list: "{{ (version_output.content | from_json).assets 
+                          | selectattr('name', 'match', 'linux-x64.*tar.zst') 
+                          | map(attribute='browser_download_url') 
+                          | list }}"
 
 - name: debug mise
   debug:
     var: mise_tarball
-    
+
 - name: Set mise tarball URL
   set_fact:
     mise_tarball: "https://github.com/jdx/mise/releases/download/{{ mise_version }}/mise-{{ mise_version }}-linux-x64.tar.zst"
