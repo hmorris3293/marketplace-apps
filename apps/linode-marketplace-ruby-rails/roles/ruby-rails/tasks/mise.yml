@@ -27,13 +27,16 @@
     body_format: json
   register: version_output
 
-- name: Set mise version
+#- name: Set mise version
   set_fact:
-    mise_version: "{{ version_output.content | from_json | json_query('name') }}"
+    mise_version: "{{ (version_output.content | from_json).tag_name | regex_replace('^v', '') }}"
 
-- name: Set mise tarball
+#- name: Set mise tarball URL
   set_fact:
-    mise_tarball: "https://github.com/jdx/mise/releases/download/v2026.{{ mise_version }}/mise-v2026.{{ mise_version }}-linux-x64.tar.zst"
+    mise_tarball: "https://github.com/jdx/mise/releases/download/v{{ mise_version }}/mise-{{ mise_version }}-linux-x64.tar.zst"
+- name: Set mise tarball from assets
+  set_fact:
+    mise_tarball: "{{ (version_output.content | from_json).assets | selectattr('name', 'match', 'linux-x64.*tar.zst') | map(attribute='browser_download_url') | first }}"
 
 - name: Create tempdir
   tempfile:
