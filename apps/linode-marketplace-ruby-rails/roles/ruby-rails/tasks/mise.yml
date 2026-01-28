@@ -27,9 +27,9 @@
     body_format: json
   register: version_output
 
-- name: Set mise version
+- name: Set mise tarball URL
   set_fact:
-    mise_version: "{{ (version_output.content | from_json).tag_name | regex_replace('^v', '') }}"
+    mise_tarball: "{{ (version_output.content | from_json).assets | selectattr('name', 'match', 'linux-x64.*tar.zst') | map(attribute='browser_download_url') | first }}"
 
 - name: Set mise tarball URL
   set_fact:
