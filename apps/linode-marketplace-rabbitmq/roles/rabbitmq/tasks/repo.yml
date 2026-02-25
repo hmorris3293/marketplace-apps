@@ -1,85 +1,37 @@
 ---
-# add repo
-- name: get rabbitmq latest signing keys release
-  uri:
-    url: https://api.github.com/repos/rabbitmq/signing-keys/releases/latest
-    return_content: true
-    status_code: 200
-    body_format: json
-  register: latest_release
-
-- name: set rabbitmq assets list
-  set_fact:
-    rabbitmq_assets: "{{ latest_release.json.assets }}"
-
-- name: set erlang url
-  set_fact:
-    erlang_url: "{{ item.browser_download_url }}"
-  loop: "{{ rabbitmq_assets }}"
-  when: item.browser_download_url is search('cloudsmith.rabbitmq-erlang.[A-Z0-9]+.key$')
-
-- name: set server url
-  set_fact:
-    server_url: "{{ item.browser_download_url }}"
-  loop: "{{ rabbitmq_assets }}"
-  when: item.browser_download_url is search('cloudsmith.rabbitmq-server.[A-Z0-9]+.key$')
-
-- name: set key ids
-  set_fact:
-    erlang_keyid: "{{ erlang_url | regex_search('[A-Z0-9]+\\.key$') | replace('.key', '.gpg') }}"
-    server_keyid: "{{ server_url | regex_search('[A-Z0-9]+\\.key$') | replace('.key', '.gpg') }}"
-
-- name: ensure keyrings directory exists
-  file:
-    path: /usr/share/keyrings
-    state: directory
-    mode: '0755'
-
-- name: download rabbitmq erlang key
+- name: Add RabbitMQ signing key (ASCII armored)
   get_url:
-    url: "{{ erlang_url }}"
-    dest: "/tmp/rabbitmq-erlang.asc"
+    url: https://keys.openpgp.org/vks/v1/by-fingerprint/0A9AF2115F4687BD29803A206B73A36E6026DFCA
+    dest: /tmp/com.rabbitmq.team.asc
     mode: '0644'
 
-- name: dearmor erlang key
+- name: Dearmor RabbitMQ signing key
   command:
-    cmd: >
-      gpg --dearmor
-      --yes
-      --output /usr/share/keyrings/rabbitmq.{{ erlang_keyid }}
-      /tmp/rabbitmq-erlang.asc
-  args:
-    creates: "/usr/share/keyrings/rabbitmq.{{ erlang_keyid }}"
+    cmd: gpg --dearmor -o /usr/share/keyrings/com.rabbitmq.team.gpg /tmp/com.rabbitmq.team.asc
+    creates: /usr/share/keyrings/com.rabbitmq.team.gpg
 
-- name: download rabbitmq server key
-  get_url:
-    url: "{{ server_url }}"
-    dest: "/tmp/rabbitmq-server.asc"
+- name: Ensure correct permissions on keyring
+  ansible.builtin.file:
+    path: /usr/share/keyrings/com.rabbitmq.team.gpg
+    owner: root
+    group: root
     mode: '0644'
-
-- name: dearmor server key
-  command:
-    cmd: >
-      gpg --dearmor
-      --yes
-      --output /usr/share/keyrings/rabbitmq.{{ server_keyid }}
-      /tmp/rabbitmq-server.asc
-  args:
-    creates: "/usr/share/keyrings/rabbitmq.{{ server_keyid }}"
 
 - name: set distro release codename
   set_fact:
     distribution_release: "{{ ansible_facts['lsb']['codename'] }}"
 
-- name: add rabbitmq apt repository
-  copy:
+- name: Add RabbitMQ apt repository
+  ansible.builtin.copy:
     dest: /etc/apt/sources.list.d/rabbitmq.list
-    content: |
-      ## RabbitMQ Erlang
-      deb [signed-by=/usr/share/keyrings/rabbitmq.{{ erlang_keyid }}] https://dl.cloudsmith.io/public/rabbitmq/rabbitmq-erlang/deb/ubuntu {{ distribution_release }} main
-
-      ## RabbitMQ Server
-      deb [signed-by=/usr/share/keyrings/rabbitmq.{{ server_keyid }}] https://dl.cloudsmith.io/public/rabbitmq/rabbitmq-server/deb/ubuntu {{ distribution_release }} main
     owner: root
     group: root
     mode: '0644'
+    content: |
+      ## Modern Erlang/OTP releases
+      deb [arch=amd64 signed-by=/usr/share/keyrings/com.rabbitmq.team.gpg] https://deb1.rabbitmq.com/rabbitmq-erlang/ubuntu/noble {{ distribution_release }} main
+      deb [arch=amd64 signed-by=/usr/share/keyrings/com.rabbitmq.team.gpg] https://deb2.rabbitmq.com/rabbitmq-erlang/ubuntu/noble {{ distribution_release }} main
+
+      ## Latest RabbitMQ releases
+      deb [arch=amd64 signed-by=/usr/share/keyrings/com.rabbitmq.team.gpg] https://deb1.rabbitmq.com/rabbitmq-server/ubuntu/noble {{ distribution_release }} main
+      deb [arch=amd64 signed-by=/usr/share/keyrings/com.rabbitmq.team.gpg] https://deb2.rabbitmq.com/rabbitmq-server/ubuntu/noble {{ distribution_release }} main
