@@ -23,3 +23,10 @@
       - erlang-xmerl
       - rabbitmq-server
     state: latest
+    update_cache: true
+  register: apt_result
+  ignore_errors: true
+
+- name: show full apt result
+  debug:
+    var: apt_result
