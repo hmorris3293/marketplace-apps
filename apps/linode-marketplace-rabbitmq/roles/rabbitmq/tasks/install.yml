@@ -1,9 +1,4 @@
 ---
-# install erlang and rabbitmq server
-- name: Update apt cache
-  apt:
-    update_cache: true
-
 - name: install required packages
   apt:
     pkg:
@@ -26,9 +21,4 @@
       - erlang-xmerl
       - rabbitmq-server
     state: latest
-  register: apt_result
-  ignore_errors: true
-
-- name: show full apt result
-  debug:
-    var: apt_result
+    update_cache: true
