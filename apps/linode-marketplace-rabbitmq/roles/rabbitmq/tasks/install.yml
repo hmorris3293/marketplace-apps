@@ -24,3 +24,7 @@
       - rabbitmq-server
     state: latest
     update_cache: true
+    register: apt_result
+    retries: 2
+    delay: 10
+    until: apt_result is succeeded
