@@ -76,14 +76,10 @@
     dest: /etc/apt/sources.list.d/rabbitmq.list
     content: |
       ## RabbitMQ Erlang
-      deb [signed-by=/usr/share/keyrings/rabbitmq.{{ erlang_keyid }}] \
-      https://dl.cloudsmith.io/public/rabbitmq/rabbitmq-erlang/deb/ubuntu \
-      {{ distribution_release }} main
+      deb [signed-by=/usr/share/keyrings/rabbitmq.{{ erlang_keyid }}] https://dl.cloudsmith.io/public/rabbitmq/rabbitmq-erlang/deb/ubuntu {{ distribution_release }} main
 
       ## RabbitMQ Server
-      deb [signed-by=/usr/share/keyrings/rabbitmq.{{ server_keyid }}] \
-      https://dl.cloudsmith.io/public/rabbitmq/rabbitmq-server/deb/ubuntu \
-      {{ distribution_release }} main
+      deb [signed-by=/usr/share/keyrings/rabbitmq.{{ server_keyid }}] https://dl.cloudsmith.io/public/rabbitmq/rabbitmq-server/deb/ubuntu {{ distribution_release }} main
     owner: root
     group: root
     mode: '0644'
