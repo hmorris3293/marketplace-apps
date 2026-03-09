@@ -1,8 +1,8 @@
 #!/bin/bash
+
 # enable logging
 exec > >(tee /dev/ttyS0 /var/log/stackscript.log) 2>&1
 
-# BEGIN CI-MODE
 # modes
 #DEBUG="NO"
 if [[ -n ${DEBUG} ]]; then
@@ -12,7 +12,16 @@ if [[ -n ${DEBUG} ]]; then
 else
   trap "cleanup $? $LINENO" EXIT
 fi
-# END CI-MODE
+
+# cleanup will always happen. If DEBUG is passed and is anything
+# other than NO, it will always trigger cleanup. This is useful for
+# ci testing and passing vars to the instance.
+
+if [ "${MODE}" == "staging" ]; then
+  trap "provision_failed $? $LINENO" ERR
+else
+  set -e
+fi
 
 ## Linode/SSH Security Settings
 #<UDF name="user_name" label="The limited sudo user to be created for the Linode: *No Capital Letters or Special Characters*">
@@ -32,7 +41,6 @@ fi
 #<UDF name="add_ons" label="Optional data exporter Add-ons for your deployment" manyOf="node_exporter,mysqld_exporter,newrelic,none" default="none">
 # END CI-ADDONS
 
-# BEGIN CI-GH
 #GH_USER=""
 #BRANCH=""
 # git user and branch
@@ -45,12 +53,10 @@ else
         export BRANCH="main"
         export GIT_REPO="https://github.com/${GH_USER}/marketplace-apps.git"
 fi
-# END CI-GH
 
-export WORK_DIR="/tmp/marketplace-apps" 
+export WORK_DIR="/tmp/marketplace-apps"
 export MARKETPLACE_APP="apps/linode-marketplace-mastodon"
 
-# BEGIN CI-PROVISION-FUNC
 function provision_failed {
   echo "[info] Provision failed. Sending status.."
 
@@ -72,7 +78,6 @@ function provision_failed {
 
   exit $?
 }
-# END CI-PROVISION-FUNC
 
 function cleanup {
   if [ -d "${WORK_DIR}" ]; then
@@ -81,10 +86,7 @@ function cleanup {
 }
 
 function udf {
-  
   local group_vars="${WORK_DIR}/${MARKETPLACE_APP}/group_vars/linode/vars"
-  
-   # write udf vars
   cat <<END > ${group_vars}
 # sudo username
 username: ${USER_NAME}
@@ -101,14 +103,13 @@ token_password: ${TOKEN_PASSWORD}
 add_ons: [${ADD_ONS}]
 # END CI-UDF-ADDONS  
 END
+EOF
 
   if [ "$DISABLE_ROOT" = "Yes" ]; then
     echo "disable_root: yes" >> ${group_vars};
   else echo "Leaving root login enabled";
   fi
 
-  # staging or production mode (ci)
-  # BEGIN CI-UDF-CI-MODE
   # staging or production mode (ci)
   if [[ "${MODE}" == "staging" ]]; then
     echo "[info] running in staging mode..."
@@ -117,23 +118,20 @@ END
     echo "[info] running in production mode..."
     echo "mode: production" >> ${group_vars}
   fi
-# END CI-UDF-CI-MODE  
 }
 
 function run {
-  # install dependancies
+  # install dependencies
   apt-get update
   apt-get install -y git python3 python3-pip
 
   # clone repo and set up ansible environment
-  git -C /tmp clone -b ${BRANCH} ${GIT_REPO}  
-  # for a single testing branch
-  # git -C /tmp clone -b ${BRANCH} ${GIT_REPO}
+  git -C /tmp clone -b ${BRANCH} ${GIT_REPO}
 
-  # venv
+  # set up python virtual environment
   cd ${WORK_DIR}/${MARKETPLACE_APP}
-  pip3 install virtualenv
-  python3 -m virtualenv env
+  apt install python3-venv -y
+  python3 -m venv env
   source env/bin/activate
   pip install pip --upgrade
   pip install -r requirements.txt
@@ -143,12 +141,12 @@ function run {
   udf
   # run playbooks
   ansible-playbook -v provision.yml && ansible-playbook -v site.yml
-  
 }
 
 function installation_complete {
   echo "Installation Complete"
 }
+
 # main
 run
 installation_complete
