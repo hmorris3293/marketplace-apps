@@ -129,7 +129,7 @@
     recurse: true
 
 - name: Bringing up mastodon containers
-  shell: docker-compose -f /home/mastodon/live/docker-compose.yml up -d
+  shell: docker compose -f /home/mastodon/live/docker-compose.yml up -d
   args:
     chdir: "/home/mastodon/live"
   environment:
