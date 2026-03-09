@@ -103,7 +103,6 @@ token_password: ${TOKEN_PASSWORD}
 add_ons: [${ADD_ONS}]
 # END CI-UDF-ADDONS  
 END
-EOF
 
   if [ "$DISABLE_ROOT" = "Yes" ]; then
     echo "disable_root: yes" >> ${group_vars};
