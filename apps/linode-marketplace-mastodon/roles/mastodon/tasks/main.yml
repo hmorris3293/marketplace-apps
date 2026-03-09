@@ -89,7 +89,7 @@
   register: otp_secret
 
 - name: Generate vapid keys
-  shell: docker-compose run --rm web bundle exec rake mastodon:webpush:generate_vapid_key
+  shell: docker-compose run --rm web bundle exec rails mastodon:webpush:generate_vapid_key
   args:
     chdir: /home/mastodon/live
   register: vapid_keys
@@ -104,9 +104,9 @@
     - { search: '^\#?#VAPID_PRIVATE_KEY=', replace: "VAPID_PRIVATE_KEY={{ vapid_keys.stdout_lines[1] | split(': ') | last }}" }
     - { search: '^\#?#SECRET_KEY_BASE=', replace: "SECRET_KEY_BASE={{ secret_key_base.stdout }}" }
     - { search: '^\#?#OTP_SECRET=', replace: "OTP_SECRET={{ otp_secret.stdout }}" }
-    
+
 - name: Recreating the database
-  shell: docker-compose run --rm web bundle exec rake db:reset
+  shell: docker-compose run --rm web bundle exec rails db:reset
   args:
     chdir: /home/mastodon/live
 
