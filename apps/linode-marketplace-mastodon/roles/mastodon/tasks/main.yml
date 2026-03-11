@@ -180,6 +180,13 @@
     line: "owner_password: {{ owner_password }}"
     create: true
 
+- name: Approve owner account
+  community.docker.docker_container_exec:
+    container: live-web-1
+    command: >
+      bin/tootctl accounts approve {{ owner_username }}
+  when: owner_create is succeeded
+
 # nginx
 - name: Install nginx
   apt:
