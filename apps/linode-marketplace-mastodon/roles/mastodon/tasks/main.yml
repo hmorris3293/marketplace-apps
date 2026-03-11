@@ -59,45 +59,62 @@
     dest: /home/mastodon/live/.env.production
     mode: '0644'
 
-# secret gen
-## can't use docker compose community module as it requires an old version of pyyaml
-- name: Starting postgresql and redis container
-  shell: docker-compose -f /home/mastodon/live/docker-compose.yml up -d db redis
-  args:
-    chdir: "/home/mastodon/live"
+- name: Start PostgreSQL and Redis containers
+  community.docker.docker_compose_v2:
+    project_src: /home/mastodon/live
+    files:
+      - docker-compose.yml
+    services:
+      - db
+      - redis
+    state: present
   environment:
     DOCKER_BUILD: "false"
 
-- name: Pulling new container images
-  shell: docker-compose -f /home/mastodon/live/docker-compose.yml up -d web streaming sidekiq
-  args:
-    chdir: "/home/mastodon/live"
+- name: Start Mastodon application containers and pull images
+  community.docker.docker_compose_v2:
+    project_src: /home/mastodon/live
+    files:
+      - docker-compose.yml
+    services:
+      - web
+      - streaming
+      - sidekiq
+    pull: always
+    state: present
   environment:
     DOCKER_BUILD: "false"
-    DOCKER_PULL: "true"
 
-- name: Get secret_key_base
-  shell: docker-compose run --rm web bundle exec rails secret
-  args:
-    chdir: /home/mastodon/live
+- name: Generate secret_key_base
+  community.docker.docker_compose_v2_run:
+    project_src: /home/mastodon/live
+    service: web
+    command: bundle exec rails secret
+    remove: true
   register: secret_key_base
 
-- name: Get otp_secret
-  shell: docker-compose run --rm web bundle exec rails secret
-  args:
-    chdir: /home/mastodon/live
+- name: Generate otp_secret
+  community.docker.docker_compose_v2_run:
+    project_src: /home/mastodon/live
+    service: web
+    command: bundle exec rails secret
+    remove: true
   register: otp_secret
 
-- name: Generate vapid keys
-  shell: docker-compose run --rm web bundle exec rails mastodon:webpush:generate_vapid_key
-  args:
-    chdir: /home/mastodon/live
+- name: Generate VAPID keys
+  community.docker.docker_compose_v2_run:
+    project_src: /home/mastodon/live
+    service: web
+    command: bundle exec rails mastodon:webpush:generate_vapid_key
+    remove: true
   register: vapid_keys
 
 - name: Generate Rails encryption keys
-  shell: docker-compose run --rm web bundle exec rails db:encryption:init
-  args:
-    chdir: /home/mastodon/live
+  community.docker.docker_compose_v2_run:
+    project_src: /home/mastodon/live
+    service: web
+    command: bundle exec rails db:encryption:init
+    remove: true
   register: encryption_keys
   changed_when: false
 
@@ -115,10 +132,12 @@
     - { search: '^\#?#ACTIVE_RECORD_ENCRYPTION_DETERMINISTIC_KEY=', replace: "ACTIVE_RECORD_ENCRYPTION_DETERMINISTIC_KEY={{ encryption_keys.stdout | regex_search('ACTIVE_RECORD_ENCRYPTION_DETERMINISTIC_KEY=(.*)', '\\1') }}" }
     - { search: '^\#?#ACTIVE_RECORD_ENCRYPTION_KEY_DERIVATION_SALT=', replace: "ACTIVE_RECORD_ENCRYPTION_KEY_DERIVATION_SALT={{ encryption_keys.stdout | regex_search('ACTIVE_RECORD_ENCRYPTION_KEY_DERIVATION_SALT=(.*)', '\\1') }}" }
 
-- name: Recreating the database
-  shell: docker-compose run --rm web bundle exec rails db:reset
-  args:
-    chdir: /home/mastodon/live
+- name: Recreate Mastodon database
+  community.docker.docker_compose_v2_run:
+    project_src: /home/mastodon/live
+    service: web
+    command: bundle exec rails db:reset
+    remove: true
 
 - name: Change owner of public
   file:
@@ -128,23 +147,38 @@
     group: "991"
     recurse: true
 
-- name: Bringing up mastodon containers
-  shell: docker compose -f /home/mastodon/live/docker-compose.yml up -d
-  args:
-    chdir: "/home/mastodon/live"
+- name: Start Mastodon containers
+  community.docker.docker_compose_v2:
+    project_src: /home/mastodon/live
+    files:
+      - docker-compose.yml
+    state: present
   environment:
     DOCKER_BUILD: "false"
 
-- name: Assign Owner user and password
-  shell: docker exec live-web-1 tootctl accounts create {{ owner_username }} --email {{ owner_email }} --confirmed --role Owner
-  register: OWNER_PASSWORD
+- name: Create Mastodon owner account
+  community.docker.docker_container_exec:
+    container: live-web-1
+    command: >
+      bash -lc "bin/tootctl accounts create {{ owner_username }}
+      --email {{ owner_email }}
+      --confirmed
+      --role Owner"
+  register: owner_create
+  changed_when: "'New password:' in owner_create.stdout"
+  failed_when: false
 
-- name: Writing owner_password to vars
+- name: Extract owner password
+  set_fact:
+    owner_password: "{{ owner_create.stdout | regex_search('New password:\\s*(.*)', '\\1') | first }}"
+  when: "'New password:' in owner_create.stdout"
+
+- name: Save owner password to group vars
   lineinfile:
-    insertafter: EOF
     path: group_vars/linode/vars
-    line: |
-      owner_password: {{ OWNER_PASSWORD.stdout | split('New password: ') | last }}
+    regexp: '^owner_password:'
+    line: "owner_password: {{ owner_password }}"
+    create: true
 
 # nginx
 - name: Install nginx
