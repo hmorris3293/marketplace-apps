@@ -90,7 +90,7 @@
     project_src: /home/mastodon/live
     service: web
     command: bundle exec rails secret
-    remove: true
+    cleanup: true
   register: secret_key_base
 
 - name: Generate otp_secret
@@ -98,7 +98,7 @@
     project_src: /home/mastodon/live
     service: web
     command: bundle exec rails secret
-    remove: true
+    cleanup: true
   register: otp_secret
 
 - name: Generate VAPID keys
@@ -106,7 +106,7 @@
     project_src: /home/mastodon/live
     service: web
     command: bundle exec rails mastodon:webpush:generate_vapid_key
-    remove: true
+    cleanup: true
   register: vapid_keys
 
 - name: Generate Rails encryption keys
@@ -114,7 +114,7 @@
     project_src: /home/mastodon/live
     service: web
     command: bundle exec rails db:encryption:init
-    remove: true
+    cleanup: true
   register: encryption_keys
   changed_when: false
 
@@ -137,7 +137,7 @@
     project_src: /home/mastodon/live
     service: web
     command: bundle exec rails db:reset
-    remove: true
+    cleanup: true
 
 - name: Change owner of public
   file:
