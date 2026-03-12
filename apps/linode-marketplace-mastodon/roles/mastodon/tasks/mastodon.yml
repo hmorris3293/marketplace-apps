@@ -155,13 +155,10 @@
       --confirmed
       --role Owner"
   register: owner_create
-  changed_when: "'New password:' in owner_create.stdout"
-  failed_when: false
 
 - name: Extract owner password
   set_fact:
     owner_password: "{{ owner_create.stdout | regex_search('New password:\\s*(.*)', '\\1') | first }}"
-  when: "'New password:' in owner_create.stdout"
 
 - name: Save owner password to group vars
   lineinfile:
