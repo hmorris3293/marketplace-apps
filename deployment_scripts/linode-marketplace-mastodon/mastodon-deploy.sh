@@ -91,13 +91,10 @@ function udf {
 # sudo username
 username: ${USER_NAME}
 webserver_stack: lemp
-domain: ${DOMAIN}
-subdomain: ${SUBDOMAIN}
 soa_email_address: ${SOA_EMAIL_ADDRESS}
 owner_username: ${OWNER_USERNAME}
 owner_email: ${OWNER_EMAIL}
 single_user_mode: ${SINGLE_USER_MODE}
-token_password: ${TOKEN_PASSWORD}
 # BEGIN CI-UDF-ADDONS
 # addons
 add_ons: [${ADD_ONS}]
@@ -107,6 +104,21 @@ END
   if [ "$DISABLE_ROOT" = "Yes" ]; then
     echo "disable_root: yes" >> ${group_vars};
   else echo "Leaving root login enabled";
+  fi
+
+  if [[ -n ${TOKEN_PASSWORD} ]]; then
+    echo "token_password: ${TOKEN_PASSWORD}" >> ${group_vars}
+  else echo "No API token entered"
+  fi
+
+  if [[ -n ${DOMAIN} ]]; then
+    echo "domain: ${DOMAIN}" >> ${group_vars};
+  else echo "default_dns: $(hostname -I | awk '{print $1}'| tr '.' '-' | awk {'print $1 ".ip.linodeusercontent.com"'})" >> ${group_vars}
+  fi
+
+  if [[ -n ${SUBDOMAIN} ]]; then
+    echo "subdomain: ${SUBDOMAIN}" >> ${group_vars}
+  else echo "subdomain: www" >> ${group_vars}
   fi
 
   # staging or production mode (ci)
