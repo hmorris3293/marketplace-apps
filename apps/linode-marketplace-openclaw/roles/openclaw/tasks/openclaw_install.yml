@@ -1,7 +1,7 @@
 ---
 - name: Install OpenClaw globally as openclaw user (using pnpm)
   shell:
-    cmd: pnpm install -g openclaw@latest
+    cmd: pnpm install -g openclaw@latest --config.hoist=true
     executable: /bin/bash
   become: true
   become_user: "{{ openclaw_user }}"
