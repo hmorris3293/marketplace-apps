@@ -1,7 +1,7 @@
 ---
 - name: Install OpenClaw globally as openclaw user (using pnpm)
   shell:
-    cmd: pnpm install -g openclaw@latest --config.hoist=true
+    cmd: pnpm install -g openclaw@latest
     executable: /bin/bash
   become: true
   become_user: "{{ openclaw_user }}"
@@ -11,6 +11,17 @@
     HOME: "{{ openclaw_home }}"
   register: openclaw_install
   changed_when: "'Already up to date' not in openclaw_install.stdout"
+
+- name: Install OpenClaw and required UI modules
+  shell:
+    cmd: pnpm install -g openclaw@latest @buape/carbon
+    executable: /bin/bash
+  become: true
+  become_user: "{{ openclaw_user }}"
+  environment:
+    PNPM_HOME: "{{ pnpm_home }}"
+    PATH: "{{ pnpm_path }}"
+    HOME: "{{ openclaw_home }}"
 
 - name: Verify openclaw installation
   shell:
