@@ -41,7 +41,7 @@ fi
 ## Qwen Configuration
 #<UDF name="openwebui_login_name" label="The initial admin login name for Open WebUI">
 #<UDF name="openwebui_login_email" label="Email address for Open WebUI admin account">
-#<UDF name="qwen_model" label="Qwen LLM version" default="Qwen3.6-35B-A3B">
+#<UDF name="qwen_model" label="Qwen LLM version" default="Qwen3.5-27B">
 
 #GH_USER=""
 #BRANCH=""
