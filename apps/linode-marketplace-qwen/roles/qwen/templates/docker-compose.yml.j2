@@ -17,7 +17,7 @@ services:
     command:
       - --model=Qwen/{{ qwen_model }}
       - --trust-remote-code
-      - --max-model-len=32768
+      - --max-model-len=16384
       - --gpu-memory-utilization=0.95
       - --dtype=auto
     healthcheck:
