@@ -66,7 +66,7 @@ fi
 if [[ -n "${QWEN_MODEL}" ]]; then
         UDF_VARS["QWEN_MODEL"]="${QWEN_MODEL}"
 else
-        UDF_VARS["QWEN_MODEL"]="Qwen3.5-9B" # default
+        UDF_VARS["QWEN_MODEL"]="Qwen3.5-4B" # default
 fi
 
 if [[ -n "${ADD_ONS}" ]]; then

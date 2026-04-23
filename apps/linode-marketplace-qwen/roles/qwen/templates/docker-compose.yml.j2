@@ -18,8 +18,7 @@ services:
       - --model=Qwen/{{ qwen_model }}
       - --trust-remote-code
       - --max-model-len=8192
-      - --max-num-seqs=4
-      - --gpu-memory-utilization=0.95
+      - --gpu-memory-utilization=0.88
       - --dtype=auto
     healthcheck:
       test: ["CMD", "curl", "-f", "-s", "http://localhost:8000/v1/models"]
