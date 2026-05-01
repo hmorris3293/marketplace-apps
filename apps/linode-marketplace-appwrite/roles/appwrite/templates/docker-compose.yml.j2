@@ -1,0 +1,94 @@
+services:
+  appwrite:
+    image: appwrite/appwrite:1.9.0
+    container_name: appwrite
+    restart: unless-stopped
+    networks:
+      - appwrite
+    ports:
+      - "127.0.0.1:8080:80"
+    volumes:
+      - appwrite-uploads:/storage/uploads:rw
+      - appwrite-cache:/storage/cache:rw
+      - appwrite-config:/storage/config:rw
+      - appwrite-certificates:/storage/certificates:rw
+      - appwrite-functions:/storage/functions:rw
+      - appwrite-builds:/storage/builds:rw
+    depends_on:
+      mariadb:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    env_file: .env
+    environment:
+      - _APP_DB_HOST=mariadb
+      - _APP_DB_USER=appwrite   
+      - _APP_DB_PASS=${_APP_DB_PASS}
+      - _APP_DB_SCHEMA=${_APP_DB_SCHEMA}
+
+  mariadb:
+    image: mariadb:10.11 
+    container_name: appwrite-mariadb
+    restart: unless-stopped
+    networks:
+      - appwrite
+    volumes:
+      - appwrite-mariadb:/var/lib/mysql:rw
+    environment:
+      - MYSQL_ROOT_PASSWORD=${_APP_DB_ROOT_PASS}
+      - MYSQL_DATABASE=${_APP_DB_SCHEMA}
+      - MYSQL_USER=appwrite
+      - MYSQL_PASSWORD=${_APP_DB_PASS}
+    healthcheck:
+      test: ["CMD", "healthcheck.sh", "--connect", "--innodb_initialized"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    command: >
+      mysqld
+      --innodb-flush-method=O_DIRECT
+      --innodb-log-file-size=512M
+      --innodb-flush-log-at-trx-commit=2
+
+  redis:
+    image: redis:7.4-alpine
+    container_name: appwrite-redis
+    restart: unless-stopped
+    networks:
+      - appwrite
+    # Add the command line to set the password
+    command: >
+      redis-server --requirepass ${_APP_REDIS_PASS}
+    volumes:
+      - appwrite-redis:/data:rw
+    healthcheck:
+      # Update healthcheck to use the password too
+      test: ["CMD", "redis-cli", "-a", "${_APP_REDIS_PASS}", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  worker-databases:
+    image: appwrite/appwrite:1.9.0
+    container_name: appwrite-worker-databases
+    entrypoint: worker-databases
+    restart: unless-stopped
+    networks:
+      - appwrite
+    depends_on:
+      - appwrite
+    env_file: .env
+
+networks:
+  appwrite:
+    name: appwrite
+
+volumes:
+  appwrite-mariadb:
+  appwrite-redis:
+  appwrite-uploads:
+  appwrite-cache:
+  appwrite-config:
+  appwrite-certificates:
+  appwrite-functions:
+  appwrite-builds:

@@ -1,0 +1,9 @@
+---
+- name: Install Docker and container components
+  import_tasks: containers.yml
+
+- name: Deploy Appwrite
+  import_tasks: appwrite.yml
+
+#- name: Configure Nginx and SSL certificates
+#  import_tasks: nginx.yml
