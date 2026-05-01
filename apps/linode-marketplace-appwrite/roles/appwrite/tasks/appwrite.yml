@@ -33,7 +33,7 @@
       accountPassword: "{{ appwrite_admin_password }}"
       migrate: false
     validate_certs: false
-    status_code: [200, 201, 202]
+   # status_code: [200, 201, 202]
     timeout: 120
   register: appwrite_install_result
 
