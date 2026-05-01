@@ -37,6 +37,54 @@
     timeout: 120
   register: appwrite_install_result
 
-- name: debug appwrite_install_result
-  debug: 
-    var: appwrite_install_result
+- name: Wait for Appwrite containers to be running
+  community.docker.docker_container_info:
+    name: "{{ item }}"
+  register: container_info
+  retries: 20
+  delay: 15
+  until: container_info.container.State.Running == true
+  loop:
+    - appwrite-traefik
+    - appwrite-worker-mails
+    - appwrite-worker-deletes
+    - appwrite-task-scheduler-messages
+    - appwrite-task-scheduler-executions
+    - appwrite-task-stats-resources
+    - appwrite-worker-audits
+    - appwrite-worker-functions
+    - appwrite
+    - appwrite-worker-messaging
+    - appwrite-worker-databases
+    - appwrite-worker-certificates
+    - appwrite-realtime
+    - appwrite-worker-stats-resources
+    - appwrite-worker-builds
+    - appwrite-task-maintenance
+    - appwrite-worker-stats-usage
+    - appwrite-task-scheduler-functions
+    - appwrite-worker-webhooks
+    - appwrite-worker-migrations
+    - appwrite-redis
+    - openruntimes-executor
+    - appwrite-console
+    - appwrite-mongodb
+    - appwrite-browser
+
+- name: Wait for healthy containers to report healthy
+  community.docker.docker_container_info:
+    name: "{{ item }}"
+  register: healthy_info
+  retries: 20
+  delay: 15
+  until: healthy_info.container.State.Health.Status == "healthy"
+  loop:
+    - appwrite-redis
+    - openruntimes-executor
+    - appwrite-mongodb
+
+- name: Stop and remove Appwrite installer container
+  community.docker.docker_container:
+    name: appwrite-installer
+    state: absent
+    force_kill: true
