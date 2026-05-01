@@ -1,4 +1,13 @@
 ---
+- name: Debug Appwrite secrets
+  ansible.builtin.debug:
+    msg:
+      appwrite_secret_key: "{{ appwrite_secret_key }}"
+      appwrite_opensslkey: "{{ appwrite_opensslkey }}"
+      appwrite_installid: "{{ appwrite_installid }}"
+      appwrite_csrf: "{{ appwrite_csrf }}"
+      appwrite_admin_password: "{{ appwrite_admin_password }}"
+
 - name: Install Appwrite
   uri:
     url: "http://localhost:20080/install"
