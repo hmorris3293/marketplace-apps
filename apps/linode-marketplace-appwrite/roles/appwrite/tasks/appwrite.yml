@@ -27,6 +27,18 @@
     timeout: 120
   register: appwrite_install_result
 
+- name: Debug container structure
+  community.docker.docker_host_info:
+    containers: true
+    containers_filters:
+      label:
+        - "com.docker.compose.project=appwrite"
+  register: appwrite_host_info
+
+- name: Show first container keys
+  debug:
+    msg: "{{ appwrite_host_info.containers[0] }}"
+
 - name: Wait for all Appwrite containers to be running
   community.docker.docker_host_info:
     containers: true
@@ -36,7 +48,7 @@
   register: appwrite_host_info
   until: >
     appwrite_host_info.containers | length > 0 and
-    appwrite_host_info.containers | selectattr('State', 'equalto', 'running') | list | length
+    appwrite_host_info.containers | selectattr('Status', 'search', '^Up') | list | length
     == appwrite_host_info.containers | length
   retries: 36
   delay: 5
