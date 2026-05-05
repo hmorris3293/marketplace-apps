@@ -1,5 +1,5 @@
 #!/bin/bash
-
+# STACKSCRIPT_ID: 1160820
 # enable logging
 exec > >(tee /dev/ttyS0 /var/log/stackscript.log) 2>&1
 
@@ -37,10 +37,6 @@ fi
 ## Addons
 #<UDF name="add_ons" label="Optional data exporter Add-ons for your deployment" manyOf="node_exporter,mysqld_exporter,newrelic,alloy,none" default="none">
 # END CI-ADDONS
-
-## Appwrite Configuration
-#<UDF name="openwebui_login_name" label="The initial admin login name for Open WebUI">
-#<UDF name="openwebui_login_email" label="Email address for Open WebUI admin account">
 
 #GH_USER=""
 #BRANCH=""
@@ -91,7 +87,7 @@ function udf {
   sed 's/  //g' <<EOF > ${group_vars}
   # sudo username
   username: ${USER_NAME}
-  
+
   # BEGIN CI-UDF-ADDONS
   # addons
   add_ons: [${ADD_ONS}]

@@ -1,8 +1,8 @@
-# Akamai Cloud Compute – Appwrite Deployment One-Click APP
+# Akamai Cloud Compute – Appwrite Deployment One-Click APP (MongoDB & Traefik Edition)
 
 Appwrite is an open-source, self-hosted Backend-as-a-Service (BaaS) platform that provides developers with a set of tools and APIs to build web and mobile applications faster. It handles common backend tasks including user authentication, database management, file storage, serverless functions, and real-time event subscriptions.
 
-Our Marketplace application deploys **Appwrite** as a fully containerized stack using Docker Compose, fronted by Nginx with automatic SSL certificates via Let's Encrypt. This gives you a production-ready self-hosted BaaS that you control entirely.
+This Marketplace application deploys **Appwrite** as a fully containerized stack using Docker Compose, fronted by **Traefik** for modern edge routing, automatic SSL orchestration via Let's Encrypt, and high-performance load balancing. This configuration replaces the traditional Nginx/MariaDB setup with a **MongoDB** backend for flexible, document-oriented data storage.
 
 ## Software Included
 
@@ -10,12 +10,11 @@ Our Marketplace application deploys **Appwrite** as a fully containerized stack 
 | :--- | :---- | :--- |
 | Docker | `29.2.0` | Container Management Runtime |
 | Docker Compose | `5.0.2` | Tool for multi-container applications |
-| Nginx | `1.24.0` | HTTP server used as a reverse proxy |
+| **Traefik** | `3.6` | Edge router, reverse proxy, and SSL orchestrator |
 | Appwrite | `latest` tag | Open-source Backend-as-a-Service platform |
-| MariaDB | `10.11` | Relational database used by Appwrite |
-| Redis | `7.2` | In-memory cache and queue for Appwrite |
-| Traefik | `2.11` | Internal reverse proxy and router for Appwrite services |
-| OpenRuntimes Executor | `0.4.8` | Serverless function execution runtime |
+| **MongoDB** | `8.2.5` | NoSQL document database used by Appwrite |
+| Redis | `7.4.7` | In-memory cache and queue for Appwrite |
+| OpenRuntimes Executor | `0.7.22` | Serverless function execution runtime |
 
 **Supported Distributions:**
 
@@ -25,67 +24,57 @@ Our Marketplace application deploys **Appwrite** as a fully containerized stack 
 
 | Name | Description | Actions |
 | :--- | :--- | :--- |
-| UFW | Add UFW firewalls to the Linode | The UFW module will import a `ufw_rules.yml` provided in `roles/common/tasks` and enables the service. |
-| Certbot SSL | Generates and sets auto-renew for Certbot SSL certificates | The Certbot module installs Certbot Python plugin and certificates based on the webserver detected by Ansible. The default renewal cron runs Mondays at 00:00AM and can be manually edited. |
-| Fail2Ban | Installs, activates and enables Fail2Ban | The Fail2Ban module installs, activates and enables the Fail2Ban service. |
-| Hostname | Assigns a hostname to the Linode based on domains provided via UDF or uses default rDNS | The Hostname module accepts a UDF to assign a FQDN and write to the `/etc/hosts` file. If no domain is provided the default `ip.linodeusercontent.com` rDNS will be used. For consistency, DNS and SSL configurations should use the Hostname generated `_domain` var when possible. |
-| Secure SSH | Performs standard SSH hardening | The Secure SSH module writes to `/etc/ssh/sshd_config` to prevent password authentication and enable public key authentication for all users, including root. |
-| Sudo User | Creates limited `sudo` user with variable supplied username | Creates limited user from UDF supplied `username`. Note that usernames containing illegal characters will cause the play to fail. |
-| SSH Key | Writes SSH pubkey to `sudo` user's `authorized_keys` | Writes UDF supplied `pubkey` to `/home/$username/.ssh/authorized_keys`. To add an SSH key to `root` please use [Cloud Manager SSH Keys](https://www.linode.com/docs/products/tools/cloud-manager/guides/manage-ssh-keys/). |
-| Update Packages | Performs standard apt updates and upgrades | The Update Packages module performs apt update and upgrade actions as root. |
+| UFW | Firewall Management | Configures `ufw_rules.yml` to allow ports **80**, **443**, and **22**. |
+| Traefik SSL | Automatic SSL Management | Traefik handles ACME challenges (HTTP/TLS) automatically, replacing the need for standalone Certbot scripts. |
+| Fail2Ban | Security Hardening | Installs and enables Fail2Ban to monitor logs and block malicious IP addresses. |
+| Hostname | FQDN Assignment | Assigns a hostname to the Linode based on UDF domains or default rDNS for SSL validity. |
+| Secure SSH | SSH Hardening | Disables password authentication and enforces public key authentication. |
+| Sudo User | User Creation | Creates a limited `sudo` user with a custom username for administrative tasks. |
+| Update Packages | System Updates | Performs `apt update` and `apt upgrade` to ensure the OS is patched. |
 
 # Architecture
 
 ## Overview
 
-The Appwrite stack consists of multiple containerized services that work together to provide a complete Backend-as-a-Service platform:
+The Appwrite stack consists of multiple containerized services optimized for performance and scalability:
 
-1. **Core Service** (`appwrite`) – REST API, authentication, database, storage, and functions
-2. **Realtime Service** (`appwrite-realtime`) – WebSocket-based event subscriptions
-3. **Worker Services** – Background job processing for audits, webhooks, deletes, databases, builds, certificates, functions, mails, messaging, migrations, maintenance, usage, and scheduling
-4. **Executor** (`openruntimes-executor`) – Serverless function runtime
-5. **MariaDB** – Persistent relational database
-6. **Redis** – Cache and message queue
-7. **Traefik** – Internal reverse proxy routing requests to Appwrite services
-
-All services are managed via Docker Compose and configured to restart automatically.
+1.  **Core Service** (`appwrite`) – REST API, authentication, and core logic.
+2.  **Realtime Service** (`appwrite-realtime`) – WebSocket-based event subscriptions.
+3.  **Worker Services** – Background job processing for audits, webhooks, builds, and messaging.
+4.  **Executor** (`openruntimes-executor`) – Serverless function runtime.
+5.  **MongoDB** – Primary persistent NoSQL database for flexible data modeling.
+6.  **Redis** – High-speed cache and message broker for the internal queue.
+7.  **Traefik** – The entry point for all traffic, managing SSL termination and routing.
 
 ## Containerized Services
 
 ### Core Service (Appwrite)
+- **Image**: `appwrite/appwrite:latest`
+- **Internal Routing**: Traefik handles routing via Docker labels.
+- **Features**: REST/GraphQL APIs, Auth, Storage, and Functions.
 
-- **Internal Port**: `80` (via Traefik)
-- **Container**: `appwrite/appwrite:latest`
-- **Purpose**: Main API server handling all client requests
-- **Features**:
-  - REST and GraphQL APIs
-  - User authentication (email, OAuth, magic URL, phone)
-  - Database with real-time subscriptions
-  - File storage with image transformation
-  - Serverless functions
+### Database (MongoDB)
+- **Container**: `mongo:8.2.5`
+- **Purpose**: Persistent storage. MongoDB provides a flexible schema ideal for rapidly evolving application data.
 
-### Database (MariaDB)
-
-- **Container**: `mariadb:10.11`
-- **Purpose**: Persistent storage for all Appwrite data
+### Edge Router (Traefik)
+- **Container**: `traefik:3.6`
+- **Ports**: `80`, `443`, and `8080` (optional dashboard).
+- **Purpose**: Dynamically discovers containers and secures them with Let's Encrypt certificates automatically.
 
 ### Cache / Queue (Redis)
+- **Container**: `redis:7.4.7-alpine`
+- **Purpose**: Session management, task queuing, and real-time Pub/Sub.
 
-- **Container**: `redis:7.2-alpine`
-- **Purpose**: Session cache, task queuing, and pub/sub
+## Traffic Management
 
-## Web Service
-
-### HTTPS (Nginx)
-
-- **Port**: `443`
-- **Features**:
-  - HTTPS-secured domain via Let's Encrypt
-  - Reverse proxy for Appwrite
-  - WebSocket support for real-time features
-  - 100MB upload limit for file storage
+### HTTPS (Traefik)
+- **Entry Points**: Port 80 (redirects to 443) and Port 443.
+- **SSL**: Automated via Let's Encrypt using the HTTP-01 challenge.
+- **Routing**: Uses container labels to define middleware (compression, headers) and service routing.
 
 ## Resource Requirements
 
-- **Recommended**: 4GB Dedicated CPU or Shared Compute instance
-- **Storage**: At least 25GB for database, uploads, and function builds
+- **Recommended**: 16GB Dedicated CPU or Shared Compute instance.
+- **Storage**: At least 30GB to accommodate MongoDB journals, file uploads, and Docker image layers.
+- **Network**: A valid domain name (FQDN) is required for Traefik to successfully provision SSL certificates.

@@ -1,13 +1,4 @@
 ---
-- name: Debug Appwrite secrets
-  ansible.builtin.debug:
-    msg:
-      appwrite_secret_key: "{{ appwrite_secret_key }}"
-      appwrite_opensslkey: "{{ appwrite_opensslkey }}"
-      appwrite_installid: "{{ appwrite_installid }}"
-      appwrite_csrf: "{{ appwrite_csrf }}"
-      appwrite_admin_password: "{{ appwrite_admin_password }}"
-
 - name: Install Appwrite
   uri:
     url: "http://localhost:20080/install"
@@ -33,43 +24,22 @@
       accountPassword: "{{ appwrite_admin_password }}"
       migrate: false
     validate_certs: false
-   # status_code: [200, 201, 202]
     timeout: 120
   register: appwrite_install_result
 
-- name: Wait for Appwrite containers to be running
-  community.docker.docker_container_info:
-    name: "{{ item }}"
-  register: container_info
-  retries: 20
-  delay: 15
-  until: container_info.container.State.Running == true
-  loop:
-    - appwrite-traefik
-    - appwrite-worker-mails
-    - appwrite-worker-deletes
-    - appwrite-task-scheduler-messages
-    - appwrite-task-scheduler-executions
-    - appwrite-task-stats-resources
-    - appwrite-worker-audits
-    - appwrite-worker-functions
-    - appwrite
-    - appwrite-worker-messaging
-    - appwrite-worker-databases
-    - appwrite-worker-certificates
-    - appwrite-realtime
-    - appwrite-worker-stats-resources
-    - appwrite-worker-builds
-    - appwrite-task-maintenance
-    - appwrite-worker-stats-usage
-    - appwrite-task-scheduler-functions
-    - appwrite-worker-webhooks
-    - appwrite-worker-migrations
-    - appwrite-redis
-    - openruntimes-executor
-    - appwrite-console
-    - appwrite-mongodb
-    - appwrite-browser
+- name: Wait for all Appwrite containers to be running
+  community.docker.docker_host_info:
+    containers: true
+    containers_filters:
+      label:
+        - "com.docker.compose.project=appwrite"
+  register: appwrite_host_info
+  until: >
+    appwrite_host_info.containers | length >= expected_container_count and
+    appwrite_host_info.containers | selectattr('State', 'equalto', 'running') | list | length
+    == appwrite_host_info.containers | length
+  retries: 36
+  delay: 5
 
 - name: Wait for healthy containers to report healthy
   community.docker.docker_container_info:

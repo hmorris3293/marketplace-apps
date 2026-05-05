@@ -4,6 +4,3 @@
 
 - name: Deploy Appwrite
   import_tasks: appwrite.yml
-
-#- name: Configure Nginx and SSL certificates
-#  import_tasks: nginx.yml
