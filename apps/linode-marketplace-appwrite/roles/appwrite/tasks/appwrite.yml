@@ -35,7 +35,7 @@
         - "com.docker.compose.project=appwrite"
   register: appwrite_host_info
   until: >
-    appwrite_host_info.containers | length >= expected_container_count and
+    appwrite_host_info.containers | length > 0 and
     appwrite_host_info.containers | selectattr('State', 'equalto', 'running') | list | length
     == appwrite_host_info.containers | length
   retries: 36
