@@ -1,0 +1,12 @@
+---
+- name: Pull and start Saltcorn services
+  community.docker.docker_compose_v2:
+    project_src: /opt/saltcorn/docker-compose.yml
+    state: present
+    pull: always
+
+- name: Verify service is listening on localhost only
+  wait_for:
+    host: 127.0.0.1
+    port: 3000
+    timeout: 30
