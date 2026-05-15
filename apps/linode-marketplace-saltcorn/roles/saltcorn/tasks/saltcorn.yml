@@ -1,12 +1,40 @@
 ---
-- name: Pull and start Saltcorn services
-  community.docker.docker_compose_v2:
-    project_src: /opt/saltcorn/docker-compose.yml
-    state: present
-    pull: always
+- name: Download NodeSource GPG key
+  get_url:
+    url: https://deb.nodesource.com/gpgkey/nodesource-repo.gpg.key
+    dest: /etc/apt/keyrings/nodesource.asc
+    mode: '0644'
 
-- name: Verify service is listening on localhost only
-  wait_for:
-    host: 127.0.0.1
-    port: 3000
-    timeout: 30
+- name: Add NodeSource apt repository
+  apt_repository:
+    repo: "deb [signed-by=/etc/apt/keyrings/nodesource.asc] https://deb.nodesource.com/node_24.x nodistro main"
+    state: present
+    filename: nodesource
+    update_cache: true
+
+- name: Install Node.js
+  apt:
+    name: nodejs
+    state: present
+    update_cache: true
+
+- name: Install Saltcorn via npx
+  command: npx saltcorn-install -y
+  args:
+    creates: /home/saltcorn/.local/bin/saltcorn
+  become_user: root
+
+- name: Write saltcorn systemd service file
+  template:
+    src: saltcorn.service.j2
+    dest: /lib/systemd/system/saltcorn.service
+    owner: root
+    group: root
+    mode: '0644'
+    
+- name: Enable and start saltcorn service
+  systemd:
+    name: saltcorn
+    enabled: true
+    state: started
+    daemon_reload: true
