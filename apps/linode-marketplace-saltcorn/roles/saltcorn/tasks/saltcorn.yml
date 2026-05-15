@@ -41,7 +41,7 @@
 
 - name: Create user using dynamic credentials
   uri:
-    url: "http://172-238-199-65.ip.linodeusercontent.com/auth/create_first_user"
+    url: "http://localhost:8080/auth/create_first_user"
     method: POST
     body_format: form-urlencoded
     body:
