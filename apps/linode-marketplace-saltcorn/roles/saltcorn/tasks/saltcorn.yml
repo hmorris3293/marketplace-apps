@@ -31,10 +31,10 @@
     owner: root
     group: root
     mode: '0644'
-    
+
 - name: Enable and start saltcorn service
   systemd:
     name: saltcorn
     enabled: true
-    state: started
+    state: restarted
     daemon_reload: true
