@@ -38,3 +38,18 @@
     enabled: true
     state: restarted
     daemon_reload: true
+
+- name: Create user using dynamic credentials
+  uri:
+    url: "http://172-238-199-65.ip.linodeusercontent.com/auth/create_first_user"
+    method: POST
+    body_format: form-urlencoded
+    body:
+      _csrf: "{{ saltcorn_csrf }}"
+      default_language: "en"
+      email: "{{ soa_email_address }}"
+      password: "{{ saltcorn_admin_password }}"
+    headers:
+      Cookie: "{{ saltcorn_cookie }}"
+      Referer: "http://172-238-199-65.ip.linodeusercontent.com/auth/create_first_user"
+    status_code: [200, 302]

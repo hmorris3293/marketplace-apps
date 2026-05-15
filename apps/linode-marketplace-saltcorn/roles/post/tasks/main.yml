@@ -23,5 +23,5 @@
     content: |
       Sudo Username: {{ username }}
       Sudo Password: {{ password }}
-      Appwrite Admin Email: {{ soa_email_address }}
-      Appwrite Admin Password: {{ appwrite_admin_password }}
+      Saltcorn Admin Email: {{ soa_email_address }}
+      Saltcorn Admin Password: {{ saltcorn_admin_password }}

@@ -3,3 +3,4 @@
   systemd_service:
     name: nginx
     state: restarted
+

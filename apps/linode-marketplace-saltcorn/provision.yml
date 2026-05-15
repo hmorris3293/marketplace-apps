@@ -17,5 +17,6 @@
         insertafter: EOF
         path: group_vars/linode/vars
         block: |
-          saltcorn_session_secret: {{ lookup('password', '/dev/null length=64 chars=ascii_letters,digits') }}
-          saltcorn_db_password: {{ lookup('password', '/dev/null length=64 chars=ascii_letters,digits') }}
+          saltcorn_admin_password: {{ lookup('password', '/dev/null length=32 chars=ascii_letters,digits') }}
+          saltcorn_csrf: {{ lookup('password', '/dev/null length=64 chars=ascii_letters,digits') }}
+          saltcorn_cookie: {{ lookup('password', '/dev/null length=64 chars=ascii_letters,digits') }}
