@@ -39,17 +39,8 @@
     state: restarted
     daemon_reload: true
 
-- name: Create user using dynamic credentials
-  uri:
-    url: "http://localhost:8080/auth/create_first_user"
-    method: POST
-    body_format: form-urlencoded
-    body:
-      _csrf: "{{ saltcorn_csrf }}"
-      default_language: "en"
-      email: "{{ soa_email_address }}"
-      password: "{{ saltcorn_admin_password }}"
-    headers:
-      Cookie: "{{ saltcorn_cookie }}"
-      Referer: "http://172-238-199-65.ip.linodeusercontent.com/auth/create_first_user"
-    status_code: [200, 302]
+- name: Create Saltcorn admin user
+  command:
+    cmd: "saltcorn create-user -a -e {{ soa_email_address }} -p '{{ saltcorn_admin_password }}'"
+  become: true
+  become_user: saltcorn
