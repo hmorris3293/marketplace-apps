@@ -1,19 +1,15 @@
-# Akamai Cloud Compute – Appwrite Deployment One-Click APP (MongoDB & Traefik Edition)
+# Akamai Cloud Compute – Saltcorn Quick Deploy App
 
-Appwrite is an open-source, self-hosted Backend-as-a-Service (BaaS) platform that provides developers with a set of tools and APIs to build web and mobile applications faster. It handles common backend tasks including user authentication, database management, file storage, serverless functions, and real-time event subscriptions.
-
-This Marketplace application deploys **Appwrite** as a fully containerized stack using Docker Compose, fronted by **Traefik** for modern edge routing, automatic SSL orchestration via Let's Encrypt, and high-performance load balancing. This configuration replaces the traditional Nginx/MariaDB setup with a **MongoDB** backend for flexible, document-oriented data storage.
+Saltcorn is an open-source, self-hosted no-code database application builder that allows users to create web applications without writing code. It features a completely flexible database schema, a rich ecosystem of pluggable extensions, a drag-and-drop view builder, and a granular access control system, making it ideal for building custom CRMs, project management tools, tracking systems, and operational dashboards.
 
 ## Software Included
 
 | Software | Version | Description |
 | :--- | :---- | :--- |
-| Docker | `29.4.2` | Container Management Runtime |
-| Docker Compose | `5.1.3` | Tool for multi-container applications |
-| Traefik | `3.6` | Edge router, reverse proxy, and SSL orchestrator |
-| Appwrite | `1.9.0` tag | Open-source Backend-as-a-Service platform |
-| MongoDB | `8.2.5` | NoSQL document database used by Appwrite |
-| Redis | `7.4.7` | In-memory cache and queue for Appwrite |
+| Saltcorn | `latest stable` | No-code database application builder |
+| Node.js | `24` | Tool for multi-container applications |
+| Nginx | `1.24.0` | HTTP server used to serve web applications |
+
 
 **Supported Distributions:**
 
@@ -34,45 +30,16 @@ This Marketplace application deploys **Appwrite** as a fully containerized stack
 
 ## Overview
 
-The Appwrite stack consists of multiple containerized services optimized for performance and scalability:
+The Saltcorn deployment pulls in the @saltcorn/cli package (equivalent to npm install -g @saltcorn/cli), which itself is the entry point for the whole platform. Saltcorn is a monorepo, and the CLI brings along these core packages:
 
-1.  **Core Service** (`appwrite`) – REST API, authentication, and core logic.
-2.  **Realtime Service** (`appwrite-realtime`) – WebSocket-based event subscriptions.
-3.  **Worker Services** – Background job processing for audits, webhooks, builds, and messaging.
-4.  **Executor** (`openruntimes-executor`) – Serverless function runtime.
-5.  **MongoDB** – Primary persistent NoSQL database for flexible data modeling.
-6.  **Redis** – High-speed cache and message broker for the internal queue.
-7.  **Traefik** – The entry point for all traffic, managing SSL termination and routing.
-
-## Containerized Services
-
-### Core Service (Appwrite)
-- **Image**: `appwrite/appwrite:1.9.0`
-- **Internal Routing**: Traefik handles routing via Docker labels.
-- **Features**: REST/GraphQL APIs, Auth, Storage, and Functions.
-
-### Database (MongoDB)
-- **Container**: `mongo:8.2.5`
-- **Purpose**: Persistent storage. MongoDB provides a flexible schema ideal for rapidly evolving application data.
-
-### Edge Router (Traefik)
-- **Container**: `traefik:3.6`
-- **Ports**: `80`, `443`, and `8080` (optional dashboard).
-- **Purpose**: Dynamically discovers containers and secures them with Let's Encrypt certificates automatically.
-
-### Cache / Queue (Redis)
-- **Container**: `redis:7.4.7-alpine`
-- **Purpose**: Session management, task queuing, and real-time Pub/Sub.
-
-## Traffic Management
-
-### HTTPS (Traefik)
-- **Entry Points**: Port 80 (redirects to 443) and Port 443.
-- **SSL**: Automated via Let's Encrypt using the HTTP-01 challenge.
-- **Routing**: Uses container labels to define middleware (compression, headers) and service routing.
+- **@saltcorn/data** — the core of the project, handling the definition of entities (tables, fields, pages, etc.) and their persistence to a database. Saltcorn
+- **@saltcorn/markup** — utilities to help create HTML markup from JavaScript, built around a tags module that exports functions generating HTML. Saltcorn
+- **@saltcorn/server** — defines the routes and the core HTTP server process, handling both administration and serving data to users; based on the Express framework. Saltcorn
+- **@saltcorn/cli** — code for the saltcorn command-line interface executable, based on the oclif framework. Saltcorn
+- **saltcorn-builder** — the drag-and-drop builder used to build pages and views; it's a React component compiled separately, with its build artifact (dist/builder_bundle.js) included in the npm package.
 
 ## Resource Requirements
 
-- **Recommended**: 8GB Dedicated CPU or Shared Compute instance.
+- **Recommended**: 4GB Dedicated CPU or Shared Compute instance.
 - **Storage**: At least 30GB to accommodate MongoDB journals, file uploads, and Docker image layers.
-- **Network**: A valid domain name (FQDN) is required for Traefik to successfully provision SSL certificates (This deployment can use the default RDNS address as a valid domain if no domain is specified).
+- **Network**: A valid domain name (FQDN) is required for Nginx to successfully provision SSL certificates (This deployment can use the default RDNS address as a valid domain if no domain is specified).
