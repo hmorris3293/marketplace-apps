@@ -44,3 +44,5 @@
     cmd: "saltcorn create-user -a -e {{ soa_email_address }} -p '{{ saltcorn_admin_password }}'"
   become: true
   become_user: saltcorn
+  args:
+    chdir: /home/saltcorn
