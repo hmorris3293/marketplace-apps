@@ -40,8 +40,8 @@
     daemon_reload: true
 
 - name: Create Saltcorn admin user
-  command:
-    cmd: "saltcorn create-user -a -e {{ soa_email_address }} -p '{{ saltcorn_admin_password }}'"
+  ansible.builtin.command:
+    cmd: "/home/saltcorn/.local/bin/saltcorn create-user -a -e {{ soa_email_address }} -p '{{ saltcorn_admin_password }}'"
   become: true
   become_user: saltcorn
   args:
