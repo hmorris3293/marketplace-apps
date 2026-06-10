@@ -115,7 +115,6 @@
     daemon_reload: true
     enabled: true
 
----
 - name: Create hermes onboarding script
   template:
     src: hermes_onboarding.sh.j2
