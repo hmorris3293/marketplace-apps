@@ -1,0 +1,25 @@
+#!/usr/bin/env bash
+
+# Hermes Agent Onboarding Script
+# Runs 'hermes setup' on first login for the hermes user
+# Source: /etc/profile.d/hermes_onboarding.sh
+
+# Only run for interactive shells and the hermes user
+if [ -z "$PS1" ] || [ "$USER" != "{{ hermes_user }}" ]; then
+    return 0
+fi
+
+# Check if onboarding has already completed
+if [ -f "$HOME/.hermes/.onboarding_complete" ]; then
+    return 0
+fi
+
+# Mark as complete immediately to prevent repeated runs
+touch "$HOME/.hermes/.onboarding_complete"
+
+# Run hermes setup
+echo ""
+echo "Running Hermes setup wizard on first login..."
+echo ""
+
+hermes setup

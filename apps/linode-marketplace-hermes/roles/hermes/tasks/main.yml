@@ -1,0 +1,9 @@
+---
+- name: Hermes Setup
+  import_tasks: hermes_setup.yml
+
+- name: Install NodeJS
+  import_tasks: nodejs.yml
+
+- name: Hermes Install
+  import_tasks: hermes_install.yml
