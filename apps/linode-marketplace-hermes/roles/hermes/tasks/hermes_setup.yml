@@ -84,23 +84,22 @@
     remote_src: yes
     mode: '0644'
 
-- name: Find all files and folders in the installation skills directory
-  find:
-    paths: "{{ hermes_install_dir }}/skills/"
-    recurse: yes
-    hidden: yes
-  register: skills_files
+- name: Ensure destination skills directory exists
+  file:
+    path: "{{ hermes_home }}/skills/"
+    state: directory
+    owner: "{{ hermes_user }}"
+    group: "{{ hermes_user }}"
+    mode: '0755'
 
-- name: Copy skills contents to Hermes home skills directory
+- name: Copy skills contents recursively without looping
   copy:
-    src: "{{ item.path }}"
-    dest: "{{ hermes_home }}/skills/{{ item.path | relpath(hermes_install_dir + '/skills/') }}"
+    src: "{{ hermes_install_dir }}/skills/"
+    dest: "{{ hermes_home }}/skills/"
     remote_src: yes
     owner: "{{ hermes_user }}"
     group: "{{ hermes_user }}"
-    mode: preserve 
-  loop: "{{ skills_files.files }}"
-  when: skills_files.matched > 0
+    mode: preserve
 
 - name: Generate the placeholder custom personality profile
   copy:
