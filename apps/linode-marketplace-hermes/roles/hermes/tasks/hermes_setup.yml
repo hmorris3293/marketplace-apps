@@ -37,6 +37,7 @@
     dest: "{{ hermes_install_dir }}"
     version: main
     depth: 1
+    force: yes
 
 - name: Create uv virtual environment with Python 3.11
   command: "{{ hermes_home }}/bin/uv venv venv --python 3.11"
