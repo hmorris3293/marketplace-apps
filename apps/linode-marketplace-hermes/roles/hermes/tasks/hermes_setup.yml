@@ -115,6 +115,14 @@
     state: directory
     mode: '0755'
 
+- name: Ensure Hermes has perms to home directory and hidden layouts
+  file:
+    path: "{{ hermes_home }}"
+    state: directory
+    owner: "{{ hermes_user }}"
+    group: "{{ hermes_user }}"
+    recurse: yes
+
 - name: Install Hermes CLI officially via uv tools
   command: "{{ hermes_home }}/bin/uv tool install --editable . --python 3.11 --force"
   args:
