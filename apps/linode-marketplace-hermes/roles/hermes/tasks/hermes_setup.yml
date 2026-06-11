@@ -115,15 +115,12 @@
     state: directory
     mode: '0755'
 
-- name: Create hermes wrapper script
-  copy:
-    dest: "{{ hermes_home }}/.local/bin/hermes"
-    mode: '0755'
-    content: |
-      #!/usr/bin/env bash
-      unset PYTHONPATH
-      unset PYTHONHOME
-      exec "{{ hermes_home }}/hermes-agent/.venv/bin/hermes" "$@"
+- name: Install Hermes CLI officially via uv tools
+  command: "{{ hermes_home }}/bin/uv tool install --editable . --python 3.11 --force"
+  args:
+    chdir: "{{ hermes_install_dir }}"
+  become: yes
+  become_user: "{{ hermes_user }}"
 
 - name: Log the chosen installation metadata method
   copy:
