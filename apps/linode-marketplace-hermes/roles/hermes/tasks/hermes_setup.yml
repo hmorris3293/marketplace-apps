@@ -115,21 +115,16 @@
     state: directory
     mode: '0755'
 
-- name: Fix ownership of Hermes home directory
+- name: Fix ownership of Hermes home and source installation directories
   file:
-    path: "{{ hermes_home }}"
+    path: "{{ item }}"
     state: directory
     owner: "{{ hermes_user }}"
     group: "{{ hermes_user }}"
     recurse: yes
-
-- name: Fix ownership of Hermes source installation directory
-  file:
-    path: "{{ hermes_install_dir }}"
-    state: directory
-    owner: "{{ hermes_user }}"
-    group: "{{ hermes_user }}"
-    recurse: yes
+  loop:
+    - "{{ hermes_home }}"
+    - "{{ hermes_install_dir }}"
 
 - name: Install Hermes CLI officially via uv tools
   command: "{{ hermes_home }}/bin/uv tool install --editable . --python 3.11 --force"
@@ -155,14 +150,6 @@
     group: "{{ hermes_user }}"
     mode: '0644'
     state: present
-
-- name: Ensure correct ownership of the Hermes home directory tree
-  file:
-    path: "{{ hermes_home }}"
-    state: directory
-    owner: "{{ hermes_user }}"
-    group: "{{ hermes_user }}"
-    recurse: yes
 
 - name: Verify the system points to the newly created manual binary layout
   command: which hermes
