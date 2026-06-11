@@ -115,9 +115,17 @@
     state: directory
     mode: '0755'
 
-- name: Ensure Hermes has perms to home directory and hidden layouts
+- name: Fix ownership of Hermes home directory
   file:
     path: "{{ hermes_home }}"
+    state: directory
+    owner: "{{ hermes_user }}"
+    group: "{{ hermes_user }}"
+    recurse: yes
+
+- name: Fix ownership of Hermes source installation directory
+  file:
+    path: "{{ hermes_install_dir }}"
     state: directory
     owner: "{{ hermes_user }}"
     group: "{{ hermes_user }}"
