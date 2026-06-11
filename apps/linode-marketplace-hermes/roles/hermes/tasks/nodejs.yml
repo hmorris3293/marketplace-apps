@@ -5,6 +5,7 @@
       - ca-certificates
       - curl
       - gnupg
+      - npm
     state: present
 
 - name: Create directory for NodeSource GPG key
@@ -40,17 +41,7 @@
     state: present
     update_cache: true
 
-- name: Install pnpm globally
-  community.general.npm:
-    name: pnpm
-    global: true
-
 - name: Verify Node.js installation
   command: node --version
   register: node_version
-  changed_when: false
-
-- name: Verify pnpm installation
-  command: pnpm --version
-  register: pnpm_version
   changed_when: false

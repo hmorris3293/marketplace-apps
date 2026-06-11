@@ -1,25 +1,55 @@
 #!/usr/bin/env bash
 
 # Hermes Agent Onboarding Script
-# Runs 'hermes setup' on first login for the hermes user
+# Prompts root user if they want to run hermes setup on first login
 # Source: /etc/profile.d/hermes_onboarding.sh
 
-# Only run for interactive shells and the hermes user
-if [ -z "$PS1" ] || [ "$USER" != "{{ hermes_user }}" ]; then
-    return 0
+if [ "$EUID" -ne 0 ]; then
+    return
 fi
 
-# Check if onboarding has already completed
-if [ -f "$HOME/.hermes/.onboarding_complete" ]; then
-    return 0
-fi
+# Fetch the UID safely using the evaluated Ansible variable
+HERMES_UID=$(id -u "{{ hermes_user }}")
+export XDG_RUNTIME_DIR="/run/user/$HERMES_UID"
 
-# Mark as complete immediately to prevent repeated runs
-touch "$HOME/.hermes/.onboarding_complete"
+while true; do
+    echo ""
+    echo "[Hermes Onboarding]"
+    read -rp "Do you want to run the Hermes setup wizard? [y/n]: " answer
 
-# Run hermes setup
-echo ""
-echo "Running Hermes setup wizard on first login..."
-echo ""
+    if [[ "$answer" =~ ^[Yy]$ ]]; then
+        echo "[***] Running Hermes setup as {{ hermes_user }} user."
+        sudo -u "{{ hermes_user }}" XDG_RUNTIME_DIR="$XDG_RUNTIME_DIR" -i hermes setup
 
-hermes setup
+        if [ $? -eq 0 ]; then
+            echo "[***] Hermes setup complete. Removing /etc/profile.d/hermes_onboarding.sh."
+
+            if [ -f '/etc/profile.d/hermes_onboarding.sh' ]; then
+                rm '/etc/profile.d/hermes_onboarding.sh'
+            fi
+        else
+            echo "[***] Setup exited with status $?. Try again by logging in."
+        fi
+        break
+    elif [[ "$answer" =~ ^[Nn]$ ]]; then
+        echo "[***] Skipping Hermes setup."
+        while true; do
+            read -rp "[***] Do you want to remove the onboarding script? [y/n]: " remove_script
+            if [[ "$remove_script" =~ ^[Yy]$ ]]; then
+                echo "[***] Removing /etc/profile.d/hermes_onboarding.sh"
+                if [ -f '/etc/profile.d/hermes_onboarding.sh' ]; then
+                    rm '/etc/profile.d/hermes_onboarding.sh'
+                fi
+                break
+            elif [[ "$remove_script" =~ ^[Nn]$ ]]; then
+                echo "[***] Not removing onboarding script. This script will run again on next login."
+                break
+            else
+                echo -e "\n[***] Please answer y or n."
+            fi
+        done
+        break
+    else
+        echo -e "\n[***] Please answer y or n."
+    fi
+done
