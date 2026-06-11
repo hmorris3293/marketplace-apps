@@ -27,16 +27,33 @@
     - "{{ hermes_home }}/memories"
     - "{{ hermes_home }}/skills"
 
-- name: Add Hermes user to sudoers (scoped for gateway only)
+#- name: Add Hermes user to sudoers (scoped for gateway only)
+#  copy:
+#    dest: "/etc/sudoers.d/{{ hermes_user }}"
+#    mode: "0440"
+#    owner: root
+#    group: root
+#    content: |
+#      # Hermes sudo permissions (scoped for security)
+#      # Allows hermes user to manage only the hermes-gateway service
+#      
+#      {{ hermes_user }} ALL=(root) NOPASSWD: /usr/bin/systemctl start hermes-gateway
+#      {{ hermes_user }} ALL=(root) NOPASSWD: /usr/bin/systemctl stop hermes-gateway
+#      {{ hermes_user }} ALL=(root) NOPASSWD: /usr/bin/systemctl restart hermes-gateway
+#      {{ hermes_user }} ALL=(root) NOPASSWD: /usr/bin/systemctl status hermes-gateway
+#      {{ hermes_user }} ALL=(root) NOPASSWD: /usr/bin/systemctl enable hermes-gateway
+#      {{ hermes_user }} ALL=(root) NOPASSWD: /usr/bin/systemctl disable hermes-gateway
+#     {{ hermes_user }} ALL=(root) NOPASSWD: /usr/bin/systemctl daemon-reload
+#    validate: /usr/sbin/visudo -cf %s
+
+- name: Add Hermes user to sudoers (Scoped for systemctl + Playwright dependencies)
   copy:
     dest: "/etc/sudoers.d/{{ hermes_user }}"
     mode: "0440"
     owner: root
     group: root
     content: |
-      # Hermes sudo permissions (scoped for security)
-      # Allows hermes user to manage only the hermes-gateway service
-      
+      # 1. Allows hermes user to manage only the hermes-gateway service
       {{ hermes_user }} ALL=(root) NOPASSWD: /usr/bin/systemctl start hermes-gateway
       {{ hermes_user }} ALL=(root) NOPASSWD: /usr/bin/systemctl stop hermes-gateway
       {{ hermes_user }} ALL=(root) NOPASSWD: /usr/bin/systemctl restart hermes-gateway
@@ -44,6 +61,11 @@
       {{ hermes_user }} ALL=(root) NOPASSWD: /usr/bin/systemctl enable hermes-gateway
       {{ hermes_user }} ALL=(root) NOPASSWD: /usr/bin/systemctl disable hermes-gateway
       {{ hermes_user }} ALL=(root) NOPASSWD: /usr/bin/systemctl daemon-reload
+
+      # 2. Allows hermes setup to install its Playwright system dependencies cleanly
+      {{ hermes_user }} ALL=(root) NOPASSWD: /usr/bin/apt-get update
+      {{ hermes_user }} ALL=(root) NOPASSWD: /usr/bin/apt-get install -y *
+      {{ hermes_user }} ALL=(root) NOPASSWD: /usr/bin/apt-get install --no-install-recommends *
     validate: /usr/sbin/visudo -cf %s
 
 - name: Create install directory
