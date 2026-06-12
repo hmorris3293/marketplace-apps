@@ -61,7 +61,7 @@
       # - View hermes logs
       #
       # To grant full sudo (NOT RECOMMENDED):
-      #   {{ openclaw_user }} ALL=(ALL) NOPASSWD: ALL
+      #   {{ hermes_user }} ALL=(ALL) NOPASSWD: ALL
 
       # 1. Allows hermes user to manage only the hermes-gateway service
       {{ hermes_user }} ALL=(root) NOPASSWD: /usr/bin/systemctl start hermes-gateway
