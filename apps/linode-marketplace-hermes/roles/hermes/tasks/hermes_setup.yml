@@ -64,6 +64,7 @@
   command: npx playwright install --with-deps chromium
   args:
     chdir: "{{ hermes_install_dir }}"
+  become: yes
 
 - name: Install TUI dependencies
   npm:

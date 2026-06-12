@@ -20,8 +20,8 @@ while true; do
     if [[ "$answer" =~ ^[Yy]$ ]]; then
         echo "[***] Running Hermes setup as {{ hermes_user }} user."
         
-        # CHANGED: Using runuser instead of sudo to avoid password prompts entirely
-        runuser -u "{{ hermes_user }}" -- env XDG_RUNTIME_DIR="$XDG_RUNTIME_DIR" hermes setup
+        # UPDATE: Appended explicit PATH definitions inside the string context
+        runuser -l "{{ hermes_user }}" -c "PATH=\$PATH:/usr/local/bin:/usr/bin XDG_RUNTIME_DIR=\"$XDG_RUNTIME_DIR\" hermes setup"
 
         if [ $? -eq 0 ]; then
             echo "[***] Hermes setup complete. Removing /etc/profile.d/hermes_onboarding.sh."
