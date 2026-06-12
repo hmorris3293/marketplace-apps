@@ -65,7 +65,6 @@
       # 2. Allows hermes setup to install its Playwright system dependencies cleanly
       {{ hermes_user }} ALL=(root) NOPASSWD: /usr/bin/apt-get update
       {{ hermes_user }} ALL=(root) NOPASSWD: /usr/bin/apt-get install -y *
-      {{ hermes_user }} ALL=(root) NOPASSWD: /usr/bin/apt-get install --no-install-recommends *
     validate: /usr/sbin/visudo -cf %s
 
 - name: Create install directory
