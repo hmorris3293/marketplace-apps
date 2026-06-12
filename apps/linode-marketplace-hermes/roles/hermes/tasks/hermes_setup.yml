@@ -61,7 +61,7 @@
     state: present
 
 - name: Download Playwright Chromium browser engine
-  command: npx playwright install chromium
+  command: npx playwright install --with-deps chromium
   args:
     chdir: "{{ hermes_install_dir }}"
 
