@@ -1,15 +1,14 @@
-# Akamai OpenClaw Quick Deploy App
+# Akamai Hermes Quick Deploy App
 
-OpenClaw is an open-source AI agent platform that runs locally and executes tasks through a persistent Gateway service. The Gateway connects communication channels, tools, and AI models, allowing the agent to receive messages, perform actions, and automate workflows. Administrators configure and manage the system through a CLI onboarding wizard and a local web dashboard.
+Hermes is an open-source AI agent platform that runs locally and executes tasks through a persistent Gateway service. The Gateway connects communication channels, tools, and AI models, allowing the agent to receive messages, perform actions, and automate workflows. Administrators configure and manage the system through a CLI onboarding wizard and a local web dashboard.
 
 ## Software Included
 
 | Software | Version | Description |
 | :--- | :--- | :--- |
-| OpenClaw | `latest` | AI agent orchestrator |
-| Nginx | `1.24` | Web server and reverse proxy handling SSL termination. |
-| Node.js | `22.22.1` | JavaScript runtime environment |
-| pnpm | `10.32.1` | Package manager for Node.js |
+| Hermes | `latest` | AI agent orchestrator |
+| Node.js | `22.22.3` | JavaScript runtime environment |
+| NPM | `10.9.8` | Package manager for Node.js |
 
 **Supported Distributions:**
 - Ubuntu 24.04 LTS
@@ -29,45 +28,48 @@ OpenClaw is an open-source AI agent platform that runs locally and executes task
 
 # Post Deployment
 
-When the OpenClaw Quick Deploy App has finished installing, you will need to log into your server to perform the onboarding. The onboarding script will kick off only when you log in as the `root` user. Here are some notes about the deployment:
+When the Hermes Quick Deploy App has finished installing, you will need to log into your server to perform the onboarding. The onboarding script will kick off only when you log in as the `root` user. Here are some notes about the deployment:
 
-- OpenClaw runs as a limited user on the instance called `openclaw`. The `openclaw` user has limited scope defined in `/etc/sudoer.d/openclaw`
-- Nginx runs as the web server and reverse proxy to the openclaw gateway. SSL/TLS terminiation is done by Nginx and Let's Encrypt certificates are installed.
+- Hermes runs as a limited user on the instance called `hermes`. The `hermes` user has limited scope defined in `/etc/sudoer.d/hermes`
 - A sudo user is created on the instance for system administrative purposes. In this example, we are using `admin`.
-- The onboarding script is located in `/etc/profile.d/openclaw_onboarding.sh`. Once the onboarding is complete, the script will automatically remove itself to avoid being prompted on next login.
+- The onboarding script is located in `/etc/profile.d/hermes_onboarding.sh`. Once the onboarding is complete, the script will automatically remove itself to avoid being prompted on next login.
 
-## OpenClaw Onboarding
+## Hermes Onboarding
 
-To perform the OpenClaw onboarding you will need to log into the system as `root` (if you have enabled) or the sudo user called `admin`, in this example. When `root` is logged in, it will trigger the onboarding script. 
+To perform the Hermes onboarding you will need to log into the system as `root` (if you have enabled) or the sudo user called `admin`, in this example. When `root` is logged in, it will trigger the onboarding script. 
 
 If you're logging into the server with the sudo user called `admin`, follow these steps:
 
 1. Grab the sudo password from `/home/admin/.credentials`. 
 2. Become `root` by running `sudo su -`. When prompted for the sudo password, paste it from the `/home/admin/.credentials` file.
 
-## Accessing OpenClaw Dashboard
+## Accessing Hermes
 
-Once the onboarding is complete, you will be able to access the Dashboard from the domain you've configured in the initial deployment of the app. If you did not enter a domain name in from the start, the dashboard will be accessible via the instance's rDNS value. You can view the rDNS value from the [Linode's Network](https://techdocs.akamai.com/cloud-computing/docs/configure-rdns-reverse-dns-on-a-compute-instance#setting-reverse-dns) tab.
+Once the onboarding is complete, the Hermes Messaging Gateway runs as a persistent background service to listen for incoming platform triggers, manage session routing, and execute automated tasks 24/7. 
 
-In this example, we'll use the value of `172-233-177-79.ip.linodeusercontent.com`.
+In this example, we'll assume a standard Linux server environment deploying Hermes as a systemd user service.
 
-To authenticate to the dashboard you will need to provide two methods of authentication:
-1. Dashboard token:
-    - If you didn't grab this from the onboarding earlier you will need to follow the next steps.
-        1. Become the `openclaw` user:  
-            `su - openclaw`.
-        2. Run the following next:
-            `openclaw dashboard --no-open`
-        3. Grab the entire token value `#token=a0764fb` from the `Dashboard URL:` link
-2. Nginx Htpasswd:
-    - Grab the `Htpassword` password and `Htpasswd username` user from `/home/admin.credentials`. 
+To manage and verify the gateway service, follow these steps:
+1. **Check Gateway Status:**
+    * Run the native diagnostics tool to verify connected messaging platforms and active provider keys:  
+      `hermes status`
+    * Check the background daemon state using systemd:  
+      `systemctl --user status hermes-gateway`
+2. **Restarting After Config Adjustments:**
+    * Anytime you update API keys, bot tokens, or tool permissions within your `~/.hermes/.env` or `config.yaml` files, you must cycle the service:  
+      `systemctl --user restart hermes-gateway`
 
-At this point you have everything you need to access the dashboard. For example:
-`https://172-233-177-79.ip.linodeusercontent.com/#token=a0764fb`
+### Communicating with Hermes
 
-When you access the web page you will be prompted for the HTPASSWD details. Once you enter the credentials you will be able to proceed to the dashboard.
+At this point, you have everything you need to communicate with Hermes. For example, to execute a non-interactive, one-shot query directly from your server's CLI:
+
+`hermes chat --quiet -q "Check the local directory and summarize the project changes"`
+
+When you access Hermes via an external messaging client (such as Telegram, Discord, or Slack), the gateway will validate your inbound client ID against your configuration's `allowed_user_ids` safety filter. Once authenticated, you can issue normal prompts or use platform control commands:
+* **Reset Context:** Wipe the conversation context using `/new`.
+* **Switch Models:** Hot-swap your underlying LLM model on the fly using `/model [provider:model]`.
 
 ## Resources
 
-- [OpenClaw](https://openclaw.ai/)
-- [OpenClaw Getting Started](https://docs.openclaw.ai/start/getting-started)
+- [Hermes](https://hermes-agent.nousresearch.com/)
+- [Hermes Getting Started](https://hermes-agent.nousresearch.com/docs)
