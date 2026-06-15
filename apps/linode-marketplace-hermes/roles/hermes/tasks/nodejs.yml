@@ -5,7 +5,6 @@
       - ca-certificates
       - curl
       - gnupg
-      - npm
     state: present
 
 - name: Create directory for NodeSource GPG key
