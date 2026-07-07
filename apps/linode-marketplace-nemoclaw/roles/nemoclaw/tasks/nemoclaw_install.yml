@@ -13,10 +13,10 @@
     creates: /opt/nemoclaw-src/node_modules/.package-lock.json
 
 - name: Link nemoclaw binary globally
-  file:
-    src: /opt/nemoclaw-src/bin/nemoclaw
-    dest: /usr/local/bin/nemoclaw
-    state: link
+  command: npm link
+  args:
+    chdir: /opt/nemoclaw-src
+    creates: /usr/local/bin/nemoclaw
 
 - name: Verify nemoclaw installation
   shell:
