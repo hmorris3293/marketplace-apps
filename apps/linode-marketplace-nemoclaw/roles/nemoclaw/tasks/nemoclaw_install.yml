@@ -12,6 +12,22 @@
     chdir: /opt/nemoclaw-src
     creates: /opt/nemoclaw-src/node_modules/.package-lock.json
 
+- name: Install NemoClaw build dependencies
+  command: npm install --ignore-scripts --loglevel=warn
+  args:
+    chdir: /opt/nemoclaw-src
+    creates: /opt/nemoclaw-src/node_modules/typescript/bin/tsc
+
+- name: Build NemoClaw CLI
+  command: npm run build:cli
+  args:
+    chdir: /opt/nemoclaw-src
+
+- name: Prune NemoClaw development dependencies
+  command: npm prune --omit=dev
+  args:
+    chdir: /opt/nemoclaw-src
+
 - name: Link nemoclaw binary globally
   command: npm link
   args:
