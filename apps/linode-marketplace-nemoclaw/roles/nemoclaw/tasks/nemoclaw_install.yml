@@ -1,8 +1,13 @@
 ---
 - name: Install NemoClaw CLI globally via npm
-  command: npm install -g {{ nemoclaw_npm_repo }}
+  command: >
+    npm install -g {{ nemoclaw_npm_repo }}
+    --max-old-space-size=2048
+    --verbose
   args:
     creates: /usr/bin/nemoclaw
+  environment:
+    NODE_OPTIONS: "--max-old-space-size=2048"
 
 - name: Verify nemoclaw installation
   shell:
