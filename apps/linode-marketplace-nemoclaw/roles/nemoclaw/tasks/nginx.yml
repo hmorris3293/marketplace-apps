@@ -41,15 +41,3 @@
     name: certbot_ssl
   vars:
     webserver_stack: lemp
-
-# nemoclaw reverse proxy setup
-
-- name: Allow domain Origin to dashboard
-  shell:
-    cmd: nemoclaw config set gateway.controlUi.allowedOrigins '["https://{{ _domain }}"]'
-    executable: /bin/bash
-  become: true
-  become_user: "{{ nemoclaw_user }}"
-  environment:
-    HOME: "{{ nemoclaw_home }}"
-  changed_when: false
