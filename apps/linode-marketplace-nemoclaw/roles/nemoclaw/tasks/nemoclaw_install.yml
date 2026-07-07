@@ -1,48 +1,22 @@
 ---
-- name: Create temporary swapfile for build
-  block:
-    - name: Allocate 2GB swapfile
-      command: |
-        dd if=/dev/zero of=/swapfile bs=1G count=2
-      args:
-        creates: /swapfile
+- name: Clone NemoClaw repository (shallow)
+  git:
+    repo: "https://github.com/NVIDIA/NemoClaw.git"
+    dest: /opt/nemoclaw-src
+    version: "{{ nemoclaw_install_ref }}"
+    depth: 1
 
-    - name: Set swapfile permissions
-      file:
-        path: /swapfile
-        mode: '0600'
-
-    - name: Format swapfile
-      command: mkswap /swapfile
-
-    - name: Enable swapfile
-      command: swapon /swapfile
-      failed_when: false
-
-- name: Install NemoClaw CLI globally via npm
-  shell: |
-    set -e
-    npm cache clean --force
-    npm install -g {{ nemoclaw_npm_repo }} \
-      --max-old-space-size=2048 \
-      --jobs=1 \
-      --loglevel=warn
+- name: Install NemoClaw production dependencies
+  command: npm install --omit=dev --loglevel=warn
   args:
-    creates: /usr/bin/nemoclaw
-    executable: /bin/bash
-  environment:
-    NODE_OPTIONS: "--max-old-space-size=2048"
+    chdir: /opt/nemoclaw-src
+    creates: /opt/nemoclaw-src/node_modules/.package-lock.json
 
-- name: Disable and remove temporary swapfile
-  block:
-    - name: Disable swapfile
-      command: swapoff /swapfile
-      failed_when: false
-
-    - name: Remove swapfile
-      file:
-        path: /swapfile
-        state: absent
+- name: Link nemoclaw binary globally
+  file:
+    src: /opt/nemoclaw-src/bin/nemoclaw
+    dest: /usr/local/bin/nemoclaw
+    state: link
 
 - name: Verify nemoclaw installation
   shell:
