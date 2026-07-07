@@ -1,0 +1,39 @@
+---
+- name: Map architecture to OpenShell release artifact
+  set_fact:
+    openshell_arch: "{{ 'x86_64' if ansible_architecture == 'x86_64' else ('aarch64' if ansible_architecture == 'aarch64' else '') }}"
+
+- name: Fail when architecture is unsupported for OpenShell binary install
+  fail:
+    msg: "Unsupported architecture for OpenShell install: {{ ansible_architecture }}"
+  when: openshell_arch == ''
+
+- name: Create temporary directory for OpenShell archive
+  tempfile:
+    state: directory
+    suffix: openshell
+  register: openshell_tmpdir
+
+- name: Download OpenShell CLI archive
+  get_url:
+    url: "https://github.com/NVIDIA/OpenShell/releases/latest/download/openshell-{{ openshell_arch }}-unknown-linux-musl.tar.gz"
+    dest: "{{ openshell_tmpdir.path }}/openshell.tar.gz"
+    mode: '0644'
+
+- name: Extract OpenShell CLI archive
+  unarchive:
+    src: "{{ openshell_tmpdir.path }}/openshell.tar.gz"
+    dest: "{{ openshell_tmpdir.path }}"
+    remote_src: true
+
+- name: Install OpenShell CLI binary to global path
+  copy:
+    src: "{{ openshell_tmpdir.path }}/openshell"
+    dest: /usr/local/bin/openshell
+    mode: '0755'
+    remote_src: true
+
+- name: Remove temporary OpenShell files
+  file:
+    path: "{{ openshell_tmpdir.path }}"
+    state: absent

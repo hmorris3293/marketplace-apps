@@ -1,0 +1,18 @@
+---
+- name: Create Nemoclaw directories (structure only, no config files)
+  file:
+    path: "{{ item.path }}"
+    state: directory
+    owner: "{{ nemoclaw_user }}"
+    group: "{{ nemoclaw_user }}"
+    mode: "{{ item.mode }}"
+  loop:
+    - { path: "{{ nemoclaw_config_dir }}", mode: '0755' }
+    - { path: "{{ nemoclaw_config_dir }}/sessions", mode: '0755' }
+    - { path: "{{ nemoclaw_config_dir }}/credentials", mode: '0700' }
+    - { path: "{{ nemoclaw_config_dir }}/data", mode: '0755' }
+    - { path: "{{ nemoclaw_config_dir }}/logs", mode: '0755' }
+    - { path: "{{ nemoclaw_config_dir }}/agents", mode: '0755' }
+    - { path: "{{ nemoclaw_config_dir }}/agents/main", mode: '0755' }
+    - { path: "{{ nemoclaw_config_dir }}/agents/main/agent", mode: '0700' }
+    - { path: "{{ nemoclaw_config_dir }}/workspace", mode: '0755' }

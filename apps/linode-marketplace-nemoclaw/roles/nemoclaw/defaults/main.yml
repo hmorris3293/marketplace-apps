@@ -1,0 +1,17 @@
+---
+# nemoclaw
+nemoclaw_user: nemoclaw
+nemoclaw_home: /home/nemoclaw
+
+nodejs_version: 22.x
+nemoclaw_config_dir: "{{ nemoclaw_home }}/.nemoclaw"
+nemoclaw_gateway_port: 18789
+
+# NVIDIA NemoClaw install settings
+nemoclaw_install_ref: "{{ nemoclaw_ref | default('lkg') }}"
+nemoclaw_npm_repo: "https://github.com/NVIDIA/NemoClaw.git#{{ nemoclaw_install_ref }}"
+
+# nginx htpasswd
+nemoclaw_htpasswd_file: /etc/nginx/nemoclaw_dashboard.htpasswd
+nemoclaw_htpasswd_user: "{{ nemoclaw_user }}"
+nemoclaw_htpasswd: "{{ htaccess_password | password_hash('blowfish') }}"

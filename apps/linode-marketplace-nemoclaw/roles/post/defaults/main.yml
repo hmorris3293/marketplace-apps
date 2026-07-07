@@ -1,0 +1,7 @@
+---
+# nemoclaw
+nemoclaw_user: nemoclaw
+nemoclaw_htpasswd_file: /etc/nginx/nemoclaw_dashboard.htpasswd
+nemoclaw_htpasswd_user: "{{ nemoclaw_user }}"
+nemoclaw_htpasswd: "{{ htaccess_password | password_hash('blowfish') }}"
+nemoclaw_dashboard_hint: "Run: su - {{ nemoclaw_user }} -c \"nemoclaw dashboard --no-open\""

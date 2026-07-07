@@ -1,0 +1,24 @@
+---
+- name: Create nemoclaw user
+  import_tasks: nemoclaw_user.yml
+
+- name: Configure Docker engine for OpenShell compatibility
+  import_tasks: docker.yml
+
+- name: Install NodeJS
+  import_tasks: nodejs.yml
+
+- name: Install OpenShell CLI
+  import_tasks: openshell.yml
+
+- name: Install NemoClaw CLI via npm
+  import_tasks: nemoclaw_install.yml
+
+- name: Setup Nemoclaw directories
+  import_tasks: nemoclaw_setup.yml
+
+- name: Bootstrap Nemoclaw non-interactively
+  import_tasks: nemoclaw_bootstrap.yml
+
+- name: Configure Nginx
+  import_tasks: nginx.yml

@@ -1,0 +1,28 @@
+---
+- name: Install NemoClaw CLI globally via npm
+  command: npm install -g {{ nemoclaw_npm_repo }}
+  args:
+    creates: /usr/bin/nemoclaw
+
+- name: Verify nemoclaw installation
+  shell:
+    cmd: nemoclaw --version
+    executable: /bin/bash
+  become: true
+  become_user: "{{ nemoclaw_user }}"
+  environment:
+    HOME: "{{ nemoclaw_home }}"
+  register: nemoclaw_version
+  changed_when: false
+
+- name: Display installed nemoclaw version
+  debug:
+    msg: "NemoClaw installed: {{ nemoclaw_version.stdout }}"
+
+- name: Create first-login NemoClaw onboarding script
+  template:
+    src: nemoclaw-setup.sh.j2
+    dest: /etc/profile.d/nemoclaw-setup.sh
+    owner: root
+    group: root
+    mode: '0755'

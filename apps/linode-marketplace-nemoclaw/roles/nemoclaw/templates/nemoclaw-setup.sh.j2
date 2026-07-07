@@ -1,0 +1,19 @@
+#!/usr/bin/env bash
+# Automatically trigger user-level NemoClaw onboarding on first interactive login.
+
+MARKER_FILE="$HOME/.nemoclaw_setup_done"
+
+if [[ -t 1 && ! -f "$MARKER_FILE" ]]; then
+    echo "=========================================================="
+    echo " Initializing NVIDIA NemoClaw Interactive Onboarding..."
+    echo "=========================================================="
+
+    nemoclaw onboard
+
+    if [ $? -eq 0 ]; then
+        touch "$MARKER_FILE"
+        echo "NemoClaw onboarding completed successfully!"
+    else
+        echo "[WARNING] Onboarding was interrupted. It will prompt again on next login."
+    fi
+fi

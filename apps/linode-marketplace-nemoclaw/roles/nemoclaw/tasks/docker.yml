@@ -1,0 +1,15 @@
+---
+# docker
+- name: Install docker latest
+  import_role:
+    name: docker
+
+- name: Apply Docker cgroupns mode fix
+  copy:
+    dest: /etc/docker/daemon.json
+    content: |
+      {
+        "default-cgroupns-mode": "host"
+      }
+    mode: '0644'
+  notify: Restart Docker service

@@ -1,0 +1,21 @@
+---
+- name: Query Nemoclaw dashboard URL when available
+  shell:
+    cmd: nemoclaw dashboard --no-open
+    executable: /bin/bash
+  become: true
+  become_user: "{{ nemoclaw_user }}"
+  environment:
+    HOME: "{{ nemoclaw_home }}"
+  register: nemoclaw_dashboard
+  changed_when: false
+  failed_when: false
+
+- name: Persist dashboard launch hint for credentials output
+  set_fact:
+    nemoclaw_dashboard_hint: >-
+      {{
+        (nemoclaw_dashboard.stdout | trim)
+        if (nemoclaw_dashboard.rc | default(1)) == 0 and (nemoclaw_dashboard.stdout | default('') | trim | length > 0)
+        else 'Run: su - ' ~ nemoclaw_user ~ ' -c "nemoclaw dashboard --no-open"'
+      }}
