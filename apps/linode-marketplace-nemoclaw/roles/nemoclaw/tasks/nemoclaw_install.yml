@@ -1,13 +1,48 @@
 ---
+- name: Create temporary swapfile for build
+  block:
+    - name: Allocate 2GB swapfile
+      command: |
+        dd if=/dev/zero of=/swapfile bs=1G count=2
+      args:
+        creates: /swapfile
+
+    - name: Set swapfile permissions
+      file:
+        path: /swapfile
+        mode: '0600'
+
+    - name: Format swapfile
+      command: mkswap /swapfile
+
+    - name: Enable swapfile
+      command: swapon /swapfile
+      failed_when: false
+
 - name: Install NemoClaw CLI globally via npm
-  command: >
-    npm install -g {{ nemoclaw_npm_repo }}
-    --max-old-space-size=2048
-    --verbose
+  shell: |
+    set -e
+    npm cache clean --force
+    npm install -g {{ nemoclaw_npm_repo }} \
+      --max-old-space-size=2048 \
+      --jobs=1 \
+      --loglevel=warn
   args:
     creates: /usr/bin/nemoclaw
+    executable: /bin/bash
   environment:
     NODE_OPTIONS: "--max-old-space-size=2048"
+
+- name: Disable and remove temporary swapfile
+  block:
+    - name: Disable swapfile
+      command: swapoff /swapfile
+      failed_when: false
+
+    - name: Remove swapfile
+      file:
+        path: /swapfile
+        state: absent
 
 - name: Verify nemoclaw installation
   shell:
