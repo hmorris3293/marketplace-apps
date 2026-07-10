@@ -4,21 +4,14 @@
     name: git
     state: present
 
-# NemoClaw's upstream README/quickstart documents `curl ... | bash`, but per
-# CLAUDE.md "Third-Party Install Scripts: Ansibilize, Don't Execute" and D1 in
-# architecture_decisions.md, that script is parsed (not executed) and its
-# underlying steps are reproduced declaratively here: git clone at a pinned
-# tag, `npm install --ignore-scripts`, then `npm run build:cli`.
-#
-# D2: never `npm install -g nemoclaw` - the npm registry has an unrelated,
-# squatted `nemoclaw` package.
-- name: Clone NemoClaw at the pinned release tag
+# noqa: latest[git] - intentionally tracks the default branch tip, not a pin
+- name: Clone NemoClaw at the latest commit on the default branch
   become: true
   become_user: "{{ nemoclaw_user }}"
   ansible.builtin.git:
     repo: "{{ nemoclaw_repo }}"
     dest: "{{ nemoclaw_src_dir }}"
-    version: "{{ nemoclaw_version }}"
+    version: HEAD
     force: false
 
 - name: Install NemoClaw npm dependencies (no lifecycle scripts)
@@ -62,4 +55,4 @@
 
 - name: Display installed NemoClaw version
   ansible.builtin.debug:
-    msg: "NemoClaw installed from git @ {{ nemoclaw_version }}: {{ nemoclaw_cli_version.stdout }}"
+    msg: "NemoClaw installed: {{ nemoclaw_cli_version.stdout }}"

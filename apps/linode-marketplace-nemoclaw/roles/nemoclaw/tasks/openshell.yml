@@ -1,12 +1,21 @@
 ---
-# Parsed (never executed) from scripts/install-openshell.sh @ nemoclaw_version
-# per the grounding contract - see manual_install.md section 7 for the
-# line-by-line provenance of each step below.
+- name: Get latest OpenShell release
+  uri:
+    url: "https://api.github.com/repos/{{ openshell_repo }}/releases/latest"
+    return_content: true
+    status_code: 200
+    body_format: json
+  register: openshell_latest_release
+
+- name: Set OpenShell latest version
+  set_fact:
+    openshell_version: "{{ openshell_latest_release.json.tag_name | regex_replace('^v', '') }}"
+
 - name: Download and verify OpenShell release assets
   get_url:
     url: "https://github.com/{{ openshell_repo }}/releases/download/v{{ openshell_version }}/{{ item.name }}"
     dest: "/tmp/{{ item.name }}"
-    checksum: "sha256:{{ item.sha256 }}"
+    checksum: "sha256:https://github.com/{{ openshell_repo }}/releases/download/v{{ openshell_version }}/{{ item.checksums_file }}"
     mode: '0644'
   loop: "{{ openshell_assets }}"
   loop_control:
