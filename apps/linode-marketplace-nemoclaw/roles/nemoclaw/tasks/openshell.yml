@@ -15,7 +15,7 @@
   get_url:
     url: "https://github.com/{{ openshell_repo }}/releases/download/v{{ openshell_version }}/{{ item.name }}"
     dest: "/tmp/{{ item.name }}"
-    checksum: "sha256:https://github.com/{{ openshell_repo }}/releases/download/v{{ openshell_version }}/{{ item.checksums_file }}"
+    checksum: "sha256:https://github.com/{{ openshell_repo }}/releases/download/v{{ openshell_version }}/{{ item.binary }}-checksums-sha256.txt"
     mode: '0644'
   loop: "{{ openshell_assets }}"
   loop_control:
