@@ -1,4 +1,10 @@
 # raw IP / any non-FQDN Host -> canonical https://FQDN
+# `default_server` is kept defensively: in the current single-vhost-file
+# layout nginx would already pick this block as the implicit default (it's
+# the first `listen 80` block), but that fallback is order-dependent and not
+# guaranteed if another vhost file is ever added ahead of this one - the
+# explicit keyword makes the redirect target unambiguous regardless of file
+# ordering (validated empirically in validation_findings.md).
 server {
     listen 80 default_server;
     server_name _;
@@ -22,7 +28,6 @@ server {
         proxy_set_header Upgrade $http_upgrade;
         proxy_set_header Connection 'upgrade';
         proxy_set_header Host $host;
-        proxy_cache_bypass $http_upgrade;
         proxy_set_header X-Real-IP $remote_addr;
         proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
         proxy_set_header X-Forwarded-Proto $scheme;
