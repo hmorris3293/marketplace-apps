@@ -1,0 +1,69 @@
+---
+# Parsed (never executed) from scripts/install-openshell.sh @ nemoclaw_version
+# per the grounding contract - see manual_install.md section 7 for the
+# line-by-line provenance of each step below.
+- name: Download and verify OpenShell release assets
+  get_url:
+    url: "https://github.com/{{ openshell_repo }}/releases/download/v{{ openshell_version }}/{{ item.name }}"
+    dest: "/tmp/{{ item.name }}"
+    checksum: "sha256:{{ item.sha256 }}"
+    mode: '0644'
+  loop: "{{ openshell_assets }}"
+  loop_control:
+    label: "{{ item.name }}"
+
+- name: Extract OpenShell release assets
+  ansible.builtin.unarchive:
+    src: "/tmp/{{ item.name }}"
+    dest: /tmp
+    remote_src: true
+  loop: "{{ openshell_assets }}"
+  loop_control:
+    label: "{{ item.name }}"
+
+- name: Install OpenShell binaries onto PATH
+  copy:
+    src: "/tmp/{{ item.binary }}"
+    dest: "{{ openshell_bin_dir }}/{{ item.binary }}"
+    mode: '0755'
+    remote_src: true
+  loop: "{{ openshell_assets }}"
+  loop_control:
+    label: "{{ item.binary }}"
+
+- name: Verify OpenShell installation
+  ansible.builtin.command: "{{ openshell_bin_dir }}/openshell --version"
+  register: openshell_version_check
+  changed_when: false
+
+- name: Display installed OpenShell version
+  ansible.builtin.debug:
+    msg: "OpenShell installed: {{ openshell_version_check.stdout }}"
+
+# nemoclaw onboard never authors its own systemd --user unit - it only
+# detects and trusts a pre-existing one at a hardcoded path
+# (dist/lib/onboard/docker-driver-gateway-service.js). Ansible must
+# pre-create it, or onboarding silently falls back to an unsupervised
+# standalone gateway process (resolves architecture_decisions.md Open
+# Question #3, verified empirically in manual_install.md section 8).
+- name: Create systemd --user unit directory for the OpenShell gateway
+  file:
+    path: "{{ openshell_gateway_unit_dir }}"
+    state: directory
+    mode: '0755'
+
+- name: Template the OpenShell gateway systemd --user unit
+  template:
+    src: openshell-gateway.service.j2
+    dest: "{{ openshell_gateway_unit_dir }}/{{ openshell_gateway_unit_name }}"
+    mode: '0644'
+
+- name: Reload the nemoclaw user's systemd manager
+  become: true
+  become_user: "{{ nemoclaw_user }}"
+  ansible.builtin.systemd_service:
+    name: "{{ openshell_gateway_unit_name }}"
+    daemon_reload: true
+    scope: user
+  environment:
+    XDG_RUNTIME_DIR: "/run/user/{{ nemoclaw_uid.stdout }}"

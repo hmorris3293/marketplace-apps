@@ -1,0 +1,65 @@
+---
+- name: Install git
+  apt:
+    name: git
+    state: present
+
+# NemoClaw's upstream README/quickstart documents `curl ... | bash`, but per
+# CLAUDE.md "Third-Party Install Scripts: Ansibilize, Don't Execute" and D1 in
+# architecture_decisions.md, that script is parsed (not executed) and its
+# underlying steps are reproduced declaratively here: git clone at a pinned
+# tag, `npm install --ignore-scripts`, then `npm run build:cli`.
+#
+# D2: never `npm install -g nemoclaw` - the npm registry has an unrelated,
+# squatted `nemoclaw` package.
+- name: Clone NemoClaw at the pinned release tag
+  become: true
+  become_user: "{{ nemoclaw_user }}"
+  ansible.builtin.git:
+    repo: "{{ nemoclaw_repo }}"
+    dest: "{{ nemoclaw_src_dir }}"
+    version: "{{ nemoclaw_version }}"
+    force: false
+
+- name: Install NemoClaw npm dependencies (no lifecycle scripts)
+  become: true
+  become_user: "{{ nemoclaw_user }}"
+  community.general.npm:
+    path: "{{ nemoclaw_src_dir }}"
+    ci: false
+    production: false
+    ignore_scripts: true
+  environment:
+    HOME: "{{ nemoclaw_home }}"
+
+- name: Build the NemoClaw CLI
+  become: true
+  become_user: "{{ nemoclaw_user }}"
+  ansible.builtin.command: npm run build:cli
+  args:
+    chdir: "{{ nemoclaw_src_dir }}"
+    creates: "{{ nemoclaw_src_dir }}/dist/nemoclaw.js"
+  environment:
+    HOME: "{{ nemoclaw_home }}"
+
+- name: Make the NemoClaw CLI entrypoint executable
+  file:
+    path: "{{ nemoclaw_src_dir }}/bin/nemoclaw.js"
+    mode: '0755'
+
+- name: Symlink the nemoclaw CLI onto PATH
+  file:
+    src: "{{ nemoclaw_src_dir }}/bin/nemoclaw.js"
+    dest: /usr/local/bin/nemoclaw
+    state: link
+
+- name: Verify NemoClaw CLI version
+  become: true
+  become_user: "{{ nemoclaw_user }}"
+  ansible.builtin.command: /usr/local/bin/nemoclaw --version
+  register: nemoclaw_cli_version
+  changed_when: false
+
+- name: Display installed NemoClaw version
+  ansible.builtin.debug:
+    msg: "NemoClaw installed from git @ {{ nemoclaw_version }}: {{ nemoclaw_cli_version.stdout }}"

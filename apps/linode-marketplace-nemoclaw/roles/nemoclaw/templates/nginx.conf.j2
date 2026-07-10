@@ -1,0 +1,34 @@
+# raw IP / any non-FQDN Host -> canonical https://FQDN
+server {
+    listen 80 default_server;
+    server_name _;
+    return 301 https://{{ _domain }}$request_uri;
+}
+
+server {
+    listen 80;
+    server_name {{ _domain }};
+
+    location / {
+        # No nginx basic auth is stacked here: NemoClaw's OpenShell gateway
+        # enforces its own device-auth token by default, and pre-onboarding
+        # there is no dashboard process listening at all (empirically
+        # confirmed in manual_install.md section 10 - connection refused/502,
+        # not a functional unauthenticated page), so there is no surface to
+        # protect with a second auth layer (architecture_decisions.md D7).
+        proxy_pass http://127.0.0.1:{{ nemoclaw_dashboard_port }};
+        proxy_http_version 1.1;
+
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection 'upgrade';
+        proxy_set_header Host $host;
+        proxy_cache_bypass $http_upgrade;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+
+        proxy_connect_timeout 600s;
+        proxy_send_timeout 600s;
+        proxy_read_timeout 600s;
+    }
+}
