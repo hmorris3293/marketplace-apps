@@ -6,6 +6,7 @@ fi
 
 NEMOCLAW_UID=$(id -u {{ nemoclaw_user }})
 export XDG_RUNTIME_DIR="/run/user/$NEMOCLAW_UID"
+export DBUS_SESSION_BUS_ADDRESS="unix:path=${XDG_RUNTIME_DIR}/bus"
 
 while true; do
 	echo ""
@@ -14,7 +15,12 @@ while true; do
 
 	if [[ "$answer" =~ ^[Yy]$ ]]; then
 		echo "[***] Running onboarding as {{ nemoclaw_user }} user."
-		runuser -u {{ nemoclaw_user }} -- env XDG_RUNTIME_DIR="$XDG_RUNTIME_DIR" nemoclaw onboard
+		if [ ! -S "${XDG_RUNTIME_DIR}/bus" ]; then
+			echo "[***] systemd user bus not ready at ${XDG_RUNTIME_DIR}/bus."
+			echo "[***] Try again in a few seconds, or run: systemctl start user@${NEMOCLAW_UID}.service"
+			break
+		fi
+		runuser -u {{ nemoclaw_user }} -- env XDG_RUNTIME_DIR="$XDG_RUNTIME_DIR" DBUS_SESSION_BUS_ADDRESS="$DBUS_SESSION_BUS_ADDRESS" nemoclaw onboard
 		onboard_rc=$?
 
 		if [ "$onboard_rc" -eq 0 ]; then
