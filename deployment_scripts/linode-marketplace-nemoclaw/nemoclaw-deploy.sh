@@ -91,12 +91,10 @@ function udf {
   add_ons: [${ADD_ONS}]
 EOF
 
-	# boolean conversion - UDFs arrive as strings; Ansible needs real booleans
-	if [ "$DISABLE_ROOT" = "Yes" ]; then
-		echo "disable_root: true" >>${group_vars}
-	else
-		echo "disable_root: false" >>${group_vars}
-	fi
+    if [ "$DISABLE_ROOT" = "Yes" ]; then
+       echo "disable_root: yes" >> ${group_vars};
+    else echo "Leaving root login enabled";
+    fi
 
 	if [[ -n ${SUBDOMAIN} ]]; then
 		echo "subdomain: ${SUBDOMAIN}" >>${group_vars}
