@@ -14,16 +14,17 @@ while true; do
 
 	if [[ "$answer" =~ ^[Yy]$ ]]; then
 		echo "[***] Running onboarding as {{ nemoclaw_user }} user."
-		sudo -u {{ nemoclaw_user }} XDG_RUNTIME_DIR="$XDG_RUNTIME_DIR" -i nemoclaw onboard
+		runuser -u {{ nemoclaw_user }} -- env XDG_RUNTIME_DIR="$XDG_RUNTIME_DIR" nemoclaw onboard
+		onboard_rc=$?
 
-		if [ $? -eq 0 ]; then
+		if [ "$onboard_rc" -eq 0 ]; then
 			echo "[***] Initial onboarding complete. Removing {{ nemoclaw_onboarding_script }}."
 
 			if [ -f '{{ nemoclaw_onboarding_script }}' ]; then
 				rm {{ nemoclaw_onboarding_script }}
 			fi
 		else
-			echo "[***] Onboarding exited with status $?. Try Onboarding again by logging in."
+			echo "[***] Onboarding exited with status $onboard_rc. Try Onboarding again by logging in."
 		fi
 		break
 	elif [[ "$answer" =~ ^[Nn]$ ]]; then
