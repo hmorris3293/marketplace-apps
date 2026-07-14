@@ -3,7 +3,7 @@
 set -euo pipefail
 
 REGION="us-east"
-LINODE_TYPE="g6-standard-6"
+LINODE_TYPE="g6-standard-8"
 IMAGE="linode/ubuntu24.04"
 
 echo "REGION=${REGION}" >>"$GITHUB_ENV"
