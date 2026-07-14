@@ -13,16 +13,20 @@ nemoclaw_repo: https://github.com/NVIDIA/NemoClaw.git
 nodejs_version: 22.x
 
 # OpenShell release binaries (gateway/sandbox drivers). Version and SHA-256
-# checksums are resolved at deploy time from the latest GitHub release.
+# checksums are pinned to the NemoClaw-compatible release.
 openshell_repo: NVIDIA/OpenShell
+openshell_version: 0.0.72
 openshell_bin_dir: /usr/local/bin
 openshell_assets:
   - name: "openshell-x86_64-unknown-linux-musl.tar.gz"
     binary: openshell
+    checksums_file: openshell-checksums-sha256.txt
   - name: "openshell-gateway-x86_64-unknown-linux-gnu.tar.gz"
     binary: openshell-gateway
+    checksums_file: openshell-gateway-checksums-sha256.txt
   - name: "openshell-sandbox-x86_64-unknown-linux-gnu.tar.gz"
     binary: openshell-sandbox
+    checksums_file: openshell-sandbox-checksums-sha256.txt
 
 # systemd --user gateway unit. NemoClaw's own `nemoclaw onboard` wizard never
 # authors this file - it only detects and trusts a pre-existing unit at one of
