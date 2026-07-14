@@ -31,6 +31,16 @@
       {{ nemoclaw_user }} ALL=(ALL) NOPASSWD: /usr/bin/systemctl disable nemoclaw
       {{ nemoclaw_user }} ALL=(ALL) NOPASSWD: /usr/bin/systemctl daemon-reload
       {{ nemoclaw_user }} ALL=(ALL) NOPASSWD: /usr/bin/journalctl -u nemoclaw *
+      # NemoClaw onboarding low-memory remediation (4 GB /swapfile).
+      # Source: .reference/NemoClaw/src/lib/onboard/preflight.ts
+      {{ nemoclaw_user }} ALL=(ALL) NOPASSWD: /usr/bin/dd if=/dev/zero of=/swapfile bs=1M count=4096 status=none
+      {{ nemoclaw_user }} ALL=(ALL) NOPASSWD: /usr/bin/chmod 600 /swapfile
+      {{ nemoclaw_user }} ALL=(ALL) NOPASSWD: /usr/sbin/mkswap /swapfile
+      {{ nemoclaw_user }} ALL=(ALL) NOPASSWD: /usr/sbin/swapon /swapfile
+      {{ nemoclaw_user }} ALL=(ALL) NOPASSWD: /usr/sbin/swapoff /swapfile
+      {{ nemoclaw_user }} ALL=(ALL) NOPASSWD: /usr/bin/rm -f /swapfile
+      {{ nemoclaw_user }} ALL=(ALL) NOPASSWD: /usr/bin/cat /etc/fstab
+      {{ nemoclaw_user }} ALL=(ALL) NOPASSWD: /usr/bin/tee -a /etc/fstab
     validate: /usr/sbin/visudo -cf %s
 
 # Fix DBus issues for systemd --user services (OpenShell gateway unit, see
