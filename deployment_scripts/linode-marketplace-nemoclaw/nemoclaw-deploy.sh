@@ -93,7 +93,8 @@ EOF
 
     if [ "$DISABLE_ROOT" = "Yes" ]; then
        echo "disable_root: yes" >> ${group_vars};
-    else echo "Leaving root login enabled";
+    else 
+	   echo "Leaving root login enabled";
     fi
 
 	if [[ -n ${SUBDOMAIN} ]]; then
