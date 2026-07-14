@@ -1,10 +1,3 @@
-# raw IP / any non-FQDN Host -> canonical https://FQDN
-# `default_server` is kept defensively: in the current single-vhost-file
-# layout nginx would already pick this block as the implicit default (it's
-# the first `listen 80` block), but that fallback is order-dependent and not
-# guaranteed if another vhost file is ever added ahead of this one - the
-# explicit keyword makes the redirect target unambiguous regardless of file
-# ordering (validated empirically in validation_findings.md).
 server {
     listen 80 default_server;
     server_name _;
@@ -16,12 +9,6 @@ server {
     server_name {{ _domain }};
 
     location / {
-        # No nginx basic auth is stacked here: NemoClaw's OpenShell gateway
-        # enforces its own device-auth token by default, and pre-onboarding
-        # there is no dashboard process listening at all (empirically
-        # confirmed in manual_install.md section 10 - connection refused/502,
-        # not a functional unauthenticated page), so there is no surface to
-        # protect with a second auth layer (architecture_decisions.md D7).
         proxy_pass http://127.0.0.1:{{ nemoclaw_dashboard_port }};
         proxy_http_version 1.1;
 

@@ -12,9 +12,6 @@
 - name: Build NemoClaw from source
   import_tasks: nemoclaw_build.yml
 
-#- name: Install OpenShell
-#  import_tasks: openshell.yml
-
 - name: Configure first-login onboarding
   import_tasks: onboarding.yml
 

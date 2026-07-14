@@ -1,9 +1,4 @@
 ---
-# D6 (architecture_decisions.md): `nemoclaw onboard` requires a user-supplied
-# inference-provider credential that cannot be known at image-build time, so
-# per operator direction it is deferred to a first-login profile.d prompt
-# instead of being run (or eliminated) during provisioning - mirroring
-# apps/linode-marketplace-openclaw/roles/openclaw/templates/openclaw_onboarding.sh.j2.
 - name: Add NemoClaw onboarding script on login
   template:
     src: nemoclaw_onboarding.sh.j2

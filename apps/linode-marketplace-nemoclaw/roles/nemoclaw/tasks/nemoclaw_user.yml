@@ -43,8 +43,6 @@
       {{ nemoclaw_user }} ALL=(ALL) NOPASSWD: /usr/bin/tee -a /etc/fstab
     validate: /usr/sbin/visudo -cf %s
 
-# Fix DBus issues for systemd --user services (OpenShell gateway unit, see
-# openshell.yml), mirroring apps/linode-marketplace-openclaw's precedent.
 - name: Get nemoclaw user ID
   command: "id -u {{ nemoclaw_user }}"
   register: nemoclaw_uid

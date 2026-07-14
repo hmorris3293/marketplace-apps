@@ -4,38 +4,6 @@ nemoclaw_user: nemoclaw
 nemoclaw_home: /home/nemoclaw
 nemoclaw_src_dir: "{{ nemoclaw_home }}/nemoclaw-src"
 nemoclaw_onboarding_script: /etc/profile.d/nemoclaw_onboarding.sh
-
-# NemoClaw is built from the latest default-branch commit, never installed
-# from the npm registry (a same-named but unrelated package is squatted
-# there - D2 in architecture_decisions.md).
 nemoclaw_repo: https://github.com/NVIDIA/NemoClaw.git
-
 nodejs_version: 22.x
-
-# OpenShell release binaries (gateway/sandbox drivers). Version and SHA-256
-# checksums are pinned to the NemoClaw-compatible release.
-openshell_repo: NVIDIA/OpenShell
-openshell_version: 0.0.72
-openshell_bin_dir: /usr/local/bin
-openshell_assets:
-  - name: "openshell-x86_64-unknown-linux-musl.tar.gz"
-    binary: openshell
-    checksums_file: openshell-checksums-sha256.txt
-  - name: "openshell-gateway-x86_64-unknown-linux-gnu.tar.gz"
-    binary: openshell-gateway
-    checksums_file: openshell-gateway-checksums-sha256.txt
-  - name: "openshell-sandbox-x86_64-unknown-linux-gnu.tar.gz"
-    binary: openshell-sandbox
-    checksums_file: openshell-sandbox-checksums-sha256.txt
-
-# systemd --user gateway unit. NemoClaw's own `nemoclaw onboard` wizard never
-# authors this file - it only detects and trusts a pre-existing unit at one of
-# a few hardcoded paths (dist/lib/onboard/docker-driver-gateway-service.js),
-# so Ansible must template it (resolves architecture_decisions.md Open
-# Question #3).
-openshell_gateway_unit_dir: /usr/local/lib/systemd/user
-openshell_gateway_unit_name: openshell-gateway.service
-
-# Dashboard/control-UI port the OpenShell gateway forwards the sandboxed
-# OpenClaw dashboard to (dist/lib/core/ports.js: SANDBOX_DASHBOARD_PORT).
 nemoclaw_dashboard_port: 18789
