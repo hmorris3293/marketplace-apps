@@ -1,6 +1,6 @@
 *********************************************************
 Akamai Connected Cloud NemoClaw Quick Deploy App
-Dashboard URL: https://{{ _domain }}
+Dashboard Access: SSH tunnel required (not publicly exposed)
 Credentials File: /home/{{ username }}/.credentials
 Documentation: https://www.linode.com/docs/marketplace-docs/guides/nemoclaw/
 *********************************************************
@@ -8,5 +8,12 @@ Documentation: https://www.linode.com/docs/marketplace-docs/guides/nemoclaw/
 NemoClaw's onboarding wizard runs automatically the first time you log in as
 root (or via `sudo su -` as {{ username }}). It will ask which inference
 provider to use and issue the dashboard's device-auth token.
+
+Dashboard access steps (from your local machine):
+	ssh -L 18789:127.0.0.1:18789 {{ username }}@{{ _domain }}
+	Open: http://127.0.0.1:18789
+
+Note: `nemoclaw <sandbox-name> dashboard-url` may show a host URL, but this
+deployment expects SSH tunneling for browser access.
 
 To delete this message of the day: rm /etc/motd

@@ -13,7 +13,6 @@ an inference provider, collects credentials, and starts the sandboxed dashboard.
 | OpenShell | `0.0.72` (pinned, SHA-256 verified) | Gateway/sandbox driver binaries |
 | Docker CE | `latest` | Runs the sandboxed OpenClaw agent |
 | Node.js | `22.x` | JavaScript runtime NemoClaw is built/run with |
-| Nginx | `1.24` | Web server and reverse proxy handling SSL termination |
 
 **Supported Distributions:**
 - Ubuntu 24.04 LTS
@@ -29,7 +28,6 @@ an inference provider, collects credentials, and starts the sandboxed dashboard.
 | Create DNS Record | The Create DNS Record module creates DNS records for domains and subdomains using the Linode API, including validation of DNS propagation. |
 | Secure SSH | The Secure SSH module configures SSH security settings including disabling root login and password authentication when appropriate. |
 | SSH Key | The SSH Key module manages SSH key deployment for the sudo user, supporting both custom public keys and account keys. |
-| Certbot SSL | The Certbot SSL module handles SSL/TLS certificate installation via Let's Encrypt, supporting Nginx certificate issuance. |
 | Docker | The Docker module installs Docker CE from the upstream apt repository. |
 
 # Post Deployment
@@ -40,8 +38,6 @@ user. Here are some notes about the deployment:
 
 - NemoClaw runs as a limited user on the instance called `nemoclaw`. The `nemoclaw` user has
   limited scope defined in `/etc/sudoers.d/nemoclaw` and is a member of the `docker` group.
-- Nginx runs as the web server and reverse proxy to the NemoClaw/OpenShell dashboard. SSL/TLS
-  termination is done by Nginx and Let's Encrypt certificates are installed.
 - A sudo user is created on the instance for system administrative purposes. In this example, we
   are using `admin`.
 - The onboarding script is located in `/etc/profile.d/nemoclaw_onboarding.sh`. Once onboarding is
@@ -68,16 +64,28 @@ If you're logging into the server with the sudo user:
 
 ## Accessing the NemoClaw Dashboard
 
-Once onboarding completes, the dashboard is reachable at the domain configured at deployment (or
-the instance's rDNS value if no domain was provided). NemoClaw's OpenShell gateway enforces its own
-device-auth token by default, gating dashboard access — this is the app's native (and only) auth
-layer, so no separate nginx basic-auth password is required.
+This deployment uses SSH tunneling for dashboard access. The dashboard is not exposed on a public
+HTTP(S) endpoint.
 
-To retrieve the dashboard URL (including its device-auth token) after onboarding:
+After onboarding, open a tunnel from your local machine:
+
+```bash
+ssh -L 18789:127.0.0.1:18789 admin@<your-server-ip>
+```
+
+Then visit `http://127.0.0.1:18789` locally.
+
+To retrieve the dashboard URL (including its device-auth token) on the server:
 
 ```
 su - nemoclaw
 nemoclaw <sandbox-name> dashboard-url
+```
+
+For Hermes API testing, tunnel port `8642` similarly:
+
+```bash
+ssh -L 8642:127.0.0.1:8642 admin@<your-server-ip>
 ```
 
 ## Resources
