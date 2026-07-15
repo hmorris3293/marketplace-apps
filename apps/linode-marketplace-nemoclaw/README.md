@@ -1,17 +1,14 @@
 # Akamai NemoClaw Quick Deploy App
 
-NemoClaw is an open-source CLI orchestrator from NVIDIA that runs the OpenClaw AI agent inside a
-Docker sandbox and proxies its network access through a companion process called OpenShell. It is
-not a typical web app: it is configured through a guided CLI wizard (`nemoclaw onboard`) that picks
-an inference provider, collects credentials, and starts the sandboxed dashboard.
+NemoClaw is an open-source CLI orchestrator from NVIDIA that runs the OpenClaw AI agent inside a Docker sandbox and proxies its network access through a companion process called OpenShell. It is
+not a typical web app: it is configured through a guided CLI wizard (`nemoclaw onboard`) that picks an inference provider, collects credentials, and starts the sandboxed dashboard.
 
 ## Software Included
 
 | Software | Version | Description |
 | :--- | :--- | :--- |
-| NemoClaw | `v0.0.79` (pinned git tag) | CLI/sandbox orchestrator, built from source |
-| OpenShell | `0.0.72` (pinned, SHA-256 verified) | Gateway/sandbox driver binaries |
-| Docker CE | `latest` | Runs the sandboxed OpenClaw agent |
+| NemoClaw | `v0.0.79` (pinned git tag LKG) | CLI/sandbox orchestrator, built from source |
+| Docker CE | `latest Distro` | Runs the sandboxed OpenClaw agent |
 | Node.js | `22.x` | JavaScript runtime NemoClaw is built/run with |
 
 **Supported Distributions:**
@@ -32,14 +29,12 @@ an inference provider, collects credentials, and starts the sandboxed dashboard.
 
 # Post Deployment
 
-When the NemoClaw Quick Deploy App has finished installing, you will need to log into your server
-to perform the onboarding. The onboarding script will kick off only when you log in as the `root`
+When the NemoClaw Quick Deploy App has finished installing, you will need to log into your server to perform the onboarding. The onboarding script will kick off only when you log in as the `root`
 user. Here are some notes about the deployment:
 
 - NemoClaw runs as a limited user on the instance called `nemoclaw`. The `nemoclaw` user has
   limited scope defined in `/etc/sudoers.d/nemoclaw` and is a member of the `docker` group.
-- A sudo user is created on the instance for system administrative purposes. In this example, we
-  are using `admin`.
+- A sudo user is created on the instance for system administrative purposes.
 - The onboarding script is located in `/etc/profile.d/nemoclaw_onboarding.sh`. Once onboarding is
   complete, the script automatically removes itself so it won't prompt again on next login.
 - NemoClaw's OpenShell gateway runs as a `systemd --user` service (`openshell-gateway.service`)
@@ -67,25 +62,21 @@ If you're logging into the server with the sudo user:
 This deployment uses SSH tunneling for dashboard access. The dashboard is not exposed on a public
 HTTP(S) endpoint.
 
-After onboarding, open a tunnel from your local machine:
+Dashboard access steps (from your local machine):
 
 ```bash
-ssh -L 18789:127.0.0.1:18789 admin@<your-server-ip>
+ssh -L 18789:127.0.0.1:18789 root@{{ _domain }}
+sudo -i -u nemoclaw nemoclaw <sandbox-name> dashboard-url
 ```
 
 Then visit `http://127.0.0.1:18789` locally.
 
-To retrieve the dashboard URL (including its device-auth token) on the server:
-
-```
-su - nemoclaw
-nemoclaw <sandbox-name> dashboard-url
-```
-
-For Hermes API testing, tunnel port `8642` similarly:
+Note: `sudo -i -u nemoclaw nemoclaw <sandbox-name> dashboard-url` will show a Dashboard URL similar to the one below:
 
 ```bash
-ssh -L 8642:127.0.0.1:8642 admin@<your-server-ip>
+Dashboard URL:
+http://127.0.0.1:18789/#token=DbsMSK8L7eyavy2FVR4A1z6YORErn8V9jjWzP4HWL0A
+Treat this URL like a password -- do not log, share, or commit it.
 ```
 
 ## Resources
