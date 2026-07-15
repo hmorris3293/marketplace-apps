@@ -9,6 +9,81 @@ export XDG_RUNTIME_DIR="/run/user/$NEMOCLAW_UID"
 export DBUS_SESSION_BUS_ADDRESS="unix:path=${XDG_RUNTIME_DIR}/bus"
 export CHAT_UI_URL="https://{{ _domain }}"
 
+NEMOCLAW_REGISTRY_FILE="{{ nemoclaw_home }}/.nemoclaw/sandboxes.json"
+NEMOCLAW_AGENT_ROUTES_FILE="/etc/nginx/conf.d/nemoclaw_agent_routes.conf"
+
+detect_selected_agent() {
+	if [ ! -f "$NEMOCLAW_REGISTRY_FILE" ]; then
+		return 1
+	fi
+
+	# Compact JSON and extract the first "agent":"..." token.
+	# On fresh onboarding there is a single sandbox entry, so first match is the
+	# selected runtime.
+	local compact_json
+	compact_json="$(tr -d '\n\r\t ' < "$NEMOCLAW_REGISTRY_FILE")"
+
+	local agent
+	agent="$(printf '%s' "$compact_json" | grep -o '"agent":"[^"]*"' | head -n1 | cut -d'"' -f4)"
+
+	if [ -z "$agent" ]; then
+		return 1
+	fi
+
+	echo "$agent"
+}
+
+apply_nginx_routes_for_agent() {
+	local agent="$1"
+
+	case "$agent" in
+		hermes)
+			cat > "$NEMOCLAW_AGENT_ROUTES_FILE" <<'EOF'
+# Managed by /etc/profile.d/nemoclaw_onboarding.sh
+# Hermes exposes an OpenAI-compatible API on /v1 via port {{ nemoclaw_hermes_api_port }}.
+location ^~ /v1/ {
+    proxy_pass http://127.0.0.1:{{ nemoclaw_hermes_api_port }}/v1/;
+    proxy_http_version 1.1;
+
+    proxy_set_header Host $host:{{ nemoclaw_hermes_api_port }};
+    proxy_set_header X-Forwarded-Host $host:{{ nemoclaw_hermes_api_port }};
+    proxy_set_header X-Real-IP $remote_addr;
+    proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+    proxy_set_header X-Forwarded-Proto $scheme;
+
+    proxy_connect_timeout 600s;
+    proxy_send_timeout 600s;
+    proxy_read_timeout 600s;
+}
+EOF
+			;;
+		langchain-deepagents-code)
+			cat > "$NEMOCLAW_AGENT_ROUTES_FILE" <<'EOF'
+# Managed by /etc/profile.d/nemoclaw_onboarding.sh
+# LangChain Deep Agents Code has no dashboard to reverse proxy.
+location = / {
+    default_type text/plain;
+    return 200 "LangChain Deep Agents Code has no web dashboard. Use SSH and run dcode/nemo-deepagents commands.\n";
+}
+EOF
+			;;
+		*)
+			# openclaw and any unrecognized future agents use the base / location block.
+			cat > "$NEMOCLAW_AGENT_ROUTES_FILE" <<'EOF'
+# Managed by /etc/profile.d/nemoclaw_onboarding.sh
+# No additional agent-specific nginx routes required.
+EOF
+			;;
+	esac
+
+	if nginx -t >/dev/null 2>&1; then
+		systemctl reload nginx
+		echo "[***] Applied nginx route profile for agent: $agent"
+	else
+		echo "[***] nginx config test failed after agent route update; keeping prior running config."
+	fi
+}
+
 while true; do
 	echo ""
 	echo "[NemoClaw Onboarding]"
@@ -27,6 +102,13 @@ while true; do
 
 		if [ "$onboard_rc" -eq 0 ]; then
 			echo "[***] Initial onboarding complete. Removing {{ nemoclaw_onboarding_script }}."
+
+			selected_agent="$(detect_selected_agent 2>/dev/null || true)"
+			if [ -n "$selected_agent" ]; then
+				apply_nginx_routes_for_agent "$selected_agent"
+			else
+				echo "[***] Could not detect selected agent from $NEMOCLAW_REGISTRY_FILE; keeping default nginx routes."
+			fi
 
 			if [ -f '{{ nemoclaw_onboarding_script }}' ]; then
 				rm {{ nemoclaw_onboarding_script }}

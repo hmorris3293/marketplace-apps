@@ -8,6 +8,10 @@ server {
     listen 80;
     server_name {{ _domain }};
 
+    # Agent-specific routes are written by onboarding after the selected
+    # sandbox type is known.
+    include /etc/nginx/conf.d/nemoclaw_agent_routes.conf;
+
     location / {
         proxy_pass http://127.0.0.1:{{ nemoclaw_dashboard_port }};
         proxy_http_version 1.1;
