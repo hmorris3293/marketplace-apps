@@ -13,6 +13,20 @@
   become: true
   become_user: "{{ nemoclaw_user }}"
 
+- name: Seed remote dashboard bind build arg in NemoClaw Dockerfiles
+  lineinfile:
+    path: "{{ item.path }}"
+    regexp: '^ARG NEMOCLAW_DASHBOARD_BIND=.*$'
+    line: 'ARG NEMOCLAW_DASHBOARD_BIND=0.0.0.0'
+    insertafter: "{{ item.insertafter }}"
+  loop:
+    - path: "{{ nemoclaw_src_dir }}/Dockerfile"
+      insertafter: '^ARG CHAT_UI_URL=.*$'
+    - path: "{{ nemoclaw_src_dir }}/agents/hermes/Dockerfile"
+      insertafter: '^ARG CHAT_UI_URL=.*$'
+    - path: "{{ nemoclaw_src_dir }}/agents/langchain-deepagents-code/Dockerfile"
+      insertafter: '^ARG NEMOCLAW_BUILD_ID=.*$'
+
 - name: Install NemoClaw npm dependencies (no lifecycle scripts)
   community.general.npm:
     path: "{{ nemoclaw_src_dir }}"
