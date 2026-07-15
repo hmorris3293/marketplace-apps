@@ -28,13 +28,10 @@
     path: /etc/nginx/sites-enabled/default
     state: absent
 
-- name: Initialize onboarding-managed NGINX agent routes include
-  copy:
-    dest: /etc/nginx/conf.d/nemoclaw_agent_routes.conf
-    mode: '0644'
-    content: |
-      # Managed by /etc/profile.d/nemoclaw_onboarding.sh
-      # Starts empty until onboarding selects an agent.
+- name: Remove legacy onboarding-managed routes file from conf.d
+  file:
+    path: /etc/nginx/conf.d/nemoclaw_agent_routes.conf
+    state: absent
 
 - name: Restart NGINX service
   systemd_service:
