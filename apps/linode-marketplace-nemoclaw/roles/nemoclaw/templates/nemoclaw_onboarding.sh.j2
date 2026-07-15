@@ -24,6 +24,11 @@ while true; do
 		onboard_rc=$?
 
 		if [ "$onboard_rc" -eq 0 ]; then
+			if [ ! -x /usr/local/bin/openshell ] && [ -x {{ nemoclaw_home }}/.local/bin/openshell ]; then
+				echo "[***] Installing openshell on PATH at /usr/local/bin/openshell"
+				cp {{ nemoclaw_home }}/.local/bin/openshell /usr/local/bin/openshell
+				chmod 0755 /usr/local/bin/openshell
+			fi
 			echo "[***] Initial onboarding complete. Removing {{ nemoclaw_onboarding_script }}."
 
 			if [ -f '{{ nemoclaw_onboarding_script }}' ]; then
