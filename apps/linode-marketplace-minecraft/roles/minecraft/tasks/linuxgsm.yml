@@ -1,0 +1,32 @@
+---
+- name: Create linuxgsm user
+  user:
+    name: linuxgsm
+    shell: /bin/bash
+    groups: sudo
+    password: "{{ linuxgsm_password | password_hash('sha512') }}"
+    update_password: on_create
+    expires: -1
+    append: true
+    generate_ssh_key: false
+    state: present
+
+- name: Download linuxgsm script
+  get_url:
+    url: https://linuxgsm.sh
+    dest: /home/linuxgsm/linuxgsm.sh
+    mode: '0755'
+
+- name: Chown homedir
+  file:
+    path: /home/linuxgsm
+    owner: linuxgsm
+    group: linuxgsm
+    recurse: true
+
+- name: Install linuxgsm
+  shell:
+    chdir: /home/linuxgsm
+    cmd: ./linuxgsm.sh
+  become: true
+  become_user: linuxgsm
