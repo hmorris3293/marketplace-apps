@@ -29,7 +29,7 @@
 - name: Disable root login
   import_role:
     name: securessh
-  when: disable_root | default(false) | bool
+  when: disable_root is defined
 
 # apt_setup_update
 - name: Update system packages
