@@ -1,0 +1,31 @@
+---
+# MariaDB stays on the distro-default loopback bind (127.0.0.1) — D4.
+- name: Ensure MariaDB is started and enabled
+  systemd_service:
+    name: mariadb
+    state: started
+    enabled: true
+
+# mysql_secure_installation equivalent: root password, drop anonymous users + test db
+- name: Secure MariaDB installation
+  import_role:
+    name: securemysql
+
+- name: Create Akaunting database
+  community.mysql.mysql_db:
+    name: "{{ database_name }}"
+    state: present
+    encoding: utf8mb4
+    collation: utf8mb4_unicode_ci
+    login_user: root
+    login_unix_socket: /var/run/mysqld/mysqld.sock
+
+- name: Create Akaunting database user
+  community.mysql.mysql_user:
+    name: "{{ database_user }}"
+    password: "{{ db_user_password }}"
+    priv: "{{ database_name }}.*:ALL"
+    host: localhost
+    state: present
+    login_user: root
+    login_unix_socket: /var/run/mysqld/mysqld.sock

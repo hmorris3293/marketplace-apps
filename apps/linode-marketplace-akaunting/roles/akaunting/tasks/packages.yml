@@ -1,0 +1,23 @@
+---
+# LEMP stack + Akaunting PHP extension set (D3). The php8.3 packages below satisfy the
+# installer's extension self-check on Ubuntu 24.04; ctype/fileinfo/openssl/tokenizer/dom/json
+# are built into php8.3-common/-xml.
+- name: Install LEMP stack and Akaunting dependencies
+  apt:
+    name:
+      - nginx
+      - mariadb-server
+      - php8.3-fpm
+      - php8.3-cli
+      - php8.3-bcmath
+      - php8.3-curl
+      - php8.3-gd
+      - php8.3-intl
+      - php8.3-mbstring
+      - php8.3-xml
+      - php8.3-zip
+      - php8.3-mysql
+      - python3-mysqldb
+      - unzip
+    state: present
+    update_cache: true

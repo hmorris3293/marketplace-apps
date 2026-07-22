@@ -1,0 +1,17 @@
+---
+# Main Akaunting installation tasks
+
+- name: Import package tasks
+  import_tasks: packages.yml
+
+- name: Import database tasks
+  import_tasks: database.yml
+
+- name: Import Akaunting install tasks
+  import_tasks: install.yml
+
+- name: Import NGINX tasks
+  import_tasks: nginx.yml
+
+- name: Import scheduler cron tasks
+  import_tasks: cron.yml

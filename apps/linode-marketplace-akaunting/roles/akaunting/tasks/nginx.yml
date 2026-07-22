@@ -1,0 +1,36 @@
+---
+- name: Deploy the Akaunting nginx vhost
+  template:
+    src: nginx.conf.j2
+    dest: "/etc/nginx/sites-available/{{ _domain }}"
+    mode: '0644'
+
+- name: Enable the Akaunting site
+  file:
+    src: "/etc/nginx/sites-available/{{ _domain }}"
+    dest: "/etc/nginx/sites-enabled/{{ _domain }}"
+    state: link
+
+- name: Remove the default nginx site configuration
+  file:
+    path: /etc/nginx/sites-enabled/default
+    state: absent
+
+- name: Disable cgi.fix_pathinfo in PHP-FPM
+  lineinfile:
+    path: /etc/php/8.3/fpm/php.ini
+    regexp: '^;?cgi.fix_pathinfo='
+    line: cgi.fix_pathinfo=0
+  notify: Restart php8.3-fpm
+
+# restart (not a handler) — certbot needs the vhost live before it runs below
+- name: Restart nginx service
+  systemd_service:
+    name: nginx
+    state: restarted
+
+- name: Configure SSL with certbot
+  import_role:
+    name: certbot_ssl
+  vars:
+    webserver_stack: lemp
