@@ -3,8 +3,3 @@
   systemd_service:
     name: php8.3-fpm
     state: restarted
-
-- name: Restart nginx
-  systemd_service:
-    name: nginx
-    state: restarted

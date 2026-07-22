@@ -1,7 +1,4 @@
 ---
-# D11: the Laravel scheduler is load-bearing — Kernel.php registers reminder:invoice,
-# reminder:bill, recurring:check and cache/model pruning; without this cron, recurring
-# transactions silently never fire. QUEUE_CONNECTION=sync means no separate queue worker.
 - name: Install the Akaunting scheduler cron
   cron:
     name: Akaunting scheduler

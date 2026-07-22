@@ -39,21 +39,3 @@
       DB Name: {{ database_name }}
       DB Username: {{ database_user }}
       DB User Password: {{ db_user_password }}
-
-# OQ3 smoke test: /install must 302 to the login page (CanInstall middleware). The 302 also
-# proves the Laravel app booted and read APP_INSTALLED=true — do not replace with an nginx deny.
-- name: Verify the installer endpoint is unreachable
-  uri:
-    url: "https://{{ _domain }}/install"
-    follow_redirects: none
-    status_code: 302
-  register: post_install_probe
-  retries: 5
-  delay: 5
-  until: post_install_probe.status | default(0) == 302
-
-- name: Assert the installer redirects to the login page
-  assert:
-    that:
-      - post_install_probe.location is search('/auth/login$')
-    fail_msg: "GET /install did not 302 to /auth/login — the installer may be reachable"

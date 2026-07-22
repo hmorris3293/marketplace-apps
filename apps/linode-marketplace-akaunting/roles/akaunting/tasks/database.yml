@@ -1,12 +1,18 @@
 ---
-# MariaDB stays on the distro-default loopback bind (127.0.0.1) — D4.
+- name: Install MariaDB server and the Python MySQL driver
+  apt:
+    name:
+      - mariadb-server
+      - python3-mysqldb
+    state: present
+    update_cache: true
+
 - name: Ensure MariaDB is started and enabled
   systemd_service:
     name: mariadb
     state: started
     enabled: true
 
-# mysql_secure_installation equivalent: root password, drop anonymous users + test db
 - name: Secure MariaDB installation
   import_role:
     name: securemysql
