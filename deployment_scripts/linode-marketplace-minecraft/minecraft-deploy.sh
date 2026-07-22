@@ -63,12 +63,16 @@ EOF
 		echo "subdomain: www" >>${group_vars}
 	fi
 
+	if [[ -n ${SOA_EMAIL_ADDRESS} ]]; then
+		echo "soa_email_address: ${SOA_EMAIL_ADDRESS}" >>${group_vars}
+	fi
+
 }
 
 function run {
 	# install dependancies
 	apt-get update
-	apt-get install -y git python3 python3-pip
+	apt-get install -y git python3 python3-pip python3-venv
 
 	# clone repo and set up ansible environment
 	git -C /tmp clone ${GIT_REPO}
@@ -77,8 +81,7 @@ function run {
 
 	# venv
 	cd ${WORK_DIR}/${MARKETPLACE_APP}
-	pip3 install virtualenv
-	python3 -m virtualenv env
+	python3 -m venv env
 	source env/bin/activate
 	pip install pip --upgrade
 	pip install -r requirements.txt
@@ -87,7 +90,7 @@ function run {
 	# populate group_vars
 	udf
 	# run playbooks
-	for playbook in provision.yml site.yml; do ansible-playbook -v $playbook; done
+	ansible-playbook -v provision.yml && ansible-playbook -v site.yml
 }
 
 function installation_complete {
