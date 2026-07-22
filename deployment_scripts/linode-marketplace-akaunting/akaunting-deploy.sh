@@ -1,5 +1,6 @@
 #!/bin/bash
-# Akaunting Marketplace App deploy StackScript.
+# STACKSCRIPT_ID: 923033
+
 # enable logging
 exec > >(tee /dev/ttyS0 /var/log/stackscript.log) 2>&1
 
@@ -90,16 +91,11 @@ function cleanup {
 
 function udf {
 	local group_vars="${WORK_DIR}/${MARKETPLACE_APP}/group_vars/linode/vars"
-
-	# sanitize the free-text company name — quotes/backslashes would break the YAML
-	# below and the installer's shlex parsing
-	COMPANY_NAME="${COMPANY_NAME//[\"\\\\]/}"
-
 	sed 's/  //g' <<EOF >"${group_vars}"
   # sudo username
   username: ${USER_NAME}
   # akaunting
-  company_name: "${COMPANY_NAME}"
+  company_name: ${COMPANY_NAME}
   database_name: akaunting
   database_user: akaunting
   # BEGIN CI-UDF-ADDONS
@@ -108,57 +104,56 @@ function udf {
   # END CI-UDF-ADDONS
 EOF
 
-	# boolean conversion — UDFs arrive as strings; Ansible needs real booleans
-	if [ "${DISABLE_ROOT}" = "Yes" ]; then
-		echo "disable_root: true" >>"${group_vars}"
+	if [ "$DISABLE_ROOT" = "Yes" ]; then
+		echo "disable_root: yes" >>${group_vars}
 	else
-		echo "disable_root: false" >>"${group_vars}"
+		echo "Leaving root login enabled"
 	fi
 
 	if [[ -n ${DOMAIN} ]]; then
-		echo "domain: ${DOMAIN}" >>"${group_vars}"
+		echo "domain: ${DOMAIN}" >>${group_vars}
 	else
-		echo "default_dns: $(hostname -I | awk '{print $1}' | tr '.' '-' | awk {'print $1 ".ip.linodeusercontent.com"'})" >>"${group_vars}"
+		echo "default_dns: $(hostname -I | awk '{print $1}' | tr '.' '-' | awk {'print $1 ".ip.linodeusercontent.com"'})" >>${group_vars}
 	fi
 
 	if [[ -n ${SUBDOMAIN} ]]; then
-		echo "subdomain: ${SUBDOMAIN}" >>"${group_vars}"
+		echo "subdomain: ${SUBDOMAIN}" >>${group_vars}
 	else
-		echo "subdomain: www" >>"${group_vars}"
+		echo "subdomain: www" >>${group_vars}
 	fi
 
 	if [[ -n ${TOKEN_PASSWORD} ]]; then
-		echo "token_password: ${TOKEN_PASSWORD}" >>"${group_vars}"
+		echo "token_password: ${TOKEN_PASSWORD}" >>${group_vars}
 	else
 		echo "No API token entered"
 	fi
 
 	if [[ -n ${SOA_EMAIL_ADDRESS} ]]; then
-		echo "soa_email_address: ${SOA_EMAIL_ADDRESS}" >>"${group_vars}"
-	else
-		echo "No SOA email entered"
+		echo "soa_email_address: ${SOA_EMAIL_ADDRESS}" >>${group_vars}
 	fi
 
 	# staging or production mode (ci)
 	if [[ "${MODE}" == "staging" ]]; then
 		echo "[info] running in staging mode..."
-		echo "mode: ${MODE}" >>"${group_vars}"
+		echo "mode: ${MODE}" >>${group_vars}
 	else
 		echo "[info] running in production mode..."
-		echo "mode: production" >>"${group_vars}"
+		echo "mode: production" >>${group_vars}
 	fi
 }
 
 function run {
 	# install dependencies
 	apt-get update
-	apt-get install -y git python3 python3-pip python3-venv
+	apt-get install -y git python3 python3-pip
 
 	# clone repo and set up ansible environment
-	git -C /tmp clone -b "${BRANCH}" "${GIT_REPO}"
-	cd "${WORK_DIR}/${MARKETPLACE_APP}"
+	git -C /tmp clone -b ${BRANCH} ${GIT_REPO}
+
+	# set up python virtual environment
+	cd ${WORK_DIR}/${MARKETPLACE_APP}
+	apt install python3-venv -y
 	python3 -m venv env
-	# shellcheck disable=SC1091
 	source env/bin/activate
 	pip install pip --upgrade
 	pip install -r requirements.txt
@@ -167,12 +162,11 @@ function run {
 	# populate group_vars
 	udf
 	# run playbooks
-	export ANSIBLE_HOST_KEY_CHECKING=False
 	ansible-playbook -v provision.yml && ansible-playbook -v site.yml
 }
 
 function installation_complete {
-	echo "Installation complete. Credentials are in /home/${USER_NAME}/.credentials"
+	echo "Installation Complete"
 }
 
 # main
