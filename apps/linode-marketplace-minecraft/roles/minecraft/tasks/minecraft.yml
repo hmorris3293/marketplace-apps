@@ -24,3 +24,11 @@
     owner: linuxgsm
     group: linuxgsm
     mode: '0644'
+
+- name: Update RCON password in server.properties
+  lineinfile:
+    path: /home/linuxgsm/serverfiles/server.properties
+    regexp: '^rcon\.password='
+    line: 'rcon.password="{{ rconpassword }}"'
+  become: true
+  become_user: linuxgsm
