@@ -32,7 +32,7 @@
       Sudo Password: {{ password }}
       # Akaunting
       Akaunting URL: https://{{ _domain }}
-      Akaunting Admin Email: {{ soa_email_address }}
+      Akaunting Admin Email: {{ admin_email }}
       Akaunting Admin Password: {{ admin_user_password }}
       # Database
       DB Root Password: {{ mysql_root_password }}

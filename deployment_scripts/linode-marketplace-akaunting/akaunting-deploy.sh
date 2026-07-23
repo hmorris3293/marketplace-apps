@@ -34,14 +34,15 @@ fi
 #<UDF name="token_password" label="Your Linode API token. This is needed to create your server's DNS records" default="">
 #<UDF name="subdomain" label="Subdomain" example="The subdomain for the DNS record: www (Requires Domain)" default="">
 #<UDF name="domain" label="Domain" example="The domain for the DNS record: example.com (Requires API token)" default="">
+#<UDF name="soa_email_address" label="Email address (for the Let's Encrypt SSL certificate)" example="user@domain.tld">
 
 ## Akaunting Settings
-#<UDF name="soa_email_address" label="Email address (for the Let's Encrypt SSL certificate and the Akaunting admin login)" example="user@domain.tld">
+#<UDF name="admin_email" label="Akaunting admin user email (used for the admin login; can be the same as the SSL email or different)" example="admin@domain.tld">
 #<UDF name="company_name" label="Company name for your Akaunting books" default="My Company">
 
 # BEGIN CI-ADDONS
 ## Addons
-#<UDF name="add_ons" label="Optional data exporter Add-ons for your deployment" manyOf="node_exporter,mysqld_exporter,newrelic,none" default="none">
+#<UDF name="add_ons" label="Optional data exporter Add-ons for your deployment" manyOf="node_exporter,mysqld_exporter,newrelic,opentelemetry_collector,alloy,none" default="none">
 # END CI-ADDONS
 
 #GH_USER=""
@@ -59,7 +60,6 @@ fi
 
 export WORK_DIR="/tmp/marketplace-apps"
 export MARKETPLACE_APP="apps/linode-marketplace-akaunting"
-export DEBIAN_FRONTEND=noninteractive
 
 function provision_failed {
 	echo "[info] Provision failed. Sending status.."
@@ -96,7 +96,8 @@ function udf {
   username: ${USER_NAME}
   # akaunting
   company_name: ${COMPANY_NAME}
-  database_name: akaunting
+  admin_email: ${ADMIN_EMAIL}
+  database_name: akauntingdb
   database_user: akaunting
   # BEGIN CI-UDF-ADDONS
   # addons
@@ -105,31 +106,28 @@ function udf {
 EOF
 
 	if [ "$DISABLE_ROOT" = "Yes" ]; then
-		echo "disable_root: yes" >>${group_vars}
-	else
-		echo "Leaving root login enabled"
+	echo "disable_root: yes" >> ${group_vars};
+	else echo "Leaving root login enabled";
 	fi
 
 	if [[ -n ${DOMAIN} ]]; then
-		echo "domain: ${DOMAIN}" >>${group_vars}
+	echo "domain: ${DOMAIN}" >> ${group_vars};
 	else
-		echo "default_dns: $(hostname -I | awk '{print $1}' | tr '.' '-' | awk {'print $1 ".ip.linodeusercontent.com"'})" >>${group_vars}
+	echo "default_dns: $(hostname -I | awk '{print $1}'| tr '.' '-' | awk {'print $1 ".ip.linodeusercontent.com"'})" >> ${group_vars};
 	fi
 
 	if [[ -n ${SUBDOMAIN} ]]; then
-		echo "subdomain: ${SUBDOMAIN}" >>${group_vars}
-	else
-		echo "subdomain: www" >>${group_vars}
+	echo "subdomain: ${SUBDOMAIN}" >> ${group_vars};
+	else echo "subdomain: www" >> ${group_vars};
 	fi
 
 	if [[ -n ${TOKEN_PASSWORD} ]]; then
-		echo "token_password: ${TOKEN_PASSWORD}" >>${group_vars}
-	else
-		echo "No API token entered"
+	echo "token_password: ${TOKEN_PASSWORD}" >> ${group_vars};
+	else echo "No API token entered";
 	fi
 
 	if [[ -n ${SOA_EMAIL_ADDRESS} ]]; then
-		echo "soa_email_address: ${SOA_EMAIL_ADDRESS}" >>${group_vars}
+	echo "soa_email_address: ${SOA_EMAIL_ADDRESS}" >> ${group_vars};
 	fi
 
 	# staging or production mode (ci)

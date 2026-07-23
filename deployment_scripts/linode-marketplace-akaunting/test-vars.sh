@@ -1,6 +1,4 @@
 #!/bin/bash
-# CI UDF defaults for akaunting. Sourced before the deploy script so required UDF vars
-# have sensible values when not explicitly set.
 
 DEFAULT_DNS="$(hostname -I | awk '{print $1}' | tr '.' '-' | awk {'print $1 ".ip.linodeusercontent.com"'})"
 
@@ -53,6 +51,12 @@ if [[ -n "${SOA_EMAIL_ADDRESS}" ]]; then
 	UDF_VARS["SOA_EMAIL_ADDRESS"]="${SOA_EMAIL_ADDRESS}"
 else
 	UDF_VARS["SOA_EMAIL_ADDRESS"]="webmaster@${DEFAULT_DNS}" # default
+fi
+
+if [[ -n "${ADMIN_EMAIL}" ]]; then
+	UDF_VARS["ADMIN_EMAIL"]="${ADMIN_EMAIL}"
+else
+	UDF_VARS["ADMIN_EMAIL"]="admin@${DEFAULT_DNS}" # default
 fi
 
 if [[ -n "${COMPANY_NAME}" ]]; then

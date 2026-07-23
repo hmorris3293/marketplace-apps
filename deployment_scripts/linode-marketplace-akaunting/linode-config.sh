@@ -1,5 +1,4 @@
 #!/bin/bash
-# CI infrastructure config for akaunting. Exports the Linode spec to $GITHUB_ENV.
 
 set -euo pipefail
 

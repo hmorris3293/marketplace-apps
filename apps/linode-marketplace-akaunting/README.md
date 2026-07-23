@@ -28,7 +28,8 @@ repository's StackScript (`deployment_scripts/linode-marketplace-akaunting/`).
 | `disable_root` | Disable root access over SSH? (`Yes`/`No`) |
 | `token_password` | Linode API token, only needed to create DNS records (optional) |
 | `domain` / `subdomain` | DNS record for the deployment (optional; defaults to the Linode's rDNS) |
-| `soa_email_address` | Email for the Let's Encrypt certificate **and** the Akaunting admin login (required) |
+| `soa_email_address` | Email for the Let's Encrypt certificate (required) |
+| `admin_email` | Email for the Akaunting admin login; can match the SSL email or differ (required) |
 | `company_name` | Company name for your Akaunting books (default: `My Company`) |
 | `add_ons` | Optional data-exporter add-ons |
 

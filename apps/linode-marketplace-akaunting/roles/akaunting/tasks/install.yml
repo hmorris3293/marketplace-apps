@@ -1,5 +1,5 @@
 ---
-- name: Install PHP 8.3 and Akaunting's required extensions
+- name: Install required packages for Akaunting
   apt:
     name:
       - php8.3-fpm
@@ -54,7 +54,7 @@
     group: www-data
     recurse: true
 
-- name: Pre-bake the Akaunting environment file
+- name: Copy Akaunting .env.example to .env
   copy:
     src: "{{ akaunting_web_root }}/.env.example"
     dest: "{{ akaunting_web_root }}/.env"
@@ -84,8 +84,8 @@
     --db-username={{ database_user }}
     --db-password={{ db_user_password }}
     --company-name="{{ company_name }}"
-    --company-email="{{ soa_email_address }}"
-    --admin-email="{{ soa_email_address }}"
+    --company-email="{{ admin_email }}"
+    --admin-email="{{ admin_email }}"
     --admin-password={{ admin_user_password }}
     --locale=en-US
   args:

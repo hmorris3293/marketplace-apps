@@ -11,19 +11,19 @@
     state: started
     enabled: true
 
-- name: Deploy the Akaunting nginx vhost
+- name: Create Nginx site configuration
   template:
     src: nginx.conf.j2
     dest: "/etc/nginx/sites-available/{{ _domain }}"
     mode: '0644'
 
-- name: Enable the Akaunting site
+- name: Enable Nginx site configuration
   file:
     src: "/etc/nginx/sites-available/{{ _domain }}"
     dest: "/etc/nginx/sites-enabled/{{ _domain }}"
     state: link
 
-- name: Remove the default nginx site configuration
+- name: Remove the default Nginx site configuration
   file:
     path: /etc/nginx/sites-enabled/default
     state: absent

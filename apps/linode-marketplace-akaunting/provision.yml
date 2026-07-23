@@ -1,5 +1,4 @@
 ---
-# akaunting
 - name: Setting up environment
   hosts: localhost
   connection: local

@@ -1,6 +1,4 @@
 ---
-# Main Akaunting installation tasks
-
 - name: Import database tasks
   import_tasks: database.yml
 
