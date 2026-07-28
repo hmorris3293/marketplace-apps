@@ -44,7 +44,7 @@
     remote_src: true
     owner: www-data
     group: www-data
-    creates: "{{ akaunting_web_root }}/artisan"
+    # creates: "{{ akaunting_web_root }}/artisan"
 
 - name: Copy Akaunting .env.example to .env
   copy:
