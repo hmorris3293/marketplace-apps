@@ -12,8 +12,19 @@
     state: present
 
 - name: Download linuxgsm script
+  uri:
+    url: https://api.github.com/repos/GameServerManagers/LinuxGSM/releases/latest
+    method: GET
+    return_content: true
+  register: linuxgsm_release
+
+- name: Set linuxgsm version from latest release
+  set_fact:
+    linuxgsm_version: "{{ linuxgsm_release.json.tag_name }}"
+
+- name: Download linuxgsm script from GitHub release
   get_url:
-    url: https://linuxgsm.sh
+    url: "https://raw.githubusercontent.com/GameServerManagers/LinuxGSM/{{ linuxgsm_version }}/linuxgsm.sh"
     dest: /home/linuxgsm/linuxgsm.sh
     mode: '0755'
 
