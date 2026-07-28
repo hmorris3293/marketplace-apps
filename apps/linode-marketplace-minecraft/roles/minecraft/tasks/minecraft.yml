@@ -1,0 +1,34 @@
+---
+- name: Install mcserver script
+  shell:
+    chdir: /home/linuxgsm
+    cmd: ./linuxgsm.sh mcserver
+  become: true
+  become_user: linuxgsm
+
+- name: Install Minecraft server files
+  shell:
+    chdir: /home/linuxgsm
+    cmd: ./mcserver auto-install
+  args:
+    creates: /home/linuxgsm/serverfiles/eula.txt
+  become: true
+  become_user: linuxgsm
+
+- name: Accept Minecraft EULA
+  lineinfile:
+    path: /home/linuxgsm/serverfiles/eula.txt
+    regexp: '^eula='
+    line: 'eula=true'
+    create: true
+    owner: linuxgsm
+    group: linuxgsm
+    mode: '0644'
+
+- name: Update RCON password in server.properties
+  lineinfile:
+    path: /home/linuxgsm/serverfiles/server.properties
+    regexp: '^rcon\.password='
+    line: 'rcon.password="{{ rconpassword }}"'
+  become: true
+  become_user: linuxgsm
