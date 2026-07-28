@@ -1,5 +1,5 @@
 #!/bin/bash
-# STACKSCRIPT_ID:
+# STACKSCRIPT_ID: 1051714
 
 # enable logging
 exec > >(tee /dev/ttyS0 /var/log/stackscript.log) 2>&1
@@ -29,8 +29,6 @@ fi
 ## Microweber Settings
 #<UDF name="soa_email_address" label="Email address (for the Let's Encrypt SSL certificate)" example="user@domain.tld">
 #<UDF name="admin_email" label="Microweber admin user email (used to log in to the admin panel; can be the same as the SSL email or different)" example="admin@domain.tld">
-#<UDF name="mw_db_user" label="Microweber database username" default="microweber">
-#<UDF name="mw_db_name" label="Microweber database name" default="microweber">
 
 ## Linode/SSH Security Settings
 #<UDF name="user_name" label="The limited sudo user to be created for the Linode: *No Capital Letters or Special Characters*">
@@ -98,8 +96,8 @@ function udf {
   # microweber deploy vars
   admin_email: ${ADMIN_EMAIL}
   mw_admin_username: admin
-  mw_db_user: ${MW_DB_USER}
-  mw_db_name: ${MW_DB_NAME}
+  mw_db_user: microweber
+  mw_db_name: microweber
   # addons
   add_ons: [${ADD_ONS}]
   # END CI-UDF-ADDONS

@@ -59,18 +59,6 @@ else
 	UDF_VARS["ADMIN_EMAIL"]="admin@${DEFAULT_DNS}" # default
 fi
 
-if [[ -n "${MW_DB_USER}" ]]; then
-	UDF_VARS["MW_DB_USER"]="${MW_DB_USER}"
-else
-	UDF_VARS["MW_DB_USER"]="microweber" # default
-fi
-
-if [[ -n "${MW_DB_NAME}" ]]; then
-	UDF_VARS["MW_DB_NAME"]="${MW_DB_NAME}"
-else
-	UDF_VARS["MW_DB_NAME"]="microweber" # default
-fi
-
 if [[ -n "${ADD_ONS}" ]]; then
 	UDF_VARS["ADD_ONS"]="${ADD_ONS}"
 else

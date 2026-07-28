@@ -71,8 +71,6 @@ curl -H "Content-Type: application/json" \
     "stackscript_data": {
         "soa_email_address": "email@domain.tld",
         "admin_email": "admin@domain.tld",
-        "mw_db_user": "microweber",
-        "mw_db_name": "microweber",
         "user_name": "sudo_user",
         "disable_root": "No",
         "token_password": "A_Valid_API_Token",
@@ -97,7 +95,7 @@ linode-cli linodes create \
   --backups_enabled false \
   --private_ip false \
   --stackscript_id 1051714 \
-  --stackscript_data '{"soa_email_address":"email@domain.tld","admin_email":"admin@domain.tld","mw_db_user":"microweber","mw_db_name":"microweber","user_name":"sudo_user","disable_root":"No","token_password":"A_Valid_API_Token","subdomain":"examplesubdomain","domain":"domain.tld","add_ons":"none"}'
+  --stackscript_data '{"soa_email_address":"email@domain.tld","admin_email":"admin@domain.tld","user_name":"sudo_user","disable_root":"No","token_password":"A_Valid_API_Token","subdomain":"examplesubdomain","domain":"domain.tld","add_ons":"none"}'
 ```
 
 ## Resources
