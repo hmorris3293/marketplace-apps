@@ -44,14 +44,12 @@
     remote_src: true
     owner: www-data
     group: www-data
-    # creates: "{{ akaunting_web_root }}/artisan"
 
 - name: Copy Akaunting .env.example to .env
   copy:
     src: "{{ akaunting_web_root }}/.env.example"
     dest: "{{ akaunting_web_root }}/.env"
     remote_src: true
-    # force: false
     owner: www-data
     group: www-data
     mode: '0640'
@@ -95,15 +93,6 @@
     login_user: root
     login_unix_socket: /var/run/mysqld/mysqld.sock
     query: "UPDATE {{ akaunting_db_prefix }}settings SET value = 1 WHERE company_id = 1 AND `key` = 'wizard.completed'"
-
-# - name: Clear the Akaunting application cache
-#   command: php artisan cache:clear
-#   args:
-#     chdir: "{{ akaunting_web_root }}"
-#   become: true
-#   become_user: www-data
-#   environment:
-#     HOME: /tmp
 
 - name: Install the Akaunting scheduler cron
   cron:
