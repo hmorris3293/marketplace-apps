@@ -7,6 +7,3 @@
 
 - name: Import NGINX tasks
   import_tasks: nginx.yml
-
-- name: Import scheduler cron tasks
-  import_tasks: cron.yml

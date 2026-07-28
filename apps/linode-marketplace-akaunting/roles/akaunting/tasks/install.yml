@@ -31,13 +31,13 @@
     group: www-data
     mode: '0755'
 
-- name: Resolve the latest Akaunting release from the GitHub API
+- name: Get latest Akaunting release details
   uri:
     url: https://api.github.com/repos/akaunting/akaunting/releases/latest
     return_content: true
   register: akaunting_release
 
-- name: Download and extract Akaunting into the web root
+- name: Unarchive Akaunting into web root
   unarchive:
     src: "{{ akaunting_release.json.assets | selectattr('name', 'search', '-Stable.zip$') | map(attribute='browser_download_url') | first }}"
     dest: "{{ akaunting_web_root }}"
@@ -46,20 +46,12 @@
     group: www-data
     creates: "{{ akaunting_web_root }}/artisan"
 
-- name: Set web root ownership
-  file:
-    path: "{{ akaunting_web_root }}"
-    state: directory
-    owner: www-data
-    group: www-data
-    recurse: true
-
 - name: Copy Akaunting .env.example to .env
   copy:
     src: "{{ akaunting_web_root }}/.env.example"
     dest: "{{ akaunting_web_root }}/.env"
     remote_src: true
-    force: false
+    # force: false
     owner: www-data
     group: www-data
     mode: '0640'
@@ -69,12 +61,6 @@
     path: "{{ akaunting_web_root }}/.env"
     regexp: '^APP_URL='
     line: "APP_URL=https://{{ _domain }}"
-
-- name: Disable debug mode
-  lineinfile:
-    path: "{{ akaunting_web_root }}/.env"
-    regexp: '^APP_DEBUG='
-    line: APP_DEBUG=false
 
 - name: Run the Akaunting CLI installer
   command: >-
@@ -110,11 +96,17 @@
     login_unix_socket: /var/run/mysqld/mysqld.sock
     query: "UPDATE {{ akaunting_db_prefix }}settings SET value = 1 WHERE company_id = 1 AND `key` = 'wizard.completed'"
 
-- name: Clear the Akaunting application cache
-  command: php artisan cache:clear
-  args:
-    chdir: "{{ akaunting_web_root }}"
-  become: true
-  become_user: www-data
-  environment:
-    HOME: /tmp
+# - name: Clear the Akaunting application cache
+#   command: php artisan cache:clear
+#   args:
+#     chdir: "{{ akaunting_web_root }}"
+#   become: true
+#   become_user: www-data
+#   environment:
+#     HOME: /tmp
+
+- name: Install the Akaunting scheduler cron
+  cron:
+    name: Akaunting scheduler
+    user: www-data
+    job: "php {{ akaunting_web_root }}/artisan schedule:run >> /dev/null 2>&1"
