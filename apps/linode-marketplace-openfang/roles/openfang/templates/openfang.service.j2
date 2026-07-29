@@ -1,0 +1,25 @@
+[Unit]
+Description=OpenFang Agent Operating System
+Documentation=https://openfang.sh/docs/
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User={{ app_user }}
+Group={{ app_user }}
+WorkingDirectory={{ openfang_install_dir }}
+EnvironmentFile=-/etc/default/openfang
+Environment="OPENFANG_HOME={{ openfang_install_dir }}"
+Environment="OPENFANG_LISTEN=127.0.0.1:{{ openfang_api_port }}"
+ExecStart={{ openfang_bin_path }}/openfang start
+ExecReload=/bin/kill -HUP $MAINPID
+KillMode=on-abort
+Restart=on-failure
+RestartSec=10s
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=openfang
+
+[Install]
+WantedBy=multi-user.target

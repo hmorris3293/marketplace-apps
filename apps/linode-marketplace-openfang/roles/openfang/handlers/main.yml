@@ -1,10 +1,15 @@
 ---
-- name: restart openfang container
-  community.docker.docker_container:
-    name: "{{ openfang_container_name }}"
+- name: restart openfang
+  systemd_service:
+    name: openfang
     state: restarted
+
+- name: daemon reload
+  systemd_service:
+    daemon_reload: true
 
 - name: restart nginx
   systemd_service:
     name: nginx
     state: restarted
+

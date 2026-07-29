@@ -1,16 +1,19 @@
 ---
 # OpenFang default variables
 openfang_version: "0.6.9"
-openfang_container_name: "openfang"
+openfang_release_url: "https://github.com/RightNow-AI/openfang/releases"
+openfang_bin_path: "/opt/openfang/bin"
+openfang_install_dir: "{{ app_data_dir }}"
+openfang_config_path: "{{ app_data_dir }}/config.toml"
 openfang_api_port: 4200
-openfang_api_listen: "127.0.0.1:{{ openfang_api_port }}"
+openfang_listen: "127.0.0.1:{{ openfang_api_port }}"
 openfang_domain: "{{ domain | default('localhost') }}"
 openfang_enable_ssl: true
 
-# LLM provider configuration (set via environment variables in deployment)
+# LLM provider configuration
 openfang_default_provider: "openai"
 openfang_default_model: "gpt-4-turbo"
 
-# Docker configuration
-docker_image_name: "rightnowai/openfang"
-docker_image_tag: "{{ openfang_version }}"
+# System detection for binary download
+openfang_target_os: "{{ 'x86_64-unknown-linux-gnu' if ansible_architecture == 'x86_64' else 'aarch64-unknown-linux-gnu' }}"
+
