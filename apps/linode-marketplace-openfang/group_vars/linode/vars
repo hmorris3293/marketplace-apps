@@ -1,0 +1,11 @@
+---
+app_name: openfang
+app_user: "openfang"
+app_home: "/home/openfang/openfang"
+app_data_dir: "/home/openfang/openfang_data"
+openfang_version: "0.6.9"
+openfang_api_key: ";p\Uoy~4WQzwrMRW7g5^=tAr[yQQA9wX"
+openfang_api_port: 4200
+openfang_domain: "test.openfang.dev"
+openfang_enable_ssl: true
+openfang_db_password: "IAPHCwnhp4226VRpX61u6YaSk5kQMQlL"

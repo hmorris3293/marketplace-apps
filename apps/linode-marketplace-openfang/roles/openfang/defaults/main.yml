@@ -1,0 +1,16 @@
+---
+# OpenFang default variables
+openfang_version: "0.6.9"
+openfang_container_name: "openfang"
+openfang_api_port: 4200
+openfang_api_listen: "127.0.0.1:{{ openfang_api_port }}"
+openfang_domain: "{{ domain | default('localhost') }}"
+openfang_enable_ssl: true
+
+# LLM provider configuration (set via environment variables in deployment)
+openfang_default_provider: "openai"
+openfang_default_model: "gpt-4-turbo"
+
+# Docker configuration
+docker_image_name: "rightnowai/openfang"
+docker_image_tag: "{{ openfang_version }}"

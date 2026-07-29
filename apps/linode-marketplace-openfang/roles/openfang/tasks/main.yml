@@ -1,0 +1,154 @@
+---
+- name: Install Docker prerequisites
+  apt:
+    name:
+      - apt-transport-https
+      - ca-certificates
+      - curl
+      - gnupg
+      - lsb-release
+    state: present
+  retries: 3
+  delay: 10
+
+- name: Add Docker GPG key
+  apt_key:
+    url: https://download.docker.com/linux/ubuntu/gpg
+    state: present
+  retries: 3
+  delay: 10
+
+- name: Add Docker repository
+  apt_repository:
+    repo: "deb [arch=amd64] https://download.docker.com/linux/ubuntu {{ ansible_lsb.codename }} stable"
+    state: present
+  retries: 3
+  delay: 10
+
+- name: Install Docker
+  apt:
+    name:
+      - docker-ce
+      - docker-ce-cli
+      - containerd.io
+      - docker-compose-plugin
+    state: present
+  retries: 3
+  delay: 10
+  register: docker_install
+  until: docker_install is succeeded
+
+- name: Create openfang config.toml
+  template:
+    src: openfang.toml.j2
+    dest: "{{ app_data_dir }}/config.toml"
+    owner: "{{ app_user }}"
+    group: "{{ app_user }}"
+    mode: '0640'
+  notify: restart openfang container
+
+- name: Ensure Docker is started and enabled
+  systemd_service:
+    name: docker
+    state: started
+    enabled: true
+    daemon_reload: true
+
+- name: Create openfang Docker container
+  community.docker.docker_container:
+    name: "{{ openfang_container_name }}"
+    image: "{{ docker_image_name }}:{{ docker_image_tag }}"
+    state: present
+    restart_policy: unless-stopped
+    pull: true
+    ports:
+      - "{{ openfang_api_listen }}:{{ openfang_api_port }}"
+    volumes:
+      - "{{ app_data_dir }}:/data:rw"
+    environment:
+      OPENFANG_HOME: /data
+      OPENFANG_LISTEN: "0.0.0.0:{{ openfang_api_port }}"
+    command: start
+
+- name: Wait for OpenFang API to be ready
+  wait_for:
+    host: 127.0.0.1
+    port: "{{ openfang_api_port }}"
+    timeout: 120
+    delay: 2
+
+- name: Install NGINX
+  apt:
+    name: nginx
+    state: present
+  retries: 3
+  delay: 10
+  register: apt_nginx
+  until: apt_nginx is succeeded
+
+- name: Create NGINX reverse proxy configuration
+  template:
+    src: nginx-openfang.conf.j2
+    dest: "/etc/nginx/sites-available/{{ openfang_domain }}"
+    mode: '0644'
+  notify: restart nginx
+
+- name: Enable NGINX site
+  file:
+    src: "/etc/nginx/sites-available/{{ openfang_domain }}"
+    dest: "/etc/nginx/sites-enabled/{{ openfang_domain }}"
+    state: link
+  notify: restart nginx
+
+- name: Remove default NGINX site
+  file:
+    path: /etc/nginx/sites-enabled/default
+    state: absent
+  notify: restart nginx
+
+- name: Test NGINX configuration
+  command: nginx -t
+  changed_when: false
+
+- name: Enable and start NGINX
+  systemd_service:
+    name: nginx
+    state: started
+    enabled: true
+    daemon_reload: true
+
+- name: Install Certbot and Python certbot plugin
+  apt:
+    name:
+      - certbot
+      - python3-certbot-nginx
+    state: present
+  retries: 3
+  delay: 10
+  register: apt_certbot
+  until: apt_certbot is succeeded
+
+- name: Check if SSL certificate exists
+  stat:
+    path: "/etc/letsencrypt/live/{{ openfang_domain }}/fullchain.pem"
+  register: ssl_cert
+
+- name: Generate Let's Encrypt certificate
+  command: "certbot certonly --nginx -n --agree-tos -m admin@{{ openfang_domain }} -d {{ openfang_domain }}"
+  when:
+    - not ssl_cert.stat.exists
+    - openfang_enable_ssl | bool
+  ignore_errors: true
+
+- name: Update NGINX configuration with SSL
+  template:
+    src: nginx-openfang-ssl.conf.j2
+    dest: "/etc/nginx/sites-available/{{ openfang_domain }}"
+    mode: '0644'
+  when: ssl_cert.stat.exists or openfang_enable_ssl | bool
+  notify: restart nginx
+
+- name: Reload NGINX configuration
+  systemd_service:
+    name: nginx
+    state: reloaded

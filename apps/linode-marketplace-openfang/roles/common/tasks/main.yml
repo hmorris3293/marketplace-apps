@@ -1,0 +1,53 @@
+---
+- name: Update system packages
+  apt:
+    update_cache: true
+    cache_valid_time: 3600
+  retries: 3
+  delay: 10
+  register: apt_update
+  until: apt_update is succeeded
+
+- name: Install required system packages
+  apt:
+    name:
+      - curl
+      - wget
+      - git
+      - jq
+      - python3-pip
+      - apt-transport-https
+      - ca-certificates
+      - software-properties-common
+    state: present
+  retries: 3
+  delay: 10
+  register: apt_install
+  until: apt_install is succeeded
+
+- name: Create application user
+  user:
+    name: "{{ app_user }}"
+    shell: /bin/bash
+    home: "/home/{{ app_user }}"
+    createhome: true
+    state: present
+
+- name: Create .ssh directory for user
+  file:
+    path: "/home/{{ app_user }}/.ssh"
+    state: directory
+    owner: "{{ app_user }}"
+    group: "{{ app_user }}"
+    mode: '0700'
+
+- name: Create application directories
+  file:
+    path: "{{ item }}"
+    state: directory
+    owner: "{{ app_user }}"
+    group: "{{ app_user }}"
+    mode: '0755'
+  loop:
+    - "{{ app_home }}"
+    - "{{ app_data_dir }}"

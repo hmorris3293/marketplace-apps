@@ -1,0 +1,37 @@
+---
+- name: Create credentials file for user
+  template:
+    src: credentials.j2
+    dest: "/home/{{ app_user }}/.credentials"
+    owner: "{{ app_user }}"
+    group: "{{ app_user }}"
+    mode: '0600'
+
+- name: Display deployment completion information
+  debug:
+    msg: |
+      ========================================
+      OpenFang Deployment Complete!
+      ========================================
+
+      Dashboard URL: https://{{ openfang_domain }}/
+      API Endpoint: https://{{ openfang_domain }}/v1/
+      Container: {{ openfang_container_name }}
+      Data Directory: {{ app_data_dir }}
+
+      API Authentication
+      ==================
+      Bearer Token: {{ openfang_api_key }}
+
+      Configuration
+      ==============
+      Config File: {{ app_data_dir }}/config.toml
+      Log Directory: /var/log/nginx/
+
+      Next Steps
+      ==========
+      1. Set up LLM provider credentials (OPENAI_API_KEY, ANTHROPIC_API_KEY, etc.)
+      2. Configure channel adapters (Telegram, Discord, Slack, etc.)
+      3. Access dashboard and initialize your first agent
+
+      Credentials saved to: /home/{{ app_user }}/.credentials

@@ -1,0 +1,11 @@
+---
+- name: OpenFang Deployment
+  hosts: localhost
+  connection: local
+  vars_files:
+    - group_vars/linode/vars
+
+  roles:
+    - common
+    - openfang
+    - post
