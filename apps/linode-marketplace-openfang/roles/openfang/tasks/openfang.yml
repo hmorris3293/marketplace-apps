@@ -1,0 +1,111 @@
+---
+- name: Install system dependencies
+  apt:
+    name:
+      - curl
+      - tar
+      - ca-certificates
+    state: present
+  retries: 3
+  delay: 10
+
+- name: Create OpenFang directories
+  file:
+    path: "{{ item }}"
+    state: directory
+    owner: "{{ app_user }}"
+    group: "{{ app_user }}"
+    mode: '0755'
+  loop:
+    - "{{ openfang_bin_path }}"
+    - "{{ openfang_install_dir }}"
+
+- name: Download OpenFang binary
+  get_url:
+    url: "{{ openfang_release_url }}/download/v{{ openfang_version }}/openfang-{{ openfang_target_os }}.tar.gz"
+    dest: "/tmp/openfang-{{ openfang_version }}.tar.gz"
+    mode: '0644'
+  retries: 3
+  delay: 10
+  register: openfang_download
+
+- name: Extract OpenFang binary
+  unarchive:
+    src: "/tmp/openfang-{{ openfang_version }}.tar.gz"
+    dest: "/tmp/"
+    remote_src: true
+  when: openfang_download is changed
+
+- name: Install OpenFang binary
+  copy:
+    src: "/tmp/openfang"
+    dest: "{{ openfang_bin_path }}/openfang"
+    remote_src: true
+    owner: "{{ app_user }}"
+    group: "{{ app_user }}"
+    mode: '0755'
+  notify: restart openfang
+
+- name: Verify OpenFang binary works
+  command: "{{ openfang_bin_path }}/openfang --version"
+  register: openfang_version_check
+  changed_when: false
+
+- name: Display OpenFang version
+  debug:
+    msg: "OpenFang installed: {{ openfang_version_check.stdout }}"
+
+- name: Create OpenFang config.toml
+  template:
+    src: openfang.toml.j2
+    dest: "{{ openfang_config_path }}"
+    owner: "{{ app_user }}"
+    group: "{{ app_user }}"
+    mode: '0640'
+  notify: restart openfang
+
+- name: Initialize OpenFang database
+  become: true
+  become_user: "{{ app_user }}"
+  command: "{{ openfang_bin_path }}/openfang init --config {{ openfang_config_path }} --quick"
+  args:
+    chdir: "{{ openfang_install_dir }}"
+  environment:
+    OPENFANG_HOME: "{{ openfang_install_dir }}"
+  register: openfang_init
+  changed_when: "'created' in openfang_init.stdout.lower() or 'initialized' in openfang_init.stdout.lower()"
+  ignore_errors: true
+
+- name: Display OpenFang init result
+  debug:
+    msg: "{{ openfang_init.stdout }}"
+  when: openfang_init.stdout is defined
+
+- name: Create OpenFang systemd service
+  template:
+    src: openfang.service.j2
+    dest: /etc/systemd/system/openfang.service
+    mode: '0644'
+  notify: daemon reload
+
+- name: Enable and start OpenFang service
+  systemd_service:
+    name: openfang
+    state: started
+    enabled: true
+    daemon_reload: true
+
+- name: Wait for OpenFang API to be ready
+  wait_for:
+    host: 127.0.0.1
+    port: "{{ openfang_api_port }}"
+    timeout: 120
+    delay: 2
+
+- name: Cleanup temporary files
+  file:
+    path: "/tmp/openfang{{ item }}"
+    state: absent
+  loop:
+    - ""
+    - "-{{ openfang_version }}.tar.gz"

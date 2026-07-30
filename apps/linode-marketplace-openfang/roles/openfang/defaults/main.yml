@@ -7,6 +7,7 @@ openfang_install_dir: "{{ app_data_dir }}"
 openfang_config_path: "{{ app_data_dir }}/config.toml"
 openfang_api_port: 4200
 openfang_listen: "127.0.0.1:{{ openfang_api_port }}"
+openfang_api_listen: "{{ openfang_listen }}"
 openfang_domain: "{{ domain | default('localhost') }}"
 openfang_enable_ssl: true
 
@@ -15,5 +16,6 @@ openfang_default_provider: "openai"
 openfang_default_model: "gpt-4-turbo"
 
 # System detection for binary download
-openfang_target_os: "{{ 'x86_64-unknown-linux-gnu' if ansible_architecture == 'x86_64' else 'aarch64-unknown-linux-gnu' }}"
-
+openfang_target_os: >-
+  {{ 'x86_64-unknown-linux-gnu' if ansible_architecture == 'x86_64'
+     else 'aarch64-unknown-linux-gnu' }}
