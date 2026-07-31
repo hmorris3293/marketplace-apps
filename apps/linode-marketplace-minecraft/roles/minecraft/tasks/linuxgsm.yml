@@ -27,7 +27,12 @@
     dest: /etc/sudoers.d/linuxgsm
     content: |
       linuxgsm ALL=(root) NOPASSWD: /usr/bin/apt, /usr/bin/apt-get
-      linuxgsm ALL=(root) NOPASSWD: /usr/bin/systemctl start mcserver, /usr/bin/systemctl stop mcserver, /usr/bin/systemctl restart mcserver, /usr/bin/systemctl status mcserver, /usr/bin/systemctl enable mcserver, /usr/bin/systemctl disable mcserver
+      linuxgsm ALL=(root) NOPASSWD: /usr/bin/systemctl start mcserver
+      linuxgsm ALL=(root) NOPASSWD: /usr/bin/systemctl stop mcserver
+      linuxgsm ALL=(root) NOPASSWD: /usr/bin/systemctl restart mcserver
+      linuxgsm ALL=(root) NOPASSWD: /usr/bin/systemctl status mcserver
+      linuxgsm ALL=(root) NOPASSWD: /usr/bin/systemctl enable mcserver
+      linuxgsm ALL=(root) NOPASSWD: /usr/bin/systemctl disable mcserver
     owner: root
     group: root
     mode: '0440'
