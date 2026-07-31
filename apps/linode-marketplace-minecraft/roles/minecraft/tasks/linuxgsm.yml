@@ -22,10 +22,12 @@
     generate_ssh_key: false
     state: present
 
-- name: Allow linuxgsm user to run apt only
+- name: Allow linuxgsm user to run apt and manage the Minecraft service
   copy:
     dest: /etc/sudoers.d/linuxgsm
-    content: "linuxgsm ALL=(root) NOPASSWD: /usr/bin/apt, /usr/bin/apt-get\n"
+    content: |
+      linuxgsm ALL=(root) NOPASSWD: /usr/bin/apt, /usr/bin/apt-get
+      linuxgsm ALL=(root) NOPASSWD: /usr/bin/systemctl start mcserver, /usr/bin/systemctl stop mcserver, /usr/bin/systemctl restart mcserver, /usr/bin/systemctl status mcserver, /usr/bin/systemctl enable mcserver, /usr/bin/systemctl disable mcserver
     owner: root
     group: root
     mode: '0440'

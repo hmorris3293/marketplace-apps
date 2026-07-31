@@ -33,9 +33,34 @@
   become: true
   become_user: linuxgsm
 
-- name: Start Minecraft server
-  shell:
-    chdir: /home/linuxgsm
-    cmd: ./mcserver start
-  become: true
-  become_user: linuxgsm
+- name: Create Minecraft systemd service
+  copy:
+    dest: /etc/systemd/system/mcserver.service
+    owner: root
+    group: root
+    mode: '0644'
+    content: |
+      [Unit]
+      Description=Minecraft Server (LinuxGSM)
+      After=network.target
+
+      [Service]
+      Type=forking
+      User=linuxgsm
+      Group=linuxgsm
+      WorkingDirectory=/home/linuxgsm
+      ExecStart=/home/linuxgsm/mcserver start
+      ExecStop=/home/linuxgsm/mcserver stop
+      ExecReload=/home/linuxgsm/mcserver restart
+      Restart=on-failure
+      RestartSec=15
+
+      [Install]
+      WantedBy=multi-user.target
+
+- name: Enable and start Minecraft service
+  systemd:
+    name: mcserver
+    enabled: true
+    state: started
+    daemon_reload: true
