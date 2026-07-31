@@ -47,7 +47,7 @@ When the playbook finishes, the operator can:
 
 There are certain features in Akaunting (such as Invoicing) that require you to add an Akaunting API KEY. To get your API KEY, create an account at [akaunting.com](https://akaunting.com/), visit your [dashboard](https://akaunting.com/dashboard), and copy the API KEY listed.
 
-The Laravel scheduler is installed as a `www-data` cron entry (`* * * * * php /var/www/html/artisan schedule:run`), which drives recurring invoices and bills, invoice/bill reminders, temp-storage cleanup, and record pruning.
+The Laravel scheduler is installed as a `www-data` cron entry (`* * * * * php /var/www/<your-domain>/artisan schedule:run`), which drives recurring invoices and bills, invoice/bill reminders, temp-storage cleanup, and record pruning.
 
 ## Use our API
 

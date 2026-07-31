@@ -1,2 +1,3 @@
 ---
-akaunting_web_root: /var/www/html
+akaunting_web_root: "/var/www/{{ _domain }}"
+akaunting_db_prefix: ak_

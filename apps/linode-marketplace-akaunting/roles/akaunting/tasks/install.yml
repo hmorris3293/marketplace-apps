@@ -2,26 +2,32 @@
 - name: Install required packages for Akaunting
   apt:
     name:
-      - php8.3-fpm
-      - php8.3-cli
-      - php8.3-bcmath
-      - php8.3-curl
-      - php8.3-gd
-      - php8.3-intl
-      - php8.3-mbstring
-      - php8.3-xml
-      - php8.3-zip
-      - php8.3-mysql
+      - php-fpm
+      - php-cli
+      - php-bcmath
+      - php-curl
+      - php-gd
+      - php-intl
+      - php-mbstring
+      - php-xml
+      - php-zip
+      - php-mysql
       - unzip
     state: present
     update_cache: true
 
+- name: Getting php version
+  shell:
+    cmd: "php -r \"echo PHP_MAJOR_VERSION.'.'.PHP_MINOR_VERSION;\""
+  register: php_version
+  changed_when: false
+
 - name: Disable cgi.fix_pathinfo in PHP-FPM
   lineinfile:
-    path: /etc/php/8.3/fpm/php.ini
+    path: "/etc/php/{{ php_version.stdout }}/fpm/php.ini"
     regexp: '^;?cgi.fix_pathinfo='
     line: cgi.fix_pathinfo=0
-  notify: Restart php8.3-fpm
+  notify: Restart php-fpm
 
 - name: Create the web root directory
   file:
@@ -67,6 +73,7 @@
     --db-name={{ database_name }}
     --db-username={{ database_user }}
     --db-password={{ db_user_password }}
+    --db-prefix={{ akaunting_db_prefix }}
     --company-name="{{ company_name }}"
     --company-email="{{ admin_email }}"
     --admin-email="{{ admin_email }}"
@@ -77,15 +84,6 @@
   become: true
   become_user: www-data
   no_log: true
-
-- name: Read the installed environment file for the DB prefix
-  slurp:
-    src: "{{ akaunting_web_root }}/.env"
-  register: akaunting_env_installed
-
-- name: Set the DB table prefix fact
-  set_fact:
-    akaunting_db_prefix: "{{ akaunting_env_installed.content | b64decode | regex_search('DB_PREFIX=(\\w+)', '\\1') | first }}"
 
 - name: Mark the onboarding wizard as completed
   community.mysql.mysql_query:
