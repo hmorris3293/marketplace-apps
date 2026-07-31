@@ -28,6 +28,18 @@
   args:
     creates: /var/lib/systemd/linger/linuxgsm
 
+- name: Configure user systemd environment for linuxgsm
+  blockinfile:
+    path: /home/linuxgsm/.bashrc
+    create: true
+    owner: linuxgsm
+    group: linuxgsm
+    mode: '0644'
+    marker: "# {mark} ANSIBLE MANAGED - systemd user session"
+    block: |
+      export XDG_RUNTIME_DIR=/run/user/$(id -u)
+      export DBUS_SESSION_BUS_ADDRESS=unix:path=${XDG_RUNTIME_DIR}/bus
+
 - name: Allow linuxgsm user to run apt only
   copy:
     dest: /etc/sudoers.d/linuxgsm
