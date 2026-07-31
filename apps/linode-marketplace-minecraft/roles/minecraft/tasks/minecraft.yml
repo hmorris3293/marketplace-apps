@@ -32,3 +32,10 @@
     line: 'rcon.password="{{ rconpassword }}"'
   become: true
   become_user: linuxgsm
+
+- name: Start Minecraft server
+  shell:
+    chdir: /home/linuxgsm
+    cmd: ./mcserver start
+  become: true
+  become_user: linuxgsm
