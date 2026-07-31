@@ -6,7 +6,6 @@
     password: "{{ linuxgsm_password | password_hash('sha512') }}"
     update_password: on_create
     expires: -1
-    append: true
     generate_ssh_key: false
     state: present
 
