@@ -1,0 +1,17 @@
+---
+- name: Issue Let's Encrypt cert and configure HTTPS
+  import_role:
+    name: certbot_ssl
+  vars:
+    webserver_stack: lamp
+
+- name: Add canonical host redirect to SSL vhost
+  lineinfile:
+    path: /etc/apache2/sites-available/microweber-le-ssl.conf
+    insertbefore: '^SSLCertificateFile'
+    regexp: "{{ item.regexp }}"
+    line: "{{ item.line }}"
+  loop:
+    - { regexp: '^RewriteCond ', line: "RewriteCond %{HTTP_HOST} !={{ _domain }}" }
+    - { regexp: '^RewriteRule ', line: "RewriteRule ^ https://{{ _domain }}%{REQUEST_URI} [R=permanent,L]" }
+  notify: Reload apache2
