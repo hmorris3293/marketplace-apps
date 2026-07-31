@@ -3,13 +3,21 @@
   user:
     name: linuxgsm
     shell: /bin/bash
-    groups: sudo
     password: "{{ linuxgsm_password | password_hash('sha512') }}"
     update_password: on_create
     expires: -1
     append: true
     generate_ssh_key: false
     state: present
+
+- name: Allow linuxgsm user to run apt only
+  copy:
+    dest: /etc/sudoers.d/linuxgsm
+    content: "linuxgsm ALL=(root) NOPASSWD: /usr/bin/apt, /usr/bin/apt-get\n"
+    owner: root
+    group: root
+    mode: '0440'
+    validate: 'visudo -cf %s'
 
 - name: Download linuxgsm script
   uri:

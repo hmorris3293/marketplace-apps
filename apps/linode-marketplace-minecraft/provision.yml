@@ -17,7 +17,7 @@
         insertafter: EOF
         path: group_vars/linode/vars
         line: |
-          linuxgsm_password: {{ lookup('password', '/dev/null length=25 chars=ascii_letters,digits') }}
+          linuxgsm_password: {{ lookup('password', '/dev/null length=45 chars=ascii_letters,digits') }}
 
     - name: Generating rcon password
       lineinfile:
