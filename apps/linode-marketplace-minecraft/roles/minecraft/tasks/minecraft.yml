@@ -33,11 +33,19 @@
   become: true
   become_user: linuxgsm
 
-- name: Create Minecraft systemd service
+- name: Create user systemd directory
+  file:
+    path: /home/linuxgsm/.config/systemd/user
+    state: directory
+    owner: linuxgsm
+    group: linuxgsm
+    mode: '0755'
+
+- name: Create Minecraft user systemd service
   copy:
-    dest: /etc/systemd/system/mcserver.service
-    owner: root
-    group: root
+    dest: /home/linuxgsm/.config/systemd/user/mcserver.service
+    owner: linuxgsm
+    group: linuxgsm
     mode: '0644'
     content: |
       [Unit]
@@ -46,8 +54,6 @@
 
       [Service]
       Type=forking
-      User=linuxgsm
-      Group=linuxgsm
       WorkingDirectory=/home/linuxgsm
       ExecStart=/home/linuxgsm/mcserver start
       ExecStop=/home/linuxgsm/mcserver stop
@@ -56,11 +62,16 @@
       RestartSec=15
 
       [Install]
-      WantedBy=multi-user.target
+      WantedBy=default.target
 
-- name: Enable and start Minecraft service
+- name: Enable and start Minecraft user service
   systemd:
     name: mcserver
+    scope: user
     enabled: true
     state: started
     daemon_reload: true
+  become: true
+  become_user: linuxgsm
+  environment:
+    XDG_RUNTIME_DIR: "/run/user/{{ linuxgsm_user.uid }}"
