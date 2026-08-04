@@ -1,0 +1,99 @@
+---
+- name: Install required packages for Akaunting
+  apt:
+    name:
+      - php-fpm
+      - php-cli
+      - php-bcmath
+      - php-curl
+      - php-gd
+      - php-intl
+      - php-mbstring
+      - php-xml
+      - php-zip
+      - php-mysql
+      - unzip
+    state: present
+    update_cache: true
+
+- name: Getting php version
+  shell:
+    cmd: "php -r \"echo PHP_MAJOR_VERSION.'.'.PHP_MINOR_VERSION;\""
+  register: php_version
+  changed_when: false
+
+- name: Disable cgi.fix_pathinfo in PHP-FPM
+  lineinfile:
+    path: "/etc/php/{{ php_version.stdout }}/fpm/php.ini"
+    regexp: '^;?cgi.fix_pathinfo='
+    line: cgi.fix_pathinfo=0
+  notify: Restart php-fpm
+
+- name: Create the web root directory
+  file:
+    path: "{{ akaunting_web_root }}"
+    state: directory
+    owner: www-data
+    group: www-data
+    mode: '0755'
+
+- name: Get latest Akaunting release details
+  uri:
+    url: https://api.github.com/repos/akaunting/akaunting/releases/latest
+    return_content: true
+  register: akaunting_release
+
+- name: Unarchive Akaunting into web root
+  unarchive:
+    src: "{{ akaunting_release.json.assets | selectattr('name', 'search', '-Stable.zip$') | map(attribute='browser_download_url') | first }}"
+    dest: "{{ akaunting_web_root }}"
+    remote_src: true
+    owner: www-data
+    group: www-data
+
+- name: Copy Akaunting .env.example to .env
+  copy:
+    src: "{{ akaunting_web_root }}/.env.example"
+    dest: "{{ akaunting_web_root }}/.env"
+    remote_src: true
+    owner: www-data
+    group: www-data
+    mode: '0640'
+
+- name: Set APP_URL to the deployment hostname
+  lineinfile:
+    path: "{{ akaunting_web_root }}/.env"
+    regexp: '^APP_URL='
+    line: "APP_URL=https://{{ _domain }}"
+
+- name: Run the Akaunting CLI installer
+  command: >-
+    php artisan install --no-interaction
+    --db-host=localhost --db-port=3306
+    --db-name={{ database_name }}
+    --db-username={{ database_user }}
+    --db-password={{ db_user_password }}
+    --db-prefix={{ akaunting_db_prefix }}
+    --company-name="{{ company_name }}"
+    --company-email="{{ admin_email }}"
+    --admin-email="{{ admin_email }}"
+    --admin-password={{ admin_user_password }}
+    --locale=en-US
+  args:
+    chdir: "{{ akaunting_web_root }}"
+  become: true
+  become_user: www-data
+  no_log: true
+
+- name: Mark the onboarding wizard as completed
+  community.mysql.mysql_query:
+    login_db: "{{ database_name }}"
+    login_user: root
+    login_unix_socket: /var/run/mysqld/mysqld.sock
+    query: "UPDATE {{ akaunting_db_prefix }}settings SET value = 1 WHERE company_id = 1 AND `key` = 'wizard.completed'"
+
+- name: Install the Akaunting scheduler cron
+  cron:
+    name: Akaunting scheduler
+    user: www-data
+    job: "php {{ akaunting_web_root }}/artisan schedule:run >> /dev/null 2>&1"

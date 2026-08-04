@@ -1,0 +1,9 @@
+---
+- name: Import database tasks
+  import_tasks: database.yml
+
+- name: Import Akaunting install tasks
+  import_tasks: install.yml
+
+- name: Import NGINX tasks
+  import_tasks: nginx.yml
