@@ -29,16 +29,16 @@
     creates: /var/lib/systemd/linger/linuxgsm
 
 - name: Configure user systemd environment for linuxgsm
-  blockinfile:
+  lineinfile:
     path: /home/linuxgsm/.bashrc
     create: true
     owner: linuxgsm
     group: linuxgsm
     mode: '0644'
-    marker: "# {mark} ANSIBLE MANAGED - systemd user session"
-    block: |
-      export XDG_RUNTIME_DIR=/run/user/$(id -u)
-      export DBUS_SESSION_BUS_ADDRESS=unix:path=${XDG_RUNTIME_DIR}/bus
+    line: "{{ item }}"
+  loop:
+    - "export XDG_RUNTIME_DIR=/run/user/$(id -u)"
+    - "export DBUS_SESSION_BUS_ADDRESS=unix:path=${XDG_RUNTIME_DIR}/bus"
 
 - name: Allow linuxgsm user to run apt only
   copy:
@@ -65,13 +65,8 @@
     url: "https://raw.githubusercontent.com/GameServerManagers/LinuxGSM/{{ linuxgsm_version }}/linuxgsm.sh"
     dest: /home/linuxgsm/linuxgsm.sh
     mode: '0755'
-
-- name: Chown homedir
-  file:
-    path: /home/linuxgsm
-    owner: linuxgsm
-    group: linuxgsm
-    recurse: true
+  become: true
+  become_user: linuxgsm
 
 - name: Install linuxgsm
   shell:
