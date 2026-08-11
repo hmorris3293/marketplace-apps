@@ -1,0 +1,34 @@
+---
+# Install Addons if requested
+- name: Add addons
+  import_role:
+    name: addons
+  when: add_ons != ['none']
+
+# Final system configurations and cleanup
+- name: Set up MOTD
+  template:
+    src: motd.j2
+    dest: /etc/motd
+    mode: '0600'
+    owner: "{{ username }}"
+    group: "{{ username }}"
+
+- name: Writing creds into file
+  copy:
+    dest: "/home/{{ username }}/.credentials"
+    mode: '0600'
+    owner: "{{ username }}"
+    group: "{{ username }}"
+    content: |
+      Sudo Username: {{ username }}
+      Sudo Password: {{ password }}
+      # Akaunting
+      Akaunting URL: https://{{ _domain }}
+      Akaunting Admin Email: {{ admin_email }}
+      Akaunting Admin Password: {{ admin_user_password }}
+      # Database
+      DB Root Password: {{ mysql_root_password }}
+      DB Name: {{ database_name }}
+      DB Username: {{ database_user }}
+      DB User Password: {{ db_user_password }}
