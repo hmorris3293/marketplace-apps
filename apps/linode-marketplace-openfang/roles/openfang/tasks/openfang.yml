@@ -13,12 +13,12 @@
   file:
     path: "{{ item }}"
     state: directory
-    owner: "{{ app_user }}"
-    group: "{{ app_user }}"
+    owner: "{{ username }}"
+    group: "{{ username }}"
     mode: '0755'
   loop:
     - "{{ openfang_bin_path }}"
-    - "{{ openfang_install_dir }}"
+    - "{{ openfang_data_dir }}"
 
 - name: Download OpenFang binary
   get_url:
@@ -27,24 +27,22 @@
     mode: '0644'
   retries: 3
   delay: 10
-  register: openfang_download
 
 - name: Extract OpenFang binary
   unarchive:
     src: "/tmp/openfang-{{ openfang_version }}.tar.gz"
     dest: "/tmp/"
     remote_src: true
-  when: openfang_download is changed
 
 - name: Install OpenFang binary
   copy:
     src: "/tmp/openfang"
     dest: "{{ openfang_bin_path }}/openfang"
     remote_src: true
-    owner: "{{ app_user }}"
-    group: "{{ app_user }}"
+    owner: "{{ username }}"
+    group: "{{ username }}"
     mode: '0755'
-  notify: restart openfang
+  notify: Restart openfang
 
 - name: Verify OpenFang binary works
   command: "{{ openfang_bin_path }}/openfang --version"
@@ -59,19 +57,19 @@
   template:
     src: openfang.toml.j2
     dest: "{{ openfang_config_path }}"
-    owner: "{{ app_user }}"
-    group: "{{ app_user }}"
+    owner: "{{ username }}"
+    group: "{{ username }}"
     mode: '0640'
-  notify: restart openfang
+  notify: Restart openfang
 
 - name: Initialize OpenFang database
   become: true
-  become_user: "{{ app_user }}"
+  become_user: "{{ username }}"
   command: "{{ openfang_bin_path }}/openfang init --config {{ openfang_config_path }} --quick"
   args:
-    chdir: "{{ openfang_install_dir }}"
+    chdir: "{{ openfang_data_dir }}"
   environment:
-    OPENFANG_HOME: "{{ openfang_install_dir }}"
+    OPENFANG_HOME: "{{ openfang_data_dir }}"
   register: openfang_init
   changed_when: "'created' in openfang_init.stdout.lower() or 'initialized' in openfang_init.stdout.lower()"
   ignore_errors: true
@@ -86,7 +84,7 @@
     src: openfang.service.j2
     dest: /etc/systemd/system/openfang.service
     mode: '0644'
-  notify: daemon reload
+  notify: Reload systemd daemon
 
 - name: Enable and start OpenFang service
   systemd_service:

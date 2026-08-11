@@ -1,4 +1,10 @@
 ---
-profile: production
 skip_list:
-  - name[template]
+  - command-instead-of-shell
+  - no-changed-when
+  - no-jinja-when
+  - fqcn-builtins
+exclude_paths:
+  - .cache/
+  - .github/
+  - tests/

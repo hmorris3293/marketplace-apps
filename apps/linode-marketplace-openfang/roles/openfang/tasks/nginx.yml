@@ -8,13 +8,13 @@
 - name: Create Nginx vhost configuration
   template:
     src: nginx-openfang.conf.j2
-    dest: /etc/nginx/sites-available/{{ openfang_domain }}
+    dest: /etc/nginx/sites-available/{{ _domain }}
     mode: '0644'
 
-- name: Enable vhost for {{ openfang_domain }}
+- name: Enable vhost for {{ _domain }}
   file:
-    src: /etc/nginx/sites-available/{{ openfang_domain }}
-    dest: /etc/nginx/sites-enabled/{{ openfang_domain }}
+    src: /etc/nginx/sites-available/{{ _domain }}
+    dest: /etc/nginx/sites-enabled/{{ _domain }}
     state: link
 
 - name: Disable Nginx default vhost
@@ -33,9 +33,4 @@
     name: certbot_ssl
   vars:
     webserver_stack: lemp
-    default_dns: "{{ openfang_domain }}"
-    soa_email_address: "{{ soa_email_address | default('admin@' ~ openfang_domain) }}"
-  when:
-    - openfang_enable_ssl | bool
-    - openfang_domain != 'localhost'
-  notify: restart nginx
+  notify: Restart nginx

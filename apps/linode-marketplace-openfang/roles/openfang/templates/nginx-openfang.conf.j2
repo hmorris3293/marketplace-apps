@@ -1,10 +1,10 @@
 upstream openfang {
-    server {{ openfang_api_listen }};
+    server {{ openfang_listen }};
 }
 
 server {
     listen 80;
-    server_name {{ openfang_domain }};
+    server_name {{ _domain }};
 
     location / {
         proxy_pass http://openfang;

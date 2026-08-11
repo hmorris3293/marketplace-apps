@@ -1,56 +1,68 @@
 ---
+# Set hostname
+- name: Setting up hostname
+  import_role:
+    name: hostname
+
+# write _domain to vars
+- name: Write _domain to vars
+  lineinfile:
+    insertafter: EOF
+    path: group_vars/linode/vars
+    line: |
+      _domain: {{ _domain }}
+  when: _domain is defined
+
+# dns creation
+- name: Create dns A record
+  import_role:
+    name: create_dns_record
+  when:
+    - token_password is defined
+    - default_dns is not defined
+
+# Set SSH public key
+- name: Set SSH public key
+  import_role:
+    name: sshkey
+
+- name: Disable root login
+  import_role:
+    name: securessh
+  when: disable_root is defined
+
+# apt_setup_update
 - name: Update system packages
-  apt:
-    update_cache: true
-    cache_valid_time: 3600
-  retries: 3
-  delay: 10
-  register: apt_update
-  until: apt_update is succeeded
+  import_role:
+    name: update_pkgs
+
+# ufw_install
+- name: Enabling ufw
+  import_role:
+    name: ufw
+
+# ufw rules
+- name: Apply ufw rules
+  import_tasks: ufw_rules.yml
+
+# fail2ban
+- name: Enabling fail2ban
+  import_role:
+    name: fail2ban_install
 
 - name: Install required system packages
   apt:
-    name:
-      - curl
-      - wget
-      - git
-      - jq
-      - python3-pip
+    name: "{{ packages }}"
+    state: present
+    update_cache: true
+  vars:
+    packages:
       - apt-transport-https
       - ca-certificates
       - software-properties-common
-    state: present
-  retries: 3
-  delay: 10
-  register: apt_install
-  until: apt_install is succeeded
-
-- name: Create application user
-  user:
-    name: "{{ app_user }}"
-    shell: /bin/bash
-    home: "/home/{{ app_user }}"
-    createhome: true
-    state: present
-
-- name: Create .ssh directory for user
-  file:
-    path: "/home/{{ app_user }}/.ssh"
-    state: directory
-    owner: "{{ app_user }}"
-    group: "{{ app_user }}"
-    mode: '0700'
-
-- name: Create application directories
-  file:
-    path: "{{ item }}"
-    state: directory
-    owner: "{{ app_user }}"
-    group: "{{ app_user }}"
-    mode: '0755'
-  loop:
-    - "{{ app_home }}"
-    - "{{ app_data_dir }}"
+      - curl
+      - tar
+      - jq
 
 # ufw_install
 - name: Enabling ufw

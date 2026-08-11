@@ -1,51 +1,19 @@
 ---
-- name: OpenFang Provision
+- name: Setting up environment
   hosts: localhost
   connection: local
-  gather_facts: false
-
-  vars:
-    app_name: openfang
-    app_user: "{{ username | default('linode') }}"
-
+  any_errors_fatal: true
+  user: root
+  vars_files: [group_vars/linode/vars]
   tasks:
-    - name: Generate secure API key for OpenFang
-      set_fact:
-        openfang_api_key: "{{ lookup('password', '/dev/null chars=ascii_letters,digits,punctuation length=32') }}"
+    # generate creds
+    - name: Generating sudo user and password
+      import_tasks: ../linode_helpers/roles/sudouser/tasks/main.yml
 
-    - name: Generate secure database password
-      set_fact:
-        openfang_db_password: "{{ lookup('password', '/dev/null chars=ascii_letters,digits length=32') }}"
-
-    - name: Create group_vars file with variables
-      copy:
-        content: |
-          ---
-          app_name: openfang
-          app_user: "{{ app_user }}"
-          app_home: "/home/{{ app_user }}/{{ app_name }}"
-          app_data_dir: "/home/{{ app_user }}/{{ app_name }}_data"
-          openfang_version: "0.6.9"
-          openfang_api_key: "{{ openfang_api_key }}"
-          openfang_api_port: 4200
-          openfang_domain: "{{ domain | default('localhost') }}"
-          openfang_enable_ssl: true
-          openfang_db_password: "{{ openfang_db_password }}"
-        dest: group_vars/linode/vars
-        mode: '0644'
-
-    - name: Display deployment information
-      debug:
-        msg: |
-          OpenFang Provision Complete
-          ==========================
-          App Name: {{ app_name }}
-          App User: {{ app_user }}
-          App Home: /home/{{ app_user }}/{{ app_name }}
-          API Key: {{ openfang_api_key }}
-          Domain: {{ domain | default('localhost') }}
-
-          Next steps:
-          1. Run site.yml to deploy the application
-          2. Access dashboard at https://{{ domain | default('localhost') }}/
-          3. Login with API key: {{ openfang_api_key }}
+    - name: Generate OpenFang API key and database password
+      lineinfile:
+        insertafter: EOF
+        path: group_vars/linode/vars
+        line: |
+          openfang_api_key: {{ lookup('password', '/dev/null length=32 chars=ascii_letters,digits') }}
+          openfang_db_password: {{ lookup('password', '/dev/null length=32 chars=ascii_letters,digits') }}

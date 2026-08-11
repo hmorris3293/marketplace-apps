@@ -2,14 +2,17 @@
 # OpenFang default variables
 openfang_version: "0.6.9"
 openfang_release_url: "https://github.com/RightNow-AI/openfang/releases"
-openfang_bin_path: "/opt/openfang/bin"
-openfang_install_dir: "{{ app_data_dir }}"
-openfang_config_path: "{{ app_data_dir }}/config.toml"
+
+# Install paths (owned by the sudo user)
+openfang_user: "{{ username }}"
+openfang_base_dir: "/opt/openfang"
+openfang_bin_path: "{{ openfang_base_dir }}/bin"
+openfang_data_dir: "{{ openfang_base_dir }}/data"
+openfang_config_path: "{{ openfang_data_dir }}/config.toml"
+
+# API / networking
 openfang_api_port: 4200
 openfang_listen: "127.0.0.1:{{ openfang_api_port }}"
-openfang_api_listen: "{{ openfang_listen }}"
-openfang_domain: "{{ domain | default('localhost') }}"
-openfang_enable_ssl: true
 
 # LLM provider configuration
 openfang_default_provider: "openai"
