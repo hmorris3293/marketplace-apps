@@ -11,6 +11,14 @@
     dest: /etc/nginx/sites-available/{{ _domain }}
     mode: '0644'
 
+- name: Add OpenFang htpasswd to protect dashboard
+  copy:
+    content: "{{ openfang_htpasswd_user }}:{{ openfang_htpasswd }}\n"
+    dest: "{{ openfang_htpasswd_file }}"
+    mode: '0640'
+    owner: root
+    group: www-data
+
 - name: Enable vhost for {{ _domain }}
   file:
     src: /etc/nginx/sites-available/{{ _domain }}

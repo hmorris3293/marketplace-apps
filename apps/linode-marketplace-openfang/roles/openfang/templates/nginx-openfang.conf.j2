@@ -7,6 +7,10 @@ server {
     server_name {{ _domain }};
 
     location / {
+        # Protect dashboard with basic auth (outer layer; the app keeps its own API auth)
+        auth_basic "Restricted Access";
+        auth_basic_user_file {{ openfang_htpasswd_file }};
+
         proxy_pass http://openfang;
 
         # Set necessary headers

@@ -25,6 +25,7 @@
       Sudo Password: {{ password }}
 
       OpenFang URL: https://{{ _domain }}/
+      Dashboard Login (nginx basic auth): {{ username }} / {{ htaccess_password }}
       OpenFang API Bearer Token: {{ openfang_api_key }}
 
       # Add an LLM provider key to /etc/default/openfang, then restart: systemctl restart openfang
