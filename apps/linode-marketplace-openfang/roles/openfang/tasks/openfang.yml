@@ -20,7 +20,9 @@
     mode: '0755'
   loop:
     - "{{ openfang_bin_path }}"
+    - "{{ openfang_home }}"
     - "{{ openfang_data_dir }}"
+    - "{{ openfang_agents_dir }}"
 
 - name: Download OpenFang binary
   get_url:
@@ -78,23 +80,6 @@
     src: openfang_env.sh.j2
     dest: /etc/profile.d/openfang.sh
     mode: '0755'
-
-- name: Initialize OpenFang database
-  become: true
-  become_user: "{{ username }}"
-  command: "{{ openfang_bin_path }}/openfang init --config {{ openfang_config_path }} --quick"
-  args:
-    chdir: "{{ openfang_data_dir }}"
-  environment:
-    OPENFANG_HOME: "{{ openfang_data_dir }}"
-  register: openfang_init
-  changed_when: "'created' in openfang_init.stdout.lower() or 'initialized' in openfang_init.stdout.lower()"
-  ignore_errors: true
-
-- name: Display OpenFang init result
-  debug:
-    msg: "{{ openfang_init.stdout }}"
-  when: openfang_init.stdout is defined
 
 - name: Create OpenFang systemd service
   template:

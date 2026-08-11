@@ -8,10 +8,8 @@ Wants=network-online.target
 Type=simple
 User={{ username }}
 Group={{ username }}
-WorkingDirectory={{ openfang_data_dir }}
+WorkingDirectory={{ openfang_home }}
 EnvironmentFile=-{{ openfang_env_file }}
-Environment="OPENFANG_HOME={{ openfang_data_dir }}"
-Environment="OPENFANG_LISTEN=127.0.0.1:{{ openfang_api_port }}"
 ExecStart={{ openfang_bin_path }}/openfang start
 ExecReload=/bin/kill -HUP $MAINPID
 KillMode=on-abort

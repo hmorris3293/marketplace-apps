@@ -1,5 +1,4 @@
 # OpenFang environment for interactive shells.
-# Lets `openfang doctor` (and other manual commands) find the deployment's
-# home, config, and .env without passing flags.
-export OPENFANG_HOME="{{ openfang_data_dir }}"
+# Puts the OpenFang binary on PATH so `openfang doctor` and other commands
+# work directly. OpenFang reads its config from the running user's ~/.openfang.
 export PATH="{{ openfang_bin_path }}:$PATH"

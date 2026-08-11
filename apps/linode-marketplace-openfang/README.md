@@ -40,10 +40,12 @@ Then browse to `http://127.0.0.1:4200`. The API Bearer token and sudo credential
 
 ### LLM Provider Setup
 
-Provider API keys are supplied through the service environment file. Add your keys to `/etc/default/openfang`, then restart the service:
+Configure your LLM provider from the OpenFang dashboard, or supply keys through
+the OpenFang environment file. Add your keys to `~/.openfang/.env`, then restart
+the service:
 
 ```bash
-sudo tee -a /etc/default/openfang <<'EOF'
+tee -a ~/.openfang/.env <<'EOF'
 OPENAI_API_KEY=sk-...
 ANTHROPIC_API_KEY=sk-ant-...
 GROQ_API_KEY=gsk_...
@@ -53,10 +55,10 @@ sudo systemctl restart openfang
 
 ### Application config
 
-The OpenFang config lives at `/opt/openfang/data/config.toml`:
+The OpenFang config lives at `~/.openfang/config.toml`:
 
 ```bash
-sudo nano /opt/openfang/data/config.toml
+nano ~/.openfang/config.toml
 sudo systemctl restart openfang
 ```
 
