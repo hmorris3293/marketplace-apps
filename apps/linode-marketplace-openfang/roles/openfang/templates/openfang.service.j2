@@ -10,6 +10,7 @@ User={{ username }}
 Group={{ username }}
 WorkingDirectory={{ openfang_home }}
 EnvironmentFile=-{{ openfang_env_file }}
+Environment="OPENFANG_HOME={{ openfang_home }}"
 ExecStart={{ openfang_bin_path }}/openfang start
 ExecReload=/bin/kill -HUP $MAINPID
 KillMode=on-abort
