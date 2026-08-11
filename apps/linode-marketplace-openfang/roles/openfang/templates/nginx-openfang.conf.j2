@@ -13,6 +13,10 @@ server {
 
         proxy_pass http://openfang;
 
+        # Hide the app's own 401 challenge so it doesn't re-trigger the browser
+        # basic-auth prompt (would otherwise loop the outer login forever).
+        proxy_hide_header WWW-Authenticate;
+
         # Set necessary headers
         proxy_set_header Host $host;
         proxy_set_header X-Real-IP $remote_addr;
