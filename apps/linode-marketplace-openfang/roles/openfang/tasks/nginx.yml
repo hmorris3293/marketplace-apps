@@ -1,102 +1,41 @@
 ---
-- name: Install NGINX
+- name: Install Nginx
   apt:
     name: nginx
     state: present
-  retries: 3
-  delay: 10
+    update_cache: true
 
-- name: Create NGINX reverse proxy configuration
+- name: Create Nginx vhost configuration
   template:
     src: nginx-openfang.conf.j2
-    dest: "/etc/nginx/sites-available/{{ openfang_domain }}"
+    dest: /etc/nginx/sites-available/{{ openfang_domain }}
     mode: '0644'
-  notify: restart nginx
 
-- name: Enable NGINX site
+- name: Enable vhost for {{ openfang_domain }}
   file:
-    src: "/etc/nginx/sites-available/{{ openfang_domain }}"
-    dest: "/etc/nginx/sites-enabled/{{ openfang_domain }}"
+    src: /etc/nginx/sites-available/{{ openfang_domain }}
+    dest: /etc/nginx/sites-enabled/{{ openfang_domain }}
     state: link
-  notify: restart nginx
 
-- name: Remove default NGINX site
+- name: Disable Nginx default vhost
   file:
     path: /etc/nginx/sites-enabled/default
     state: absent
-  notify: restart nginx
 
-- name: Test NGINX configuration
-  command: nginx -t
-  changed_when: false
-
-- name: Enable and start NGINX
+- name: Enable and start Nginx
   systemd_service:
     name: nginx
     state: started
     enabled: true
-    daemon_reload: true
 
-- name: Install Certbot
-  apt:
-    name:
-      - certbot
-      - python3-certbot-nginx
-    state: present
-  retries: 3
-  delay: 10
+- name: Install SSL certificate
+  import_role:
+    name: certbot_ssl
+  vars:
+    webserver_stack: lemp
+    default_dns: "{{ openfang_domain }}"
+    soa_email_address: "{{ soa_email_address | default('admin@' ~ openfang_domain) }}"
   when:
     - openfang_enable_ssl | bool
     - openfang_domain != 'localhost'
-
-- name: Check if SSL certificate exists
-  stat:
-    path: "/etc/letsencrypt/live/{{ openfang_domain }}/fullchain.pem"
-  register: ssl_cert
-
-- name: Generate Let's Encrypt certificate
-  command: "certbot certonly --nginx -n --agree-tos -m admin@{{ openfang_domain }} -d {{ openfang_domain }}"
-  when:
-    - not ssl_cert.stat.exists
-    - openfang_enable_ssl | bool
-    - openfang_domain != 'localhost'
-  register: certbot_result
-  changed_when: "'Successfully received certificate' in certbot_result.stdout | default('')"
-  failed_when: false
-
-- name: Re-check SSL certificate after Certbot
-  stat:
-    path: "/etc/letsencrypt/live/{{ openfang_domain }}/fullchain.pem"
-  register: ssl_cert
-
-- name: Update NGINX configuration with SSL
-  template:
-    src: nginx-openfang-ssl.conf.j2
-    dest: "/etc/nginx/sites-available/{{ openfang_domain }}"
-    mode: '0644'
-  when: ssl_cert.stat.exists
   notify: restart nginx
-
-- name: Reload NGINX configuration
-  systemd_service:
-    name: nginx
-    state: reloaded
-  when: ssl_cert.stat.exists
-
-- name: Configure firewall rules
-  # OpenFang's API port is intentionally NOT opened; it binds to loopback and
-  # is reached only through the NGINX proxy on 80/443.
-  community.general.ufw:
-    rule: allow
-    port: "{{ item }}"
-    proto: tcp
-  loop:
-    - "22"     # SSH
-    - "80"     # HTTP (Let's Encrypt challenge + redirect)
-    - "443"    # HTTPS
-
-- name: Enable UFW
-  community.general.ufw:
-    state: enabled
-    policy: deny
-    direction: incoming

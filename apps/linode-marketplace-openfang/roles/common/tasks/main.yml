@@ -51,3 +51,12 @@
   loop:
     - "{{ app_home }}"
     - "{{ app_data_dir }}"
+
+# ufw_install
+- name: Enabling ufw
+  import_role:
+    name: ufw
+
+# ufw rules
+- name: Apply ufw rules
+  import_tasks: ufw_rules.yml
