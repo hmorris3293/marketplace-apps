@@ -33,5 +33,6 @@
 
       OpenFang API Bearer Token: {{ openfang_api_key }}
 
-      # Add an LLM provider key to /etc/default/openfang, then restart: systemctl restart openfang
+      # Log in over SSH to run the LLM onboarding prompt, or set a provider key
+      # manually in /opt/openfang/data/.env, then: systemctl restart openfang
       #   e.g. OPENAI_API_KEY=... (also ANTHROPIC_API_KEY, GROQ_API_KEY)

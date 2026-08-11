@@ -5,6 +5,8 @@
       - curl
       - tar
       - ca-certificates
+      - rustc
+      - cargo
     state: present
   retries: 3
   delay: 10
@@ -61,6 +63,21 @@
     group: "{{ username }}"
     mode: '0640'
   notify: Restart openfang
+
+- name: Create OpenFang env file
+  copy:
+    content: ""
+    dest: "{{ openfang_env_file }}"
+    owner: "{{ username }}"
+    group: "{{ username }}"
+    mode: '0600'
+    force: false
+
+- name: Add OpenFang environment for interactive shells
+  template:
+    src: openfang_env.sh.j2
+    dest: /etc/profile.d/openfang.sh
+    mode: '0755'
 
 - name: Initialize OpenFang database
   become: true

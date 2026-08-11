@@ -9,7 +9,7 @@ Type=simple
 User={{ username }}
 Group={{ username }}
 WorkingDirectory={{ openfang_data_dir }}
-EnvironmentFile=-/etc/default/openfang
+EnvironmentFile=-{{ openfang_env_file }}
 Environment="OPENFANG_HOME={{ openfang_data_dir }}"
 Environment="OPENFANG_LISTEN=127.0.0.1:{{ openfang_api_port }}"
 ExecStart={{ openfang_bin_path }}/openfang start
