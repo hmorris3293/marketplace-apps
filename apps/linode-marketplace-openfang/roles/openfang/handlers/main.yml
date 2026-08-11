@@ -7,8 +7,3 @@
 - name: Reload systemd daemon
   systemd_service:
     daemon_reload: true
-
-- name: Restart nginx
-  systemd_service:
-    name: nginx
-    state: restarted

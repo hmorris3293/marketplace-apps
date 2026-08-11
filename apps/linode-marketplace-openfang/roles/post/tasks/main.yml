@@ -24,8 +24,13 @@
       Sudo Username: {{ username }}
       Sudo Password: {{ password }}
 
-      OpenFang URL: https://{{ _domain }}/
-      Dashboard Login (nginx basic auth): {{ username }} / {{ htaccess_password }}
+      OpenFang listens on 127.0.0.1:{{ openfang_api_port }} (loopback only) and
+      is reached over an SSH tunnel - no public web port is exposed.
+
+      Dashboard access (run locally):
+        ssh -L {{ openfang_api_port }}:127.0.0.1:{{ openfang_api_port }} {{ username }}@{{ _domain }}
+      Then browse to: http://127.0.0.1:{{ openfang_api_port }}
+
       OpenFang API Bearer Token: {{ openfang_api_key }}
 
       # Add an LLM provider key to /etc/default/openfang, then restart: systemctl restart openfang

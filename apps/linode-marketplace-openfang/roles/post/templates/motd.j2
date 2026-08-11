@@ -1,7 +1,15 @@
 *********************************************************
 Akamai Connected Cloud OpenFang Quick Deploy App
-App URL: https://{{ _domain }}
+Dashboard Access: SSH tunnel required (see details below)
 Credentials File: /home/{{ username }}/.credentials
 Documentation: https://openfang.sh/docs/
 *********************************************************
+
+OpenFang listens on 127.0.0.1 only. To reach the dashboard, open an SSH
+tunnel from your local machine:
+
+  ssh -L {{ openfang_api_port }}:127.0.0.1:{{ openfang_api_port }} {{ username }}@{{ _domain }}
+
+Then browse to: http://127.0.0.1:{{ openfang_api_port }}
+
 To delete this message of the day: rm /etc/motd
