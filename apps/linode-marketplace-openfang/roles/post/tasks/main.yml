@@ -1,21 +1,31 @@
 ---
-- name: Install requested add-ons
+# Install Addons if requested
+- name: Add addons
   import_role:
     name: addons
   when: add_ons != ['none']
 
+# motd and creds gen
 - name: Copy MOTD template to /etc/motd
   template:
     src: templates/motd.j2
     dest: /etc/motd
     mode: '0600'
-    owner: "{{ username }}"
-    group: "{{ username }}"
+    owner: '{{ username }}'
+    group: '{{ username }}'
 
-- name: Create credentials file for user
-  template:
-    src: credentials.j2
-    dest: "/home/{{ username }}/.credentials"
-    owner: "{{ username }}"
-    group: "{{ username }}"
+- name: Writing sudo creds into file
+  copy:
+    dest: '/home/{{ username }}/.credentials'
     mode: '0600'
+    owner: '{{ username }}'
+    group: '{{ username }}'
+    content: |
+      Sudo Username: {{ username }}
+      Sudo Password: {{ password }}
+
+      OpenFang URL: https://{{ _domain }}/
+      OpenFang API Bearer Token: {{ openfang_api_key }}
+
+      # Add an LLM provider key to /etc/default/openfang, then restart: systemctl restart openfang
+      #   e.g. OPENAI_API_KEY=... (also ANTHROPIC_API_KEY, GROQ_API_KEY)
