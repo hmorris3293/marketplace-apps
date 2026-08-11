@@ -8,8 +8,8 @@ Documentation: https://openfang.sh/docs/
 OpenFang listens on 127.0.0.1 only. To reach the dashboard, open an SSH
 tunnel from your local machine:
 
-  ssh -L {{ openfang_api_port }}:127.0.0.1:{{ openfang_api_port }} {{ username }}@{{ _domain }}
+  ssh -L 4200:127.0.0.1:4200 {{ username }}@{{ _domain }}
 
-Then browse to: http://127.0.0.1:{{ openfang_api_port }}
+Then browse to: http://127.0.0.1:4200
 
 To delete this message of the day: rm /etc/motd

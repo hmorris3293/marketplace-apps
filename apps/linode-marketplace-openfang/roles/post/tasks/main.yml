@@ -24,12 +24,12 @@
       Sudo Username: {{ username }}
       Sudo Password: {{ password }}
 
-      OpenFang listens on 127.0.0.1:{{ openfang_api_port }} (loopback only) and
-      is reached over an SSH tunnel - no public web port is exposed.
+      OpenFang listens on 127.0.0.1:4200 (loopback only) and is reached over an
+      SSH tunnel - no public web port is exposed.
 
       Dashboard access (run locally):
-        ssh -L {{ openfang_api_port }}:127.0.0.1:{{ openfang_api_port }} {{ username }}@{{ _domain }}
-      Then browse to: http://127.0.0.1:{{ openfang_api_port }}
+        ssh -L 4200:127.0.0.1:4200 {{ username }}@{{ _domain }}
+      Then browse to: http://127.0.0.1:4200
 
       OpenFang API Bearer Token: {{ openfang_api_key }}
 
