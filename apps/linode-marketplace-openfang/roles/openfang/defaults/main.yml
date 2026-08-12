@@ -9,19 +9,10 @@ openfang_bin_path: "/opt/openfang/bin"
 openfang_home: "/home/{{ username }}/.openfang"
 openfang_data_dir: "{{ openfang_home }}/data"
 openfang_agents_dir: "{{ openfang_home }}/agents"
-openfang_config_path: "{{ openfang_home }}/config.toml"
 openfang_env_file: "{{ openfang_home }}/.env"
 
 # API / networking
-openfang_api_port: 4200
-openfang_listen: "127.0.0.1:{{ openfang_api_port }}"
+openfang_listen: "127.0.0.1:4200"
 
 # First-login onboarding
 openfang_onboarding_script: /etc/profile.d/openfang_onboarding.sh
-
-# Node.js runtime (for OpenFang Node skills)
-openfang_nodejs_version: "22.x"
-
-# LLM provider configuration
-openfang_default_provider: "openai"
-openfang_default_model: "gpt-4-turbo"

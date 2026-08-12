@@ -2,8 +2,5 @@
 - name: Import OpenFang tasks
   import_tasks: openfang.yml
 
-- name: Install Node.js runtime
-  import_tasks: nodejs.yml
-
 - name: Configure first-login onboarding
   import_tasks: onboarding.yml

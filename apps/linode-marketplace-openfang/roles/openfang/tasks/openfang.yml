@@ -1,10 +1,4 @@
 ---
-- name: Enforce operating system guardrail (Ubuntu only)
-  assert:
-    that:
-      - ansible_distribution == 'Ubuntu'
-    fail_msg: "This playbook strictly requires Ubuntu."
-
 - name: Install system dependencies
   apt:
     name:
@@ -56,12 +50,6 @@
   become: true
   become_user: "{{ username }}"
 
-- name: Ensure the OpenFang binary was found
-  assert:
-    that:
-      - openfang_binary.matched > 0
-    fail_msg: "Failed to locate the 'openfang' binary inside the downloaded release archive."
-
 - name: Install OpenFang binary
   copy:
     src: "{{ openfang_binary.files[0].path }}"
@@ -86,18 +74,9 @@
   register: openfang_version_check
   changed_when: false
 
-- name: Create OpenFang config.toml
-  template:
-    src: openfang.toml.j2
-    dest: "{{ openfang_config_path }}"
-    owner: "{{ username }}"
-    group: "{{ username }}"
-    mode: '0640'
-  notify: Restart openfang
-
-- name: Create OpenFang env file
+- name: Create OpenFang env file with API key
   copy:
-    content: ""
+    content: "OPENFANG_API_KEY={{ openfang_api_key }}\n"
     dest: "{{ openfang_env_file }}"
     owner: "{{ username }}"
     group: "{{ username }}"
@@ -127,6 +106,6 @@
 - name: Wait for OpenFang API to be ready
   wait_for:
     host: 127.0.0.1
-    port: "{{ openfang_api_port }}"
+    port: 4200
     timeout: 120
     delay: 2
