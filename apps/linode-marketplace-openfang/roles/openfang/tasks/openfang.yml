@@ -69,11 +69,6 @@
   become: true
   become_user: "{{ username }}"
 
-- name: Verify OpenFang binary works
-  command: "{{ openfang_bin_path }}/openfang --version"
-  register: openfang_version_check
-  changed_when: false
-
 - name: Create OpenFang env file with API key
   copy:
     content: "OPENFANG_API_KEY={{ openfang_api_key }}\n"
