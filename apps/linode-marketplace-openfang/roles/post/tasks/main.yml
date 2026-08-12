@@ -33,7 +33,7 @@
 
       OpenFang API Bearer Token: {{ openfang_api_key }}
 
-      # Configure your LLM provider from the OpenFang dashboard, or add a
-      # provider key to /home/{{ username }}/.openfang/.env and then run:
-      #   systemctl restart openfang
-      #   e.g. OPENAI_API_KEY=... (also ANTHROPIC_API_KEY, GROQ_API_KEY)
+      # Configure your LLM provider with the interactive `openfang init` wizard,
+      # which runs automatically on your first login as root. You can also run it
+      # manually at any time (as {{ username }}): openfang init
+      # After changing providers/keys, apply them with: systemctl restart openfang

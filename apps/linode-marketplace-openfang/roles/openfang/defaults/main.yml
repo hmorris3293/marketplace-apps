@@ -1,11 +1,9 @@
 ---
 # OpenFang default variables
-openfang_version: "0.6.9"
 openfang_release_url: "https://github.com/RightNow-AI/openfang/releases"
 
 # Binary install path (system-wide)
-openfang_base_dir: "/opt/openfang"
-openfang_bin_path: "{{ openfang_base_dir }}/bin"
+openfang_bin_path: "/opt/openfang/bin"
 
 # OpenFang home (fixed layout OpenFang expects: ~/.openfang for the run user)
 openfang_home: "/home/{{ username }}/.openfang"
@@ -18,14 +16,12 @@ openfang_env_file: "{{ openfang_home }}/.env"
 openfang_api_port: 4200
 openfang_listen: "127.0.0.1:{{ openfang_api_port }}"
 
+# First-login onboarding
+openfang_onboarding_script: /etc/profile.d/openfang_onboarding.sh
+
 # Node.js runtime (for OpenFang Node skills)
 openfang_nodejs_version: "22.x"
 
 # LLM provider configuration
 openfang_default_provider: "openai"
 openfang_default_model: "gpt-4-turbo"
-
-# System detection for binary download
-openfang_target_os: >-
-  {{ 'x86_64-unknown-linux-gnu' if ansible_architecture == 'x86_64'
-     else 'aarch64-unknown-linux-gnu' }}

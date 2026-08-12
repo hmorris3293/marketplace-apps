@@ -1,4 +1,10 @@
 ---
+- name: Enforce operating system guardrail (Ubuntu only)
+  assert:
+    that:
+      - ansible_distribution == 'Ubuntu'
+    fail_msg: "This playbook strictly requires Ubuntu."
+
 - name: Install system dependencies
   apt:
     name:
@@ -8,8 +14,6 @@
       - rustc
       - cargo
     state: present
-  retries: 3
-  delay: 10
 
 - name: Create OpenFang directories
   file:
@@ -24,38 +28,63 @@
     - "{{ openfang_data_dir }}"
     - "{{ openfang_agents_dir }}"
 
-- name: Download OpenFang binary
-  get_url:
-    url: "{{ openfang_release_url }}/download/v{{ openfang_version }}/openfang-{{ openfang_target_os }}.tar.gz"
-    dest: "/tmp/openfang-{{ openfang_version }}.tar.gz"
-    mode: '0644'
-  retries: 3
-  delay: 10
+- name: Create secure temporary directory for download
+  tempfile:
+    state: directory
+    suffix: openfang
+  register: openfang_temp
+  become: true
+  become_user: "{{ username }}"
 
-- name: Extract OpenFang binary
+- name: Download and unpack OpenFang release archive
   unarchive:
-    src: "/tmp/openfang-{{ openfang_version }}.tar.gz"
-    dest: "/tmp/"
+    src: "{{ openfang_release_url }}/latest/download/openfang-x86_64-unknown-linux-gnu.tar.gz"
+    dest: "{{ openfang_temp.path }}"
     remote_src: true
+    owner: "{{ username }}"
+    group: "{{ username }}"
+  become: true
+  become_user: "{{ username }}"
+
+- name: Locate extracted OpenFang binary
+  find:
+    paths: "{{ openfang_temp.path }}"
+    patterns: openfang
+    file_type: file
+    recurse: true
+  register: openfang_binary
+  become: true
+  become_user: "{{ username }}"
+
+- name: Ensure the OpenFang binary was found
+  assert:
+    that:
+      - openfang_binary.matched > 0
+    fail_msg: "Failed to locate the 'openfang' binary inside the downloaded release archive."
 
 - name: Install OpenFang binary
   copy:
-    src: "/tmp/openfang"
+    src: "{{ openfang_binary.files[0].path }}"
     dest: "{{ openfang_bin_path }}/openfang"
     remote_src: true
     owner: "{{ username }}"
     group: "{{ username }}"
     mode: '0755'
+  become: true
+  become_user: "{{ username }}"
   notify: Restart openfang
+
+- name: Clean up download artifacts
+  file:
+    path: "{{ openfang_temp.path }}"
+    state: absent
+  become: true
+  become_user: "{{ username }}"
 
 - name: Verify OpenFang binary works
   command: "{{ openfang_bin_path }}/openfang --version"
   register: openfang_version_check
   changed_when: false
-
-- name: Display OpenFang version
-  debug:
-    msg: "OpenFang installed: {{ openfang_version_check.stdout }}"
 
 - name: Create OpenFang config.toml
   template:
@@ -101,11 +130,3 @@
     port: "{{ openfang_api_port }}"
     timeout: 120
     delay: 2
-
-- name: Cleanup temporary files
-  file:
-    path: "/tmp/openfang{{ item }}"
-    state: absent
-  loop:
-    - ""
-    - "-{{ openfang_version }}.tar.gz"
