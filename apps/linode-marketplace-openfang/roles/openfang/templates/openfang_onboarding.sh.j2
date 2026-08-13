@@ -12,8 +12,8 @@ while true; do
 	if [[ "$answer" =~ ^[Yy]$ ]]; then
 		echo "[***] Launching 'openfang init' as {{ username }}."
 		runuser -u {{ username }} -- \
-			env OPENFANG_HOME="{{ openfang_home }}" PATH="{{ openfang_bin_path }}:$PATH" \
-			openfang init
+			env OPENFANG_HOME="{{ openfang_home }}" \
+			{{ openfang_bin_path }}/openfang init
 		onboard_rc=$?
 
 		if [ "$onboard_rc" -eq 0 ]; then

@@ -78,11 +78,17 @@
     mode: '0600'
     force: false
 
-- name: Add OpenFang environment for interactive shells
-  template:
-    src: openfang_env.sh.j2
-    dest: /etc/profile.d/openfang.sh
-    mode: '0755'
+- name: Add OpenFang environment to the sudo user's shell
+  blockinfile:
+    path: "/home/{{ username }}/.bashrc"
+    marker: "# {mark} OPENFANG ENVIRONMENT"
+    block: |
+      export OPENFANG_HOME="{{ openfang_home }}"
+      export PATH="{{ openfang_bin_path }}:$PATH"
+    owner: "{{ username }}"
+    group: "{{ username }}"
+    create: true
+    mode: '0644'
 
 - name: Create OpenFang systemd service
   template:

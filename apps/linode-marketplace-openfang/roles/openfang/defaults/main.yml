@@ -2,7 +2,7 @@
 # OpenFang default variables
 openfang_release_url: "https://github.com/RightNow-AI/openfang/releases"
 
-# Binary install path (system-wide)
+# Binary install path (owned by and scoped to the sudo user)
 openfang_bin_path: "/opt/openfang/bin"
 
 # OpenFang home (fixed layout OpenFang expects: ~/.openfang for the run user)
