@@ -162,29 +162,12 @@ journalctl -u openfang -f
 sudo systemctl restart openfang
 ```
 
-### API Access
-
-Run these from a shell on the instance, or through the SSH tunnel from your local machine (using `127.0.0.1`):
-
-```bash
-# Test health endpoint
-curl -H "Authorization: Bearer YOUR_API_KEY" http://127.0.0.1:4200/health
-
-# List agents
-curl -H "Authorization: Bearer YOUR_API_KEY" http://127.0.0.1:4200/v1/agents
-
-# Activate a Hand
-curl -X POST -H "Authorization: Bearer YOUR_API_KEY" \
-  http://127.0.0.1:4200/v1/hands/activate \
-  -d '{"name": "researcher"}'
-```
-
 ## Monitoring
 
 OpenFang logs are managed by systemd:
 
 ```bash
-journalctl -u openfang -f
+journalctl -fu openfang 
 ```
 
 ## Security
