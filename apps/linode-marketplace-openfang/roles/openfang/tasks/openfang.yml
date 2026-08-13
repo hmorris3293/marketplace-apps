@@ -5,8 +5,6 @@
       - curl
       - tar
       - ca-certificates
-      - rustc
-      - cargo
     state: present
 
 - name: Create OpenFang directories

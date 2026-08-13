@@ -10,10 +10,9 @@
     - name: Generating sudo user and password
       import_tasks: ../linode_helpers/roles/sudouser/tasks/main.yml
 
-    - name: Generate OpenFang API key and database password
+    - name: Generate OpenFang API key
       lineinfile:
         insertafter: EOF
         path: group_vars/linode/vars
         line: |
           openfang_api_key: {{ lookup('password', '/dev/null length=32 chars=ascii_letters,digits') }}
-          openfang_db_password: {{ lookup('password', '/dev/null length=32 chars=ascii_letters,digits') }}
