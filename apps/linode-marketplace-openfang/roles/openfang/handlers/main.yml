@@ -1,0 +1,6 @@
+---
+- name: Restart openfang
+  systemd_service:
+    name: openfang
+    state: restarted
+
