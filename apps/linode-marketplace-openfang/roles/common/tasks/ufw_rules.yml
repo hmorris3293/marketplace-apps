@@ -1,6 +1,4 @@
 ---
-# OpenFang binds to 127.0.0.1 and is reached only through an SSH tunnel, so no
-# application port is exposed publicly. Only SSH is opened.
 - name: Configure SSH UFW rule
   community.general.ufw:
     rule: allow

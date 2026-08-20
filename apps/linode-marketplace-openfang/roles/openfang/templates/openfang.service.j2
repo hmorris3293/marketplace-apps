@@ -6,8 +6,6 @@ Wants=network-online.target
 
 [Service]
 Type=simple
-User={{ username }}
-Group={{ username }}
 WorkingDirectory={{ openfang_home }}
 EnvironmentFile=-{{ openfang_env_file }}
 Environment="OPENFANG_HOME={{ openfang_home }}"
@@ -17,20 +15,10 @@ Restart=on-failure
 RestartSec=10s
 TimeoutStopSec=30
 
-# Security hardening (adapted from upstream: OpenFang's data lives under the run
-# user's home, so ProtectHome is disabled and {{ openfang_home }} is the only
-# path the daemon may write to)
+# User-supported security hardening
 NoNewPrivileges=true
-ProtectSystem=strict
-ProtectHome=false
-ReadWritePaths={{ openfang_home }}
-PrivateTmp=true
-ProtectKernelTunables=true
-ProtectKernelModules=true
-ProtectControlGroups=true
 RestrictSUIDSGID=true
 RestrictRealtime=true
-MemoryDenyWriteExecute=false
 
 # Resource limits
 LimitNOFILE=65536
@@ -41,4 +29,4 @@ StandardError=journal
 SyslogIdentifier=openfang
 
 [Install]
-WantedBy=multi-user.target
+WantedBy=default.target

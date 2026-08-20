@@ -88,22 +88,33 @@
     create: true
     mode: '0644'
 
-- name: Create OpenFang systemd service
+- name: Ensure user systemd directory exists
+  file:
+    path: "/home/{{ username }}/.config/systemd/user"
+    state: directory
+    owner: "{{ username }}"
+    group: "{{ username }}"
+    mode: '0755'
+
+- name: Create OpenFang systemd user service
   template:
     src: openfang.service.j2
-    dest: /etc/systemd/system/openfang.service
+    dest: "/home/{{ username }}/.config/systemd/user/openfang.service"
+    owner: "{{ username }}"
+    group: "{{ username }}"
     mode: '0644'
 
-- name: Enable and start OpenFang service
+- name: Enable linger so user services start at boot without active login
+  command: "loginctl enable-linger {{ username }}"
+  args:
+    creates: "/var/lib/systemd/linger/{{ username }}"
+
+- name: Enable and start OpenFang user service
   systemd_service:
     name: openfang
     state: started
     enabled: true
+    scope: user
     daemon_reload: true
-
-- name: Wait for OpenFang API to be ready
-  wait_for:
-    host: 127.0.0.1
-    port: 4200
-    timeout: 120
-    delay: 2
+  become: true
+  become_user: "{{ username }}"
