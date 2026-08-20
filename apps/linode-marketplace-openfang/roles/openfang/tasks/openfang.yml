@@ -58,7 +58,6 @@
     mode: '0755'
   become: true
   become_user: "{{ username }}"
-  notify: Restart openfang
 
 - name: Clean up download artifacts
   file:
