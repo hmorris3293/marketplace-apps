@@ -108,6 +108,17 @@
   args:
     creates: "/var/lib/systemd/linger/{{ username }}"
 
+- name: Set XDG_RUNTIME_DIR in .bashrc for user
+  lineinfile:
+    path: "/home/{{ username }}/.bashrc"
+    line: 'export XDG_RUNTIME_DIR=/run/user/$(id -u)'
+    state: present
+    create: true
+    insertafter: EOF
+    owner: "{{ username }}"
+    group: "{{ username }}"
+    mode: '0644'
+
 - name: Enable and start OpenFang user service
   systemd_service:
     name: openfang
