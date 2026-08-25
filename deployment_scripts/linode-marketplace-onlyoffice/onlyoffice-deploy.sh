@@ -1,5 +1,5 @@
 #!/bin/bash
-# STACKSCRIPT_ID: 688911
+# STACKSCRIPT_ID: 1102907
 
 # enable logging
 exec > >(tee /dev/ttyS0 /var/log/stackscript.log) 2>&1
@@ -53,7 +53,7 @@ else
 fi
 
 export WORK_DIR="/tmp/marketplace-apps"
-export MARKETPLACE_APP="apps/linode-marketplace-gitea"
+export MARKETPLACE_APP="apps/linode-marketplace-onlyoffice"
 
 # BEGIN CI-PROVISION-FUNC
 function provision_failed {
@@ -90,11 +90,10 @@ function udf {
 	sed 's/  //g' <<EOF >${group_vars}
   # sudo username
   username: ${USER_NAME}
-  webserver_stack: lemp
-  gitea_admin_user: admin
+  docs_version: latest
   # BEGIN CI-UDF-ADDONS
   # addons
-  add_ons: [${ADD_ONS}]# END CI-UDF-ADDONS   
+  add_ons: [${ADD_ONS}]# END CI-UDF-ADDONS
 EOF
 
 	if [ "$DISABLE_ROOT" = "Yes" ]; then
@@ -140,8 +139,6 @@ function run {
 	apt-get update
 	apt-get install -y git python3 python3-pip
 
-	# clone repo and set up ansible environment
-	#git -C /tmp clone ${GIT_REPO}
 	# for a single testing branch
 	git -C /tmp clone -b ${BRANCH} ${GIT_REPO}
 

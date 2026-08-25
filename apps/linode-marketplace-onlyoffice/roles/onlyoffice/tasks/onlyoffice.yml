@@ -1,0 +1,44 @@
+---
+- name: Install prerequisite APT packages
+  apt:
+    name:
+      - apt-transport-https
+      - ca-certificates
+      - software-properties-common
+    state: present
+    update_cache: true
+
+- name: Create host persistent data directories
+  file:
+    path: "{{ item }}"
+    state: directory
+    mode: '0755'
+  loop:
+    - /app/onlyoffice/DocumentServer/logs
+    - /app/onlyoffice/DocumentServer/data
+    - /app/onlyoffice/DocumentServer/lib
+    - /app/onlyoffice/DocumentServer/rabbitmq
+    - /app/onlyoffice/DocumentServer/redis
+    - /app/onlyoffice/DocumentServer/db
+
+- name: Deploy ONLYOFFICE DocumentServer Container
+  community.docker.docker_container:
+    name: onlyoffice-docs
+    image: "onlyoffice/documentserver:{{ docs_version }}"
+    state: started
+    restart_policy: always
+    published_ports:
+      - "80:80"
+      - "443:443"
+    env:
+      JWT_ENABLED: "true"
+      JWT_SECRET: "{{ jwt_secret }}"
+      LETS_ENCRYPT_DOMAIN: "{{ _domain }}"
+      LETS_ENCRYPT_MAIL: "{{ soa_email_address }}"
+    volumes:
+      - /app/onlyoffice/DocumentServer/logs:/var/log/onlyoffice
+      - /app/onlyoffice/DocumentServer/data:/var/www/onlyoffice/Data
+      - /app/onlyoffice/DocumentServer/lib:/var/lib/onlyoffice
+      - /app/onlyoffice/DocumentServer/rabbitmq:/var/lib/rabbitmq
+      - /app/onlyoffice/DocumentServer/redis:/var/lib/redis
+      - /app/onlyoffice/DocumentServer/db:/var/lib/postgresql
