@@ -22,4 +22,5 @@
     content: |
       Sudo Username: {{ username }}
       Sudo Password: {{ password }}
-      JWT Secret: {{ jwt_secret }}
+        OnlyOffice Username: {{ onlyoffice_admin_user }}
+        OnlyOffice Password: {{ onlyoffice_admin_password }}

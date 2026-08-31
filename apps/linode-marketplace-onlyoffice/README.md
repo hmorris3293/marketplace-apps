@@ -1,6 +1,6 @@
 # Linode OnlyOffice One-Click APP
 
-Deploy a production-ready OnlyOffice Docs collaborative office suite with built-in security and optimized performance. This setup includes Nginx as a reverse proxy with SSL termination, improving security and performance. The OnlyOffice installation provides online document, spreadsheet, and presentation editing with real-time collaboration, accessible through a clean web interface.
+Deploy a production-ready OnlyOffice Docs collaborative office suite with built-in security and optimized performance. This setup includes Nginx as a reverse proxy with SSL termination and HTTP Basic Authentication, preventing public access to the document server. The OnlyOffice installation provides online document, spreadsheet, and presentation editing with real-time collaboration, accessible through a clean web interface.
 
 ## Software Included
 

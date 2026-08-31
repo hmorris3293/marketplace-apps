@@ -30,13 +30,10 @@
     state: started
     restart_policy: always
     published_ports:
-      - "80:80"
-      - "443:443"
+      - "127.0.0.1:8080:80"
     env:
       JWT_ENABLED: "true"
       JWT_SECRET: "{{ jwt_secret }}"
-      LETS_ENCRYPT_DOMAIN: "{{ _domain }}"
-      LETS_ENCRYPT_MAIL: "{{ soa_email_address }}"
     volumes:
       - /app/onlyoffice/DocumentServer/logs:/var/log/onlyoffice
       - /app/onlyoffice/DocumentServer/data:/var/www/onlyoffice/Data
