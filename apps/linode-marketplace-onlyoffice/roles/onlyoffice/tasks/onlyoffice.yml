@@ -41,3 +41,25 @@
       - /app/onlyoffice/DocumentServer/rabbitmq:/var/lib/rabbitmq
       - /app/onlyoffice/DocumentServer/redis:/var/lib/redis
       - /app/onlyoffice/DocumentServer/db:/var/lib/postgresql
+
+- name: Wait for ONLYOFFICE DocumentServer to be ready
+  uri:
+    url: http://127.0.0.1:8080/healthcheck
+    return_content: true
+  register: onlyoffice_healthcheck
+  until: onlyoffice_healthcheck.status == 200 and (onlyoffice_healthcheck.content | trim | lower) == 'true'
+  retries: 30
+  delay: 10
+
+- name: Ensure ONLYOFFICE example (demo) autostart is disabled
+  community.docker.docker_container_exec:
+    container: onlyoffice-docs
+    command: sed -i 's/autostart=true/autostart=false/' /etc/supervisor/conf.d/ds-example.conf
+  changed_when: false
+
+- name: Stop the ONLYOFFICE example (demo) service
+  community.docker.docker_container_exec:
+    container: onlyoffice-docs
+    command: supervisorctl stop ds:example
+  changed_when: false
+  failed_when: false
