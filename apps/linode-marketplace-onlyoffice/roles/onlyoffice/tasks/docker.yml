@@ -2,4 +2,3 @@
 - name: Install Docker latest
   import_role:
     name: docker
-
