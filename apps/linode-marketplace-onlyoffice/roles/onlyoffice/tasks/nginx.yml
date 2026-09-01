@@ -5,7 +5,16 @@
     state: present
     update_cache: true
 
-- name: Create ONLYOFFICE NGINX site configuration
+- name: Create basic auth password file
+  community.general.htpasswd:
+    path: /etc/nginx/.htpasswd
+    name: "{{ onlyoffice_admin_user }}"
+    password: "{{ onlyoffice_admin_password }}"
+    owner: root
+    group: www-data
+    mode: '0640'
+
+- name: Create ONLYOFFICE NGINX site configuration with basic auth
   template:
     src: nginx.conf.j2
     dest: /etc/nginx/sites-available/{{ _domain }}
