@@ -25,23 +25,6 @@ server {
     # Allow large document uploads
     client_max_body_size 100M;
 
-    # Replace the built-in welcome/demo landing with a plain status response.
-    # ONLYOFFICE Document Server is a headless backend used via integrations;
-    # the bundled welcome page only prompts to enable the insecure test example.
-    location = / {
-        default_type text/plain;
-        return 200 "ONLYOFFICE Document Server is running.\n";
-    }
-
-    # Block the demo landing page and the test example (both disabled by design).
-    location /welcome/ {
-        return 404;
-    }
-
-    location /example/ {
-        return 404;
-    }
-
     location / {
         proxy_pass http://127.0.0.1:8080;
         proxy_http_version 1.1;
