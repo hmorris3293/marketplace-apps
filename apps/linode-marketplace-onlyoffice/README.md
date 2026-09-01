@@ -35,6 +35,6 @@ Access steps (from your local machine):
 ssh -L 8080:127.0.0.1:8080 {{ username }}@{{ _domain }}
 ```
 
-Then visit `http://127.0.0.1:8080/example` locally to open the document editor demo.
+Then visit `http://127.0.0.1:8080/example/` locally to open the document editor demo.
 
 The sudo password and tunnel command are also saved to `/home/{{ username }}/.credentials` on the instance.

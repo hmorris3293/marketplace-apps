@@ -28,4 +28,4 @@
       this instance and is not exposed publicly. Access it through an SSH
       tunnel from your local machine:
       Tunnel command (run locally): ssh -L 8080:127.0.0.1:8080 {{ username }}@{{ _domain }}
-      Local URL: http://127.0.0.1:8080/example
+      Local URL: http://127.0.0.1:8080/example/
