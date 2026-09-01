@@ -51,15 +51,15 @@
   retries: 30
   delay: 10
 
-- name: Ensure ONLYOFFICE example (demo) autostart is disabled
+- name: Ensure ONLYOFFICE example (demo) autostart is enabled
   community.docker.docker_container_exec:
     container: onlyoffice-docs
-    command: sed -i 's/autostart=true/autostart=false/' /etc/supervisor/conf.d/ds-example.conf
+    command: sed -i 's/autostart=false/autostart=true/' /etc/supervisor/conf.d/ds-example.conf
   changed_when: false
 
-- name: Stop the ONLYOFFICE example (demo) service
+- name: Start the ONLYOFFICE example (demo) service
   community.docker.docker_container_exec:
     container: onlyoffice-docs
-    command: supervisorctl stop ds:example
+    command: supervisorctl start ds:example
   changed_when: false
   failed_when: false
