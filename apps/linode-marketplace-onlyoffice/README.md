@@ -1,13 +1,13 @@
 # Linode OnlyOffice One-Click APP
 
-Deploy a production-ready OnlyOffice Docs collaborative office suite with built-in security and optimized performance. This setup includes Nginx as a reverse proxy with SSL termination and HTTP Basic Authentication, preventing public access to the document server. The OnlyOffice installation provides online document, spreadsheet, and presentation editing with real-time collaboration, accessible through a clean web interface.
+Deploy OnlyOffice Docs, a collaborative office suite for online document, spreadsheet, and presentation editing with real-time collaboration. OnlyOffice Docs runs in a Docker container bound to localhost only and is not exposed publicly. Access is provided securely through an SSH tunnel, so no reverse proxy or public HTTP(S) endpoint is required.
 
 ## Software Included
 
 | Software   | Version   | Description                          |
 | :---       | :----     | :---                                 |
-| OnlyOffice | Latest    | Online office and collaboration suite |
-| Nginx      | Latest    | Web server and reverse proxy         |
+| OnlyOffice | 9.4.0     | Online office and collaboration suite |
+| Docker     | Latest    | Container runtime                    |
 
 **Supported Distributions:**
 
@@ -24,4 +24,17 @@ Deploy a production-ready OnlyOffice Docs collaborative office suite with built-
 | Create DNS Record   | The Create DNS Record module creates DNS records for domains and subdomains using the Linode API, including validation of DNS propagation.                                                                                                                        |
 | Secure SSH          | The Secure SSH module configures SSH security settings including disabling root login and password authentication when appropriate.                                                                                                                              |
 | SSH Key             | The SSH Key module manages SSH key deployment for the sudo user, supporting both custom public keys and account keys.                                                                                                                                            |
-| Certbot SSL         | The Certbot SSL module handles SSL/TLS certificate installation via Let's Encrypt, supporting Nginx certificate issuance.                                                                                                                                         |
+
+## Accessing OnlyOffice Docs
+
+This deployment uses SSH tunneling for access. OnlyOffice Docs runs in a Docker container bound to `127.0.0.1:8080` on the instance and is not exposed on a public HTTP(S) endpoint.
+
+Access steps (from your local machine):
+
+```bash
+ssh -L 8080:127.0.0.1:8080 {{ username }}@{{ _domain }}
+```
+
+Then visit `http://127.0.0.1:8080/example` locally to open the document editor demo.
+
+The sudo password and tunnel command are also saved to `/home/{{ username }}/.credentials` on the instance.

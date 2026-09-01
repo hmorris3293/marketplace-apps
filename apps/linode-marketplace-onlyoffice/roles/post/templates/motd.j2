@@ -1,7 +1,17 @@
 *********************************************************
 Akamai Connected Cloud OnlyOffice Marketplace App
-App URL: https://{{ _domain }}
+Dashboard Access: SSH tunnel required (see details below)
 Credentials File: /home/{{ username }}/.credentials
 Documentation: https://www.linode.com/docs/marketplace-docs/guides/onlyoffice/
 *********************************************************
+
+OnlyOffice Docs runs in a container bound to localhost only.
+To reach it, open an SSH tunnel from your local machine:
+
+`ssh -L 8080:127.0.0.1:8080 {{ username }}@{{ _domain }}`
+
+Then browse to:
+
+http://127.0.0.1:8080/example
+
 To delete this message of the day: rm /etc/motd
