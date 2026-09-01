@@ -94,7 +94,7 @@ function udf {
   # sudo username
   username: ${USER_NAME}
   onlyoffice_admin_user: ${ONLYOFFICE_ADMIN_USER}
-  docs_version: latest
+  docs_version: "9.4.0"
   # BEGIN CI-UDF-ADDONS
   # addons
   add_ons: [${ADD_ONS}]# END CI-UDF-ADDONS

@@ -1,20 +1,11 @@
 ---
-- name: Install NGINX and apache2-utils
+- name: Install NGINX
   apt:
-    name: [nginx, apache2-utils]
+    name: [nginx]
     state: present
     update_cache: true
 
-- name: Create basic auth password file
-  community.general.htpasswd:
-    path: /etc/nginx/.htpasswd
-    name: "{{ onlyoffice_admin_user }}"
-    password: "{{ onlyoffice_admin_password }}"
-    owner: root
-    group: www-data
-    mode: '0640'
-
-- name: Create ONLYOFFICE NGINX site configuration with basic auth
+- name: Create ONLYOFFICE NGINX site configuration
   template:
     src: nginx.conf.j2
     dest: /etc/nginx/sites-available/{{ _domain }}

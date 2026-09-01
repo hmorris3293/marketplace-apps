@@ -1,4 +1,4 @@
-# ONLYOFFICE DocumentServer with HTTP Basic Authentication
+# ONLYOFFICE DocumentServer reverse proxy
 map $http_x_forwarded_proto $the_scheme {
     default $http_x_forwarded_proto;
     "" $scheme;
@@ -17,10 +17,6 @@ map $http_upgrade $proxy_connection {
 server {
     listen 80;
     server_name {{ _domain }};
-
-    # Basic Authentication
-    auth_basic "ONLYOFFICE Access";
-    auth_basic_user_file /etc/nginx/.htpasswd;
 
     # Allow large document uploads
     client_max_body_size 100M;
