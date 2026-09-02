@@ -30,6 +30,9 @@ fi
 #<UDF name="user_name" label="The limited sudo user to be created for the Linode: *No Capital Letters or Special Characters*">
 #<UDF name="disable_root" label="Disable root access over SSH?" oneOf="Yes,No" default="No">
 
+## OnlyOffice settings
+#<UDF name="onlyoffice_admin_user" label="OnlyOffice Username (used to access the web interface)" example="admin" default="admin">
+
 ## Domain Settings
 #<UDF name="token_password" label="Your Linode API token. This is needed to create your server's DNS records" default="">
 #<UDF name="subdomain" label="Subdomain" example="The subdomain for the DNS record: www (Requires Domain)" default="">
@@ -90,6 +93,7 @@ function udf {
 	sed 's/  //g' <<EOF >${group_vars}
   # sudo username
   username: ${USER_NAME}
+  onlyoffice_admin_user: ${ONLYOFFICE_ADMIN_USER}
   docs_version: "9.4.0"
   # BEGIN CI-UDF-ADDONS
   # addons

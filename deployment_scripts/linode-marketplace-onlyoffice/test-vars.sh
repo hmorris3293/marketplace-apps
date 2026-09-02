@@ -23,6 +23,12 @@ else
 	UDF_VARS["USER_NAME"]="admin" # default
 fi
 
+if [[ -n "${ONLYOFFICE_ADMIN_USER}" ]]; then
+	UDF_VARS["ONLYOFFICE_ADMIN_USER"]="${ONLYOFFICE_ADMIN_USER}"
+else
+	UDF_VARS["ONLYOFFICE_ADMIN_USER"]="admin" # default
+fi
+
 if [[ -n "${DISABLE_ROOT}" ]]; then
 	UDF_VARS["DISABLE_ROOT"]="${DISABLE_ROOT}"
 else

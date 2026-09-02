@@ -1,9 +1,10 @@
 ---
-- name: Configure SSH UFW rule
+- name: Configure UFW rules
   ufw:
     rule: allow
-    port: "22"
+    port: "{{ item }}"
     proto: tcp
+  loop: ["22", "80", "443"]
 
 - name: Enable UFW
   ufw:

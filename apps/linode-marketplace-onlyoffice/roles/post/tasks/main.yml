@@ -22,10 +22,5 @@
     content: |
       Sudo Username: {{ username }}
       Sudo Password: {{ password }}
-
-      # OnlyOffice Docs
-      OnlyOffice Docs runs in a Docker container bound to 127.0.0.1:8080 on
-      this instance and is not exposed publicly. Access it through an SSH
-      tunnel from your local machine:
-      Tunnel command (run locally): ssh -L 8080:127.0.0.1:8080 {{ username }}@{{ _domain }}
-      Local URL: http://127.0.0.1:8080/example/
+        OnlyOffice Username: {{ onlyoffice_admin_user }}
+        OnlyOffice Password: {{ onlyoffice_admin_password }}
