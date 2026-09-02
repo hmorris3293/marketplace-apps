@@ -14,9 +14,6 @@ map $http_upgrade $proxy_connection {
     "" close;
 }
 
-# Drop the Basic Auth credentials before proxying so ONLYOFFICE does not
-# try to parse them as a JWT (which returns 500). Bearer tokens used by
-# the Document Server callbacks are passed through untouched.
 map $http_authorization $backend_authorization {
     default $http_authorization;
     "~*^Basic " "";
@@ -32,6 +29,11 @@ server {
 
     # Allow large document uploads
     client_max_body_size 100M;
+
+    # Land users on the document manager instead of the welcome page
+    location = / {
+        return 302 /example/;
+    }
 
     location / {
         proxy_pass http://127.0.0.1:8080;
