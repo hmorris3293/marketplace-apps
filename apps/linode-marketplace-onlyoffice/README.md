@@ -1,6 +1,6 @@
 # Linode OnlyOffice One-Click APP
 
-Deploy a production-ready OnlyOffice Docs collaborative office suite with built-in security and optimized performance. OnlyOffice Document Server runs in Docker and terminates HTTPS itself using a Let's Encrypt certificate, while its document-editing API is protected with JWT signing. The installation provides online document, spreadsheet, and presentation editing with real-time collaboration, accessible through a clean web interface.
+Deploy a production-ready ONLYOFFICE Docs collaborative office suite hardened to industry standards. ONLYOFFICE Document Server runs in Docker and terminates HTTPS with an automatically issued and renewed Let's Encrypt certificate (with HSTS). All document-editing requests are secured with JWT signing, the insecure test example is disabled, and server-side request forgery protections block access to private and metadata IP addresses. A host firewall restricts inbound traffic to SSH and HTTPS, and fail2ban guards against brute-force attempts. The server is designed to be integrated with your application using the generated JWT secret.
 
 ## Software Included
 
