@@ -6,8 +6,11 @@ services:
       - JWT_ENABLED=true
       - JWT_SECRET={{ jwt_secret }}
       - EXAMPLE_ENABLED=true
+      - LETS_ENCRYPT_DOMAIN={{ _domain }}
+      - LETS_ENCRYPT_MAIL={{ soa_email_address }}
     ports:
-      - '127.0.0.1:8080:80'
+      - '80:80'
+      - '443:443'
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8000/info/info.json"]
       interval: 30s

@@ -4,6 +4,3 @@
 
 - name: Import OnlyOffice task
   import_tasks: onlyoffice.yml
-
-- name: Import NGINX task
-  import_tasks: nginx.yml

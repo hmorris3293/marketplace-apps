@@ -37,12 +37,5 @@
     project_src: /app/onlyoffice
     state: present
     pull: always
-
-- name: Wait for ONLYOFFICE DocumentServer to be ready
-  uri:
-    url: http://127.0.0.1:8080/healthcheck
-    return_content: true
-  register: onlyoffice_healthcheck
-  until: onlyoffice_healthcheck.status == 200 and (onlyoffice_healthcheck.content | trim | lower) == 'true'
-  retries: 30
-  delay: 10
+    wait: true
+    wait_timeout: 300
