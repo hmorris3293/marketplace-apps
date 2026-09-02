@@ -1,17 +1,24 @@
-# Linode OnlyOffice One-Click APP
+# Linode OnlyOffice DocSpace One-Click APP
 
-Deploy a production-ready ONLYOFFICE Docs collaborative office suite hardened to industry standards. ONLYOFFICE Document Server runs in Docker and terminates HTTPS with an automatically issued and renewed Let's Encrypt certificate (with HSTS). All document-editing requests are secured with JWT signing, the insecure test example is disabled, and server-side request forgery protections block access to private and metadata IP addresses. A host firewall restricts inbound traffic to SSH and HTTPS, and fail2ban guards against brute-force attempts. The server is designed to be integrated with your application using the generated JWT secret.
+Deploy a production-ready ONLYOFFICE DocSpace room-based collaboration platform hardened to industry standards. DocSpace is installed with ONLYOFFICE's official OneClickInstall for Docker, which deploys the full production stack — the DocSpace application services, ONLYOFFICE Document Server (editors), MySQL, Redis, RabbitMQ, and OpenSearch. HTTPS is terminated with an automatically issued and renewed Let's Encrypt certificate, and all editor requests are secured with JWT signing. A host firewall restricts inbound traffic to SSH and HTTPS, and fail2ban guards against brute-force attempts. On first visit, an administrator completes the setup wizard to create rooms, invite users, and begin real-time document, spreadsheet, and presentation collaboration.
 
 ## Software Included
 
-| Software   | Version   | Description                          |
-| :---       | :----     | :---                                 |
-| OnlyOffice | Latest    | Online office and collaboration suite |
-| Docker     | Latest    | Container runtime for the document server |
+| Software        | Version   | Description                                        |
+| :---            | :----     | :---                                               |
+| DocSpace        | Latest    | Room-based collaborative document platform          |
+| Document Server | Latest    | ONLYOFFICE editors (documents, sheets, slides)      |
+| MySQL           | Latest    | Application database                                |
+| OpenSearch      | Latest    | Full-text search engine                             |
+| Docker          | Latest    | Container runtime for the DocSpace stack            |
 
 **Supported Distributions:**
 
 - Ubuntu 24.04 LTS
+
+**Recommended Minimum Plan:**
+
+- 4 CPU cores, 8 GB RAM, and 40 GB+ storage (Dedicated 8 GB or larger). The installer creates a swap file automatically.
 
 ## Linode Helpers Included
 

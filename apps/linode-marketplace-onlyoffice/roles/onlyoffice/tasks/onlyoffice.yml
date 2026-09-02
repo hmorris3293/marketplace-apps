@@ -4,38 +4,34 @@
     name:
       - apt-transport-https
       - ca-certificates
-      - software-properties-common
-      - wget
       - curl
-      - certbot
+      - wget
       - docker-compose-plugin
     state: present
     update_cache: true
 
-- name: Create host persistent data directories
+- name: Create ONLYOFFICE working directory
   file:
-    path: "{{ item }}"
+    path: /app/onlyoffice
     state: directory
     mode: '0755'
-  loop:
-    - /app/onlyoffice
-    - /app/onlyoffice/DocumentServer/logs
-    - /app/onlyoffice/DocumentServer/data
-    - /app/onlyoffice/DocumentServer/lib
-    - /app/onlyoffice/DocumentServer/rabbitmq
-    - /app/onlyoffice/DocumentServer/redis
-    - /app/onlyoffice/DocumentServer/db
 
-- name: Deploy ONLYOFFICE docker compose file
-  template:
-    src: docker-compose.yml.j2
-    dest: /app/onlyoffice/docker-compose.yml
-    mode: '0644'
+- name: Download ONLYOFFICE DocSpace installer
+  get_url:
+    url: https://download.onlyoffice.com/docspace/docspace-install.sh
+    dest: /app/onlyoffice/docspace-install.sh
+    mode: '0755'
 
-- name: Deploy ONLYOFFICE DocumentServer via docker compose
-  community.docker.docker_compose_v2:
-    project_src: /app/onlyoffice
-    state: present
-    pull: always
-    wait: true
-    wait_timeout: 300
+- name: Install ONLYOFFICE DocSpace Community Edition with Docker, JWT and Let's Encrypt SSL
+  shell:
+    cmd: >-
+      bash /app/onlyoffice/docspace-install.sh docker
+      --installationtype community
+      --noninteractive true
+      --makeswap true
+      --jwtsecret {{ jwt_secret }}
+      --letsencryptdomain {{ _domain }}
+      --letsencryptmail {{ soa_email_address }}
+      && touch /app/onlyoffice/.docspace-installed
+    creates: /app/onlyoffice/.docspace-installed
+  changed_when: true

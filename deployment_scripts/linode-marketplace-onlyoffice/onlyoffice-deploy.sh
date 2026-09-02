@@ -90,7 +90,6 @@ function udf {
 	sed 's/  //g' <<EOF >${group_vars}
   # sudo username
   username: ${USER_NAME}
-  docs_version: "9.4.0"
   # BEGIN CI-UDF-ADDONS
   # addons
   add_ons: [${ADD_ONS}]# END CI-UDF-ADDONS
