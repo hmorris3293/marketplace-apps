@@ -49,16 +49,3 @@
 - name: Enabling fail2ban
   import_role:
     name: fail2ban_install
-
-- name: Install required system packages
-  apt:
-    name: "{{ packages }}"
-    state: present
-    update_cache: true
-  vars:
-    packages:
-      - apt-transport-https
-      - ca-certificates
-      - software-properties-common
-      - wget
-      - curl
