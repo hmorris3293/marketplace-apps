@@ -17,13 +17,13 @@
     mode: '0755'
 
 - name: Create persistent directories for DocumentServer
-      ansible.builtin.file:
-        path: "{{ item }}"
-        state: directory
-        mode: '0755'
-      loop:
-        - /app/onlyoffice/DocumentServer/data
-        - /app/onlyoffice/DocumentServer/logs
+  file:
+    path: "{{ item }}"
+    state: directory
+    mode: '0755'
+  loop:
+    - /app/onlyoffice/DocumentServer/data
+    - /app/onlyoffice/DocumentServer/logs
 
 - name: Deploy ONLYOFFICE Docs Docker container
   community.docker.docker_container:
