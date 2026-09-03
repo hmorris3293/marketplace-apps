@@ -32,7 +32,7 @@
     state: started
     restart_policy: always
     published_ports:
-      - "127.0.0.1:{{ onlyoffice_port }}:80"
+      - "127.0.0.1:8080:80"
     env:
       JWT_ENABLED: "true"
       JWT_SECRET: "{{ jwt_secret }}"
