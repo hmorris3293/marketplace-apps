@@ -16,74 +16,26 @@
     state: directory
     mode: '0755'
 
-- name: Download ONLYOFFICE DocSpace installer
-  get_url:
-    url: https://download.onlyoffice.com/docspace/docspace-install.sh
-    dest: /app/onlyoffice/docspace-install.sh
-    mode: '0755'
+- name: Create persistent directories for DocumentServer
+      ansible.builtin.file:
+        path: "{{ item }}"
+        state: directory
+        mode: '0755'
+      loop:
+        - /app/onlyoffice/DocumentServer/data
+        - /app/onlyoffice/DocumentServer/logs
 
-- name: Install ONLYOFFICE DocSpace Community Edition with Docker, JWT and Let's Encrypt SSL
-  shell:
-    cmd: >-
-      bash /app/onlyoffice/docspace-install.sh docker
-      --installationtype community
-      --noninteractive true
-      --makeswap true
-      --jwtsecret {{ jwt_secret }}
-      --letsencryptdomain {{ _domain }}
-      --letsencryptmail {{ soa_email_address }}
-      && touch /app/onlyoffice/.docspace-installed
-    creates: /app/onlyoffice/.docspace-installed
-  changed_when: true
-
-- name: Check whether the DocSpace setup wizard has already been completed
-  stat:
-    path: /app/onlyoffice/.docspace-wizard-completed
-  register: onlyoffice_wizard_marker
-
-- name: Provision the DocSpace administrator account (complete the setup wizard)
-  when: not onlyoffice_wizard_marker.stat.exists
-  block:
-    - name: Wait for the DocSpace portal and read the wizard settings
-      uri:
-        url: "https://{{ _domain }}/api/2.0/settings?withPassword=true"
-        method: GET
-        return_content: true
-      register: onlyoffice_wizard_settings
-      until:
-        - onlyoffice_wizard_settings.status == 200
-        - onlyoffice_wizard_settings.json.response.wizardToken | default('') | length > 0
-      retries: 60
-      delay: 15
-      no_log: true
-
-    - name: Compute the administrator PasswordHash (PBKDF2-HMAC-SHA256)
-      set_fact:
-        onlyoffice_admin_hash: "{{ onlyoffice_admin_password | pbkdf2_hex(salt, iterations, size) }}"
-      vars:
-        salt: "{{ onlyoffice_wizard_settings.json.response.passwordHash.salt }}"
-        iterations: "{{ onlyoffice_wizard_settings.json.response.passwordHash.iterations }}"
-        size: "{{ onlyoffice_wizard_settings.json.response.passwordHash.size }}"
-      no_log: true
-
-    - name: Submit the DocSpace wizard completion request
-      uri:
-        url: "https://{{ _domain }}/api/2.0/settings/wizard/complete"
-        method: PUT
-        headers:
-          confirm: "{{ onlyoffice_wizard_settings.json.response.wizardToken }}"
-        body_format: json
-        body:
-          email: "{{ soa_email_address }}"
-          PasswordHash: "{{ onlyoffice_admin_hash }}"
-          lng: en-US
-          timeZone: UTC
-          analytics: false
-        status_code: [200]
-      no_log: true
-
-    - name: Mark the DocSpace setup wizard as complete
-      file:
-        path: /app/onlyoffice/.docspace-wizard-completed
-        state: touch
-        mode: '0644'
+- name: Deploy ONLYOFFICE Docs Docker container
+  community.docker.docker_container:
+    name: onlyoffice-docs
+    image: onlyoffice/documentserver:latest
+    state: started
+    restart_policy: always
+    published_ports:
+      - "127.0.0.1:{{ onlyoffice_port }}:80"
+    env:
+      JWT_ENABLED: "true"
+      JWT_SECRET: "{{ jwt_secret }}"
+    volumes:
+      - /app/onlyoffice/DocumentServer/data:/var/www/onlyoffice/Data
+      - /app/onlyoffice/DocumentServer/logs:/var/log/onlyoffice

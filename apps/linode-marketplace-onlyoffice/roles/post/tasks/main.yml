@@ -22,6 +22,5 @@
     content: |
       Sudo Username: {{ username }}
       Sudo Password: {{ password }}
-      OnlyOffice DocSpace URL: https://{{ _domain }}
-      OnlyOffice DocSpace Admin Email: {{ soa_email_address }}
-      OnlyOffice DocSpace Admin Password: {{ onlyoffice_admin_password }}
+      OnlyOffice URL: https://{{ _domain }}
+
