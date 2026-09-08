@@ -6,36 +6,80 @@
       - ca-certificates
       - curl
       - wget
-      - docker-compose-plugin
     state: present
     update_cache: true
 
-- name: Create ONLYOFFICE working directory
+- name: Generate SSL
+  import_role:
+    name: certbot_ssl
+  vars:
+    webserver_stack: standalone
+
+- name: Create ONLYOFFICE certs directory structure
   file:
-    path: /app/onlyoffice
+    path: "{{ cert_dir }}"
     state: directory
     mode: '0755'
 
-- name: Create persistent directories for DocumentServer
-  file:
-    path: "{{ item }}"
-    state: directory
-    mode: '0755'
+- name: Copy SSL certificates to ONLYOFFICE auto-discovery volume
+  copy:
+    src: "/etc/letsencrypt/live/{{ _domain }}/{{ item.src }}"
+    dest: "{{ cert_dir }}/{{ item.dest }}"
+    remote_src: true
+    mode: '0600'
   loop:
-    - /app/onlyoffice/DocumentServer/data
-    - /app/onlyoffice/DocumentServer/logs
+    - { src: 'fullchain.pem', dest: 'onlyoffice.crt' }
+    - { src: 'privkey.pem', dest: 'onlyoffice.key' }
 
-- name: Deploy ONLYOFFICE Docs Docker container
-  community.docker.docker_container:
-    name: onlyoffice-docs
-    image: onlyoffice/documentserver:latest
-    state: started
-    restart_policy: always
-    published_ports:
-      - "127.0.0.1:8080:80"
-    env:
-      JWT_ENABLED: "true"
-      JWT_SECRET: "{{ jwt_secret }}"
-    volumes:
-      - /app/onlyoffice/DocumentServer/data:/var/www/onlyoffice/Data
-      - /app/onlyoffice/DocumentServer/logs:/var/log/onlyoffice
+- name: Deploy Certbot renewal hook from Jinja2 template
+  template:
+    src: reload-onlyoffice.sh.j2
+    dest: /etc/letsencrypt/renewal-hooks/deploy/reload-onlyoffice.sh
+    mode: '0755'
+
+- name: Download ONLYOFFICE Workspace installer script
+  get_url:
+    url: https://download.onlyoffice.com/install/workspace-install.sh
+    dest: /tmp/workspace-install.sh
+    mode: '0755'
+
+- name: Execute ONLYOFFICE Workspace installer
+  command: >
+    bash /tmp/workspace-install.sh
+    --installationtype WORKSPACE
+    --communityport 8080
+    --maildomain "{{ _domain }}"
+    --installmailserver false
+    --skiphardwarecheck true
+  args:
+    creates: /app/onlyoffice/setup/config
+
+# - name: Create ONLYOFFICE working directory
+#   file:
+#     path: /app/onlyoffice
+#     state: directory
+#     mode: '0755'
+
+# - name: Create persistent directories for DocumentServer
+#   file:
+#     path: "{{ item }}"
+#     state: directory
+#     mode: '0755'
+#   loop:
+#     - /app/onlyoffice/DocumentServer/data
+#     - /app/onlyoffice/DocumentServer/logs
+
+# - name: Deploy ONLYOFFICE Docs Docker container
+#   community.docker.docker_container:
+#     name: onlyoffice-docs
+#     image: onlyoffice/documentserver:latest
+#     state: started
+#     restart_policy: always
+#     published_ports:
+#       - "127.0.0.1:8080:80"
+#     env:
+#       JWT_ENABLED: "true"
+#       JWT_SECRET: "{{ jwt_secret }}"
+#     volumes:
+#       - /app/onlyoffice/DocumentServer/data:/var/www/onlyoffice/Data
+#       - /app/onlyoffice/DocumentServer/logs:/var/log/onlyoffice
