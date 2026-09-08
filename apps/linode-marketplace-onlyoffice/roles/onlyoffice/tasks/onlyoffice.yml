@@ -58,8 +58,11 @@
     url: "https://{{ _domain }}/wizard.aspx"
     status_code: 200
     validate_certs: false
+    return_content: true
   register: wizard_check
-  until: wizard_check.status == 200
+  until:
+    - wizard_check.status == 200
+    - "'ASC.Resources' in wizard_check.content"
   retries: 30
   delay: 10
 
