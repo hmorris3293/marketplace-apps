@@ -69,10 +69,12 @@
     method: POST
     validate_certs: false
     headers:
-      Cookie: "{{ wizard_get.cookies_string | default('') }}"
+      Host: "{{ _domain }}"
+      Origin: "https://{{ _domain }}"
+      Referer: "https://{{ _domain }}/Wizard.aspx"
       Content-Type: "text/plain; charset=UTF-8"
       X-AjaxPro-Method: "SaveData"
-      Referer: "https://{{ _domain }}/Wizard.aspx"
+      Cookie: "{{ wizard_get.cookies_string | default('') }}"
     body_format: raw
     body: >-
       {"email":"{{ soa_email_address }}","passwordHash":"{{ admin_password | hash('sha256') }}","lng":"en-US","promocode":null,"amiid":null,"subscribeFromSite":false}
