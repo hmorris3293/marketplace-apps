@@ -69,26 +69,27 @@
 
 - name: Extract PasswordHash settings from page
   ansible.builtin.set_fact:
-    ph_size: "{{ wizard_get.content | regex_search('PasswordHashSize=([0-9]+)', '\\1') | first }}"
-    ph_iterations: "{{ wizard_get.content | regex_search('PasswordHashIterations=([0-9]+)', '\\1') | first }}"
-    ph_salt: "{{ wizard_get.content | regex_search('PasswordHashSalt=\"([^\"]+)\"', '\\1') | first }}"
+    ph_size: "{{ wizard_get.content | regex_search('\"PasswordHashSize\":(\\d+)', '\\1') }}"
+    ph_iterations: "{{ wizard_get.content | regex_search('\"PasswordHashIterations\":(\\d+)', '\\1') }}"
+    ph_salt: "{{ wizard_get.content | regex_search('\"PasswordHashSalt\":\"([a-fA-F0-9]+)\"', '\\1') }}"
 
-- name: Compute PBKDF2 password hash (matching ASC.Security.Cryptography.PasswordHasher)
-  ansible.builtin.command:
-    argv:
-      - python3
-      - -c
-      - |
-        import hashlib, binascii, sys, os
-        password = os.environ["ADMIN_PW"]
-        salt = sys.argv[1].encode("utf-8")
-        iterations = int(sys.argv[2])
-        dklen = int(sys.argv[3]) // 8
-        dk = hashlib.pbkdf2_hmac("sha256", password.encode("utf-8"), salt, iterations, dklen)
-        print(binascii.hexlify(dk).decode("ascii"))
-      - "{{ ph_salt }}"
-      - "{{ ph_iterations }}"
-      - "{{ ph_size }}"
+- name: Fail early with a clear message if settings weren't found
+  ansible.builtin.fail:
+    msg: "Could not extract PasswordHash settings from Wizard.aspx — check the actual page format (see ph_size/ph_iterations/ph_salt)."
+  when: (ph_size is none) or (ph_iterations is none) or (ph_salt is none)
+
+- name: Compute PBKDF2 password hash via OpenSSL (no python)
+  ansible.builtin.shell: |
+    set -euo pipefail
+    SALT_HEX=$(printf '%s' "{{ ph_salt }}" | od -An -tx1 | tr -d ' \n')
+    openssl kdf -keylen "$(({{ ph_size }} / 8))" \
+      -kdfopt digest:SHA2-256 \
+      -kdfopt "pass:${ADMIN_PW}" \
+      -kdfopt "hexsalt:${SALT_HEX}" \
+      -kdfopt "iter:{{ ph_iterations }}" \
+      PBKDF2 2>/dev/null | tr -d ':\n' | tr 'A-F' 'a-f'
+  args:
+    executable: /bin/bash
   environment:
     ADMIN_PW: "{{ admin_password | trim }}"
   register: computed_hash
@@ -116,7 +117,7 @@
   retries: 20
   delay: 10
   no_log: true
-  
+
 # curl 'https://172-233-163-73.ip.linodeusercontent.com/ajaxpro/ASP.usercontrols_firsttime_emailandpassword_ascx,ASC.ashx' \
 #   -H 'accept: */*' \
 #   -H 'accept-language: en-US,en;q=0.9' \
