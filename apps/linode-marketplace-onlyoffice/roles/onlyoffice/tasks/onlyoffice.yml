@@ -53,33 +53,30 @@
   args:
     creates: /app/onlyoffice/setup/config
 
-- name: GET wizard page to initialize web session
+- name: Wait for ONLYOFFICE Mono/FastCGI engine to fully render AjaxPro
   ansible.builtin.uri:
     url: "https://{{ _domain }}/Wizard.aspx"
     method: GET
     validate_certs: false
+    return_content: true
   register: wizard_get
-  until: wizard_get.status == 200
+  until:
+    - wizard_get.status == 200
+    - "'ajaxpro' in wizard_get.content | lower"
   retries: 30
   delay: 10
 
 - name: Complete ONLYOFFICE setup via AjaxPro SaveData handler
-  ansible.builtin.uri:
-    url: "https://{{ _domain }}/ajaxpro/ASP.usercontrols_firsttime_emailandpassword_ascx,ASC.ashx"
-    method: POST
-    validate_certs: false
-    headers:
-      Host: "{{ _domain }}"
-      Origin: "https://{{ _domain }}"
-      Referer: "https://{{ _domain }}/Wizard.aspx"
-      Content-Type: "text/plain; charset=UTF-8"
-      X-AjaxPro-Method: "SaveData"
-      Cookie: "{{ wizard_get.cookies_string | default('') }}"
-    body_format: raw
-    body: >-
-      {"email":"{{ soa_email_address }}","passwordHash":"{{ admin_password | hash('sha256') }}","lng":"en-US","promocode":null,"amiid":null,"subscribeFromSite":false}
-    status_code: 200
+  ansible.builtin.command: >
+    curl -s -k -f -X POST "https://{{ _domain }}/ajaxpro/ASP.usercontrols_firsttime_emailandpassword_ascx,ASC.ashx"
+    -H "Host: {{ _domain }}"
+    -H "Origin: https://{{ _domain }}"
+    -H "Referer: https://{{ _domain }}/Wizard.aspx"
+    -H "Content-Type: text/plain; charset=UTF-8"
+    -H "X-AjaxPro-Method: SaveData"
+    -d '{"email":"{{ soa_email_address }}","passwordHash":"{{ admin_password | hash("sha256") }}","lng":"en-US","promocode":null,"amiid":null,"subscribeFromSite":false}'
   register: setup_response
+  changed_when: setup_response.rc == 0
 
 - name: Verify wizard is completed and owner account created
   ansible.builtin.uri:
