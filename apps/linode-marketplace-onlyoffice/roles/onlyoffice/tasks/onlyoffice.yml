@@ -63,12 +63,11 @@
       Cache-Control: "no-cache"
       Pragma: "no-cache"
   register: wizard_get
-  until: wizard_get.status == 200
-  retries: 10
-  delay: 5
-
-- ansible.builtin.debug:
-    var: wizard_get
+  until:
+    - wizard_get.status == 200
+    - wizard_get.content_length | int > 30000   # real rendered page is ~42KB; stale asset is ~24KB
+  retries: 30
+  delay: 10
 
 - name: Complete ONLYOFFICE setup via AjaxPro SaveData handler
   ansible.builtin.uri:
@@ -83,11 +82,15 @@
     body: >-
       {"email":"{{ soa_email_address }}","passwordHash":"{{ admin_password | trim | hash('sha256') }}","lng":"en-US","promocode":null,"amiid":null,"subscribeFromSite":false}
     return_content: true
+    status_code: [200, 405]
   register: setup_response
+  until:
+    - setup_response.status == 200
+    - "'Status\":1' in setup_response.content or 'Wizard passed' in setup_response.content"
+  retries: 20
+  delay: 10
   failed_when:
-    - setup_response.status != 200
-    - "'Wizard passed' not in setup_response.content"
-    - "'Status\":1' not in setup_response.content"
+    - setup_response.status != 200 or ('Status\":1' not in setup_response.content and 'Wizard passed' not in setup_response.content)
 
 # curl 'https://172-233-163-73.ip.linodeusercontent.com/ajaxpro/ASP.usercontrols_firsttime_emailandpassword_ascx,ASC.ashx' \
 #   -H 'accept: */*' \
