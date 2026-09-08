@@ -71,7 +71,7 @@
     body:
       pwd: "{{ admin_password }}"
       pwdConfirm: "{{ admin_password }}"
-      email: "{{ admin_email }}"
+      email: "{{ soa_email_address }}"
       timeZone: "UTC"
       lng: "en-US"
     status_code: [200, 302]
