@@ -53,6 +53,31 @@
   args:
     creates: /app/onlyoffice/setup/config
 
+- name: Wait for ONLYOFFICE web wizard to become responsive
+  uri:
+    url: "https://{{ _domain }}/wizard.aspx"
+    status_code: 200
+    validate_certs: false
+  register: wizard_check
+  until: wizard_check.status == 200
+  retries: 30
+  delay: 10
+
+- name: Complete initial portal setup and set admin password
+  uri:
+    url: "https://{{ _domain }}/wizard.aspx"
+    method: POST
+    body_format: form-urlencoded
+    body:
+      pwd: "{{ admin_password }}"
+      pwdConfirm: "{{ admin_password }}"
+      email: "{{ admin_email }}"
+      timeZone: "UTC"
+      lng: "en-US"
+    status_code: [200, 302]
+    validate_certs: false
+  register: setup_result
+
 # - name: Create ONLYOFFICE working directory
 #   file:
 #     path: /app/onlyoffice
