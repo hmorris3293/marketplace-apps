@@ -53,47 +53,60 @@
   args:
     creates: /app/onlyoffice/setup/config
 
-- name: GET ONLYOFFICE wizard page to retrieve session cookie and HTML
+- name: GET wizard page to initialize web session
   ansible.builtin.uri:
-    url: "https://{{ _domain }}/wizard.aspx"
+    url: "https://{{ _domain }}/Wizard.aspx"
     method: GET
     validate_certs: false
-    return_content: true
   register: wizard_get
-  until:
-    - wizard_get.status == 200
-    - "'ASC.Resources' in wizard_get.content or 'wizard' in wizard_get.content"
+  until: wizard_get.status == 200
   retries: 30
   delay: 10
 
-- name: Extract ASP.NET state tokens from GET response
-  set_fact:
-    asp_viewstate: "{{ wizard_get.content | regex_findall('name=\"__VIEWSTATE\"[^>]*value=\"([^\"]*)\"') | first | default('') }}"
-    asp_viewstategenerator: "{{ wizard_get.content | regex_findall('name=\"__VIEWSTATEGENERATOR\"[^>]*value=\"([^\"]*)\"') | first | default('') }}"
-    asp_eventvalidation: "{{ wizard_get.content | regex_findall('name=\"__EVENTVALIDATION\"[^>]*value=\"([^\"]*)\"') | first | default('') }}"
-
-- name: Submit setup form with session cookie and ASP.NET tokens
-  uri:
-    url: "https://{{ _domain }}/wizard.aspx"
+- name: Complete ONLYOFFICE setup via AjaxPro SaveData handler
+  ansible.builtin.uri:
+    url: "https://{{ _domain }}/ajaxpro/ASP.usercontrols_firsttime_emailandpassword_ascx,ASC.ashx"
     method: POST
     validate_certs: false
-    body_format: form-urlencoded
     headers:
-      Cookie: "{{ wizard_get.cookies_string }}"
-      Host: "{{ _domain }}"
-      Referer: "https://{{ _domain }}/wizard.aspx"
-    body:
-      __VIEWSTATE: "{{ asp_viewstate }}"
-      __VIEWSTATEGENERATOR: "{{ asp_viewstategenerator }}"
-      __EVENTVALIDATION: "{{ asp_eventvalidation }}"
-      pwd: "{{ admin_password }}"
-      pwdConfirm: "{{ admin_password }}"
-      email: "{{ soa_email_address }}"
-      timeZone: "UTC"
-      lng: "en-US"
-      cbxLicense: "on"
+      Cookie: "{{ wizard_get.cookies_string | default('') }}"
+      Content-Type: "text/plain; charset=UTF-8"
+      X-AjaxPro-Method: "SaveData"
+      Referer: "https://{{ _domain }}/Wizard.aspx"
+    body_format: raw
+    body: >-
+      {"email":"{{ admin_email }}","passwordHash":"{{ admin_password | hash('sha256') }}","lng":"en-US","promocode":null,"amiid":null,"subscribeFromSite":false}
+    status_code: 200
+  register: setup_response
+
+- name: Verify wizard is completed and owner account created
+  ansible.builtin.uri:
+    url: "https://{{ _domain }}/"
     status_code: [200, 302]
-  register: wizard_post
+    validate_certs: false
+    follow_redirects: safe
+  register: portal_check
+  failed_when: "'Wizard.aspx' in portal_check.url or 'wizard.aspx' in portal_check.url"
+
+# curl 'https://172-233-163-73.ip.linodeusercontent.com/ajaxpro/ASP.usercontrols_firsttime_emailandpassword_ascx,ASC.ashx' \
+#   -H 'accept: */*' \
+#   -H 'accept-language: en-US,en;q=0.9' \
+#   -H 'cache-control: no-cache' \
+#   -H 'content-type: text/plain; charset=UTF-8' \
+#   -b 'mode_theme_key=dark' \
+#   -H 'origin: https://172-233-163-73.ip.linodeusercontent.com' \
+#   -H 'pragma: no-cache' \
+#   -H 'priority: u=1, i' \
+#   -H 'referer: https://172-233-163-73.ip.linodeusercontent.com/Wizard.aspx' \
+#   -H 'sec-ch-ua: "Not;A=Brand";v="8", "Chromium";v="150", "Google Chrome";v="150"' \
+#   -H 'sec-ch-ua-mobile: ?0' \
+#   -H 'sec-ch-ua-platform: "macOS"' \
+#   -H 'sec-fetch-dest: empty' \
+#   -H 'sec-fetch-mode: cors' \
+#   -H 'sec-fetch-site: same-origin' \
+#   -H 'user-agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/150.0.0.0 Safari/537.36' \
+#   -H 'x-ajaxpro-method: SaveData' \
+#   --data-raw '{"email":"webmaster@172-233-163-73.ip.linodeusercontent.com","passwordHash":"768f850dfde0c6983381497d5791d0656768cb86b546f8930fc2950fcee74269","lng":"en-US","promocode":null,"amiid":null,"subscribeFromSite":false}'
 
 # - name: Create ONLYOFFICE working directory
 #   file:
