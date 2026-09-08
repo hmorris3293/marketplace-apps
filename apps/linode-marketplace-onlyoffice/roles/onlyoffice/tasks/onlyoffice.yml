@@ -53,39 +53,40 @@
   args:
     creates: /app/onlyoffice/setup/config
 
-- name: Wait for ONLYOFFICE Mono/FastCGI engine to fully render AjaxPro
+- name: GET Wizard page to initialize ASP.NET session
   ansible.builtin.uri:
     url: "https://{{ _domain }}/Wizard.aspx"
     method: GET
     validate_certs: false
-    return_content: true
   register: wizard_get
-  until:
-    - wizard_get.status == 200
-    - "'ajaxpro' in wizard_get.content | lower"
+  until: wizard_get.status == 200
   retries: 30
   delay: 10
 
 - name: Complete ONLYOFFICE setup via AjaxPro SaveData handler
-  ansible.builtin.command: >
-    curl -s -k -f -X POST "https://{{ _domain }}/ajaxpro/ASP.usercontrols_firsttime_emailandpassword_ascx,ASC.ashx"
-    -H "Host: {{ _domain }}"
-    -H "Origin: https://{{ _domain }}"
-    -H "Referer: https://{{ _domain }}/Wizard.aspx"
-    -H "Content-Type: text/plain; charset=UTF-8"
-    -H "X-AjaxPro-Method: SaveData"
-    -d '{"email":"{{ soa_email_address }}","passwordHash":"{{ admin_password }}","lng":"en-US","promocode":null,"amiid":null,"subscribeFromSite":false}'
-  register: setup_response
-  changed_when: setup_response.rc == 0
-
-- name: Verify wizard is completed and owner account created
   ansible.builtin.uri:
-    url: "https://{{ _domain }}/"
-    status_code: [200, 302]
+    url: "https://{{ _domain }}/ajaxpro/ASP.usercontrols_firsttime_emailandpassword_ascx,ASC.ashx"
+    method: POST
     validate_certs: false
-    follow_redirects: safe
-  register: portal_check
-  failed_when: "'Wizard.aspx' in portal_check.url or 'wizard.aspx' in portal_check.url"
+    headers:
+      Host: "{{ _domain }}"
+      Origin: "https://{{ _domain }}"
+      Referer: "https://{{ _domain }}/Wizard.aspx"
+      Content-Type: "text/plain; charset=UTF-8"
+      X-AjaxPro-Method: "SaveData"
+      Cookie: "{{ wizard_get.cookies_string }}"
+    body_format: raw
+    body: >-
+      {"email":"{{ soa_email_address }}","passwordHash":"{{ admin_password | hash('sha256') }}","lng":"en-US","promocode":null,"amiid":null,"subscribeFromSite":false}
+    return_content: true
+  register: setup_response
+  failed_when:
+    - setup_response.status != 200 or '"error":' in setup_response.content or '"value":true' not in setup_response.content
+
+- name: Print AjaxPro response output if setup fails
+  ansible.builtin.debug:
+    var: setup_response.content
+  when: setup_response.failed
 
 # curl 'https://172-233-163-73.ip.linodeusercontent.com/ajaxpro/ASP.usercontrols_firsttime_emailandpassword_ascx,ASC.ashx' \
 #   -H 'accept: */*' \
