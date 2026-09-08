@@ -37,17 +37,16 @@
     dest: /etc/letsencrypt/renewal-hooks/deploy/reload-onlyoffice.sh
     mode: '0755'
 
-- name: Download ONLYOFFICE Workspace installer script
+- name: Download ONLYOFFICE Docker installer script
   get_url:
-    url: https://download.onlyoffice.com/install/workspace-install.sh
-    dest: /tmp/workspace-install.sh
+    url: https://download.onlyoffice.com/install/install.sh
+    dest: /tmp/install.sh
     mode: '0755'
 
-- name: Execute ONLYOFFICE Workspace installer
+- name: Execute ONLYOFFICE Workspace installer non-interactively
   command: >
-    bash /tmp/workspace-install.sh
+    bash /tmp/install.sh
     --installationtype WORKSPACE
-    --communityport 8080
     --maildomain "{{ _domain }}"
     --installmailserver false
     --skiphardwarecheck true
