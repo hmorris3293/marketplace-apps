@@ -75,7 +75,7 @@
       Referer: "https://{{ _domain }}/Wizard.aspx"
     body_format: raw
     body: >-
-      {"email":"{{ admin_email }}","passwordHash":"{{ admin_password | hash('sha256') }}","lng":"en-US","promocode":null,"amiid":null,"subscribeFromSite":false}
+      {"email":"{{ soa_email_address }}","passwordHash":"{{ admin_password | hash('sha256') }}","lng":"en-US","promocode":null,"amiid":null,"subscribeFromSite":false}
     status_code: 200
   register: setup_response
 
