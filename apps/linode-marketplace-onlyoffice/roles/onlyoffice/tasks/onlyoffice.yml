@@ -53,33 +53,47 @@
   args:
     creates: /app/onlyoffice/setup/config
 
-- name: Wait for ONLYOFFICE web wizard to become responsive
-  uri:
+- name: GET ONLYOFFICE wizard page to retrieve session cookie and HTML
+  ansible.builtin.uri:
     url: "https://{{ _domain }}/wizard.aspx"
-    status_code: 200
+    method: GET
     validate_certs: false
     return_content: true
-  register: wizard_check
+  register: wizard_get
   until:
-    - wizard_check.status == 200
-    - "'ASC.Resources' in wizard_check.content"
+    - wizard_get.status == 200
+    - "'ASC.Resources' in wizard_get.content or 'wizard' in wizard_get.content"
   retries: 30
   delay: 10
 
-- name: Complete initial portal setup and set admin password
+- name: Extract ASP.NET state tokens from GET response
+  set_fact:
+    asp_viewstate: "{{ wizard_get.content | regex_findall('name=\"__VIEWSTATE\"[^>]*value=\"([^\"]*)\"') | first | default('') }}"
+    asp_viewstategenerator: "{{ wizard_get.content | regex_findall('name=\"__VIEWSTATEGENERATOR\"[^>]*value=\"([^\"]*)\"') | first | default('') }}"
+    asp_eventvalidation: "{{ wizard_get.content | regex_findall('name=\"__EVENTVALIDATION\"[^>]*value=\"([^\"]*)\"') | first | default('') }}"
+
+- name: Submit setup form with session cookie and ASP.NET tokens
   uri:
     url: "https://{{ _domain }}/wizard.aspx"
     method: POST
+    validate_certs: false
     body_format: form-urlencoded
+    headers:
+      Cookie: "{{ wizard_get.cookies_string }}"
+      Host: "{{ _domain }}"
+      Referer: "https://{{ _domain }}/wizard.aspx"
     body:
+      __VIEWSTATE: "{{ asp_viewstate }}"
+      __VIEWSTATEGENERATOR: "{{ asp_viewstategenerator }}"
+      __EVENTVALIDATION: "{{ asp_eventvalidation }}"
       pwd: "{{ admin_password }}"
       pwdConfirm: "{{ admin_password }}"
       email: "{{ soa_email_address }}"
       timeZone: "UTC"
       lng: "en-US"
+      cbxLicense: "on"
     status_code: [200, 302]
-    validate_certs: false
-  register: setup_result
+  register: wizard_post
 
 # - name: Create ONLYOFFICE working directory
 #   file:
