@@ -55,14 +55,20 @@
 
 - name: Obtain ASP.NET session cookie from Wizard page
   ansible.builtin.uri:
-    url: "https://{{ _domain }}/Wizard.aspx"
+    url: "https://{{ _domain }}/Wizard.aspx?_={{ lookup('pipe','date +%s') }}"
     method: GET
     validate_certs: false
     timeout: 120
+    headers:
+      Cache-Control: "no-cache"
+      Pragma: "no-cache"
   register: wizard_get
-  until: wizard_get.status == 200
+  until: wizard_get.status == 200 and wizard_get.cookies_string != ""
   retries: 10
   delay: 5
+
+- ansible.builtin.debug:
+    var: wizard_get
 
 - name: Complete ONLYOFFICE setup via AjaxPro SaveData handler
   ansible.builtin.uri:
@@ -70,13 +76,13 @@
     method: POST
     validate_certs: false
     timeout: 60
-    cookies: "{{ wizard_get.cookies }}"
     headers:
       Host: "{{ _domain }}"
       Origin: "https://{{ _domain }}"
       Referer: "https://{{ _domain }}/Wizard.aspx"
       Content-Type: "text/plain; charset=UTF-8"
       X-AjaxPro-Method: "SaveData"
+      Cookie: "{{ wizard_get.cookies_string }}"
     body_format: raw
     body: >-
       {"email":"{{ soa_email_address }}","passwordHash":"{{ admin_password | trim | hash('sha256') }}","lng":"en-US","promocode":null,"amiid":null,"subscribeFromSite":false}
