@@ -53,31 +53,23 @@
   args:
     creates: /app/onlyoffice/setup/config
 
-- name: Wait for ONLYOFFICE AjaxPro engine to initialize in Mono
-  ansible.builtin.uri:
-    url: "https://{{ _domain }}/ajaxpro/ASP.usercontrols_firsttime_emailandpassword_ascx,ASC.ashx"
-    method: GET
-    validate_certs: false
-    return_content: true
-  register: ajaxpro_ready
-  until:
-    - ajaxpro_ready.status == 200
-    - "'SaveData' in ajaxpro_ready.content"
-  retries: 36
-  delay: 10
-
 - name: Obtain ASP.NET session cookie from Wizard page
   ansible.builtin.uri:
     url: "https://{{ _domain }}/Wizard.aspx"
     method: GET
     validate_certs: false
+    timeout: 120
   register: wizard_get
+  until: wizard_get.status == 200
+  retries: 10
+  delay: 5
 
 - name: Complete ONLYOFFICE setup via AjaxPro SaveData handler
   ansible.builtin.uri:
     url: "https://{{ _domain }}/ajaxpro/ASP.usercontrols_firsttime_emailandpassword_ascx,ASC.ashx"
     method: POST
     validate_certs: false
+    timeout: 60
     cookies: "{{ wizard_get.cookies }}"
     headers:
       Host: "{{ _domain }}"
