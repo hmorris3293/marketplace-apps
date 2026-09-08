@@ -63,7 +63,7 @@
       Cache-Control: "no-cache"
       Pragma: "no-cache"
   register: wizard_get
-  until: wizard_get.status == 200 and wizard_get.cookies_string != ""
+  until: wizard_get.status == 200
   retries: 10
   delay: 5
 
@@ -82,7 +82,7 @@
       Referer: "https://{{ _domain }}/Wizard.aspx"
       Content-Type: "text/plain; charset=UTF-8"
       X-AjaxPro-Method: "SaveData"
-      Cookie: "{{ wizard_get.cookies_string }}"
+      Cookie: "{{ wizard_get.cookies_string | default('') }}"
     body_format: raw
     body: >-
       {"email":"{{ soa_email_address }}","passwordHash":"{{ admin_password | trim | hash('sha256') }}","lng":"en-US","promocode":null,"amiid":null,"subscribeFromSite":false}
