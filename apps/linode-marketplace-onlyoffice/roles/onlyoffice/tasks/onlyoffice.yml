@@ -74,7 +74,7 @@
     -H "Referer: https://{{ _domain }}/Wizard.aspx"
     -H "Content-Type: text/plain; charset=UTF-8"
     -H "X-AjaxPro-Method: SaveData"
-    -d '{"email":"{{ soa_email_address }}","passwordHash":"{{ admin_password | hash("sha256") }}","lng":"en-US","promocode":null,"amiid":null,"subscribeFromSite":false}'
+    -d '{"email":"{{ soa_email_address }}","passwordHash":"{{ admin_password }}","lng":"en-US","promocode":null,"amiid":null,"subscribeFromSite":false}'
   register: setup_response
   changed_when: setup_response.rc == 0
 
