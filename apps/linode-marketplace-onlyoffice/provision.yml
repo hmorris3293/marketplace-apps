@@ -16,3 +16,14 @@
         insertafter: EOF
         path: group_vars/linode/vars
         line: "admin_password: {{ lookup('password', '/dev/null length=20 chars=ascii_letters,digits') }}"
+
+    - name: Generating creds
+      blockinfile:
+        insertafter: EOF
+        path: group_vars/linode/vars
+        block: |
+          mysql_root_password: {{ lookup('password', '/dev/null length=45 chars=ascii_letters,digits') }}
+          mysql_docspace_password: {{ lookup('password', '/dev/null length=45 chars=ascii_letters,digits') }}
+          jwt_secret: {{ lookup('password', '/dev/null length=32 chars=ascii_letters,digits') }}
+          machine_key: {{ lookup('password', '/dev/null length=32 chars=ascii_letters,digits') }}
+          admin_password: {{ lookup('password', '/dev/null length=45 chars=ascii_letters,digits') }}
