@@ -26,3 +26,5 @@
       OnlyOffice Admin Password: {{ admin_password }}
       OnlyOffice Admin Email: {{ soa_email_address }}
 
+      Onlyoffice wizard login: onlyoffice
+      Onlyoffice wizard password: {{ wizard_password }}
