@@ -35,3 +35,35 @@
   file:
     path: /tmp/docspace-install.sh
     state: absent
+
+# curl -k -X PUT "https://127.0.0.1/api/2.0/settings/wizard/complete" \
+#   -H "Content-Type: application/json" \
+#   -H "confirm: type=Wizard&key=526749490645.FM9SP1DY7WC2C4MJJKOCZAPGMF8ZFKP5CKRUVC6K6Y&uid=66faa6e4-f133-11ea-b126-00ffeec8b4ef" \
+#   -d '{
+#     "email": "hmorris@linode.com",
+#     "PasswordHash": "d99c071030b42aac147285e2e894dabbb5fcff79e8958a275cc96f173649e438",
+#     "lng": "en-US",
+#     "timeZone": "UTC",
+#     "analytics": true
+#   }'
+
+# curl --url 'https://172-238-209-234.ip.linodeusercontent.com/api/2.0/settings/wizard/complete' \
+#   -X 'PUT' \
+#   -H 'accept: application/json, text/plain, */*' \
+#   -H 'accept-language: en-US,en;q=0.9' \
+#   -H 'cache-control: no-cache' \
+#   -H 'confirm: type=Wizard&key=526749490645.FM9SP1DY7WC2C4MJJKOCZAPGMF8ZFKP5CKRUVC6K6Y&uid=66faa6e4-f133-11ea-b126-00ffeec8b4ef' \
+#   -H 'content-type: application/json' \
+#   -b 'system_theme=Dark' \
+#   -H 'origin: https://172-238-209-234.ip.linodeusercontent.com' \
+#   -H 'pragma: no-cache' \
+#   -H 'priority: u=1, i' \
+#   -H 'referer: https://172-238-209-234.ip.linodeusercontent.com/wizard' \
+#   -H 'sec-ch-ua: "Chromium";v="152", "Not?A_Brand";v="24", "Google Chrome";v="152"' \
+#   -H 'sec-ch-ua-mobile: ?0' \
+#   -H 'sec-ch-ua-platform: "macOS"' \
+#   -H 'sec-fetch-dest: empty' \
+#   -H 'sec-fetch-mode: cors' \
+#   -H 'sec-fetch-site: same-origin' \
+#   -H 'user-agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/152.0.0.0 Safari/537.36' \
+#   --data-raw '{"email":"hmorris@linode.com","PasswordHash":"99324dcb24f5b1ba23ac7f71aa5d8db42ec04e44b67ca0ac75aa67af1f82d34b","lng":"en-US","timeZone":"UTC","analytics":true}'
