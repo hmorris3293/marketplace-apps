@@ -23,6 +23,6 @@
       Sudo Username: {{ username }}
       Sudo Password: {{ password }}
       OnlyOffice URL: https://{{ _domain }}
-      OnlyOffice Username: {{ onlyoffice_admin_user }}
+      OnlyOffice Username: onlyoffice
       OnlyOffice Password: {{ onlyoffice_admin_password }}
 
