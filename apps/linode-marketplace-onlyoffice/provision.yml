@@ -11,8 +11,14 @@
     - name: Generating sudo user and password
       import_tasks: ../linode_helpers/roles/sudouser/tasks/main.yml
 
-    - name: Generating Onlyoffice administrator password
+    - name: Generating JWT Secret password
       lineinfile:
         insertafter: EOF
         path: group_vars/linode/vars
-        line: "admin_password: {{ lookup('password', '/dev/null length=20 chars=ascii_letters,digits') }}"
+        line: "jwt_secret: {{ lookup('password', '/dev/null length=45 chars=ascii_letters,digits') }}"
+
+    - name: Generating OnlyOffice admin password
+      lineinfile:
+        insertafter: EOF
+        path: group_vars/linode/vars
+        line: "onlyoffice_admin_password: {{ lookup('password', '/dev/null length=32 chars=ascii_letters,digits') }}"

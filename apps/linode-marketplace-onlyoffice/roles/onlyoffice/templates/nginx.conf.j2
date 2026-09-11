@@ -1,34 +1,56 @@
-server  {                                                       
-    listen 80;                                                      
-   {% if subdomain != "www" or default_dns is defined %}
-    server_name {{ _domain }};                             
-    error_log /var/log/nginx/{{ _domain }}.error;          
-    access_log /var/log/nginx/{{ _domain }}.access;  
-   {% elif subdomain == "www" %}
-    server_name {{ _domain }} www.{{ _domain }};                             
-    error_log /var/log/nginx/{{ _domain }}.error;          
-    access_log /var/log/nginx/{{ _domain }}.access;  
-   {% endif %}                                                
+# ONLYOFFICE DocumentServer with HTTP Basic Authentication
+map $http_x_forwarded_proto $the_scheme {
+    default $http_x_forwarded_proto;
+    "" $scheme;
+}
 
-    # Block direct visits to the root domain (returns 404 or redirect)
-    location = / {
-        return 404; 
-        # Alternatively, redirect to your main site:
-        # return 301 https://your-main-app.com;
-    }
+map $http_x_forwarded_host $the_host {
+    default $http_x_forwarded_host;
+    "" $host;
+}
 
-    # Block access to the welcome page assets/routes
-    location /welcome/ {
-        return 404;
-    }
+map $http_upgrade $proxy_connection {
+    default upgrade;
+    "" close;
+}
+
+# Drop the Basic Auth credentials before proxying so ONLYOFFICE does not
+# try to parse them as a JWT (which returns 500). Bearer tokens used by
+# the Document Server callbacks are passed through untouched.
+map $http_authorization $backend_authorization {
+    default $http_authorization;
+    "~*^Basic " "";
+}
+
+server {
+    listen 80;
+    server_name {{ _domain }};
+
+    # Basic Authentication
+
+
+    # Allow large document uploads
+    client_max_body_size 100M;
 
     location / {
-        proxy_set_header   X-Real-IP $remote_addr;
-        proxy_set_header   X-Forwarded-For $proxy_add_x_forwarded_for;
-        proxy_set_header   Host $host;
-        proxy_pass         http://localhost:8080/;
+       satisfy any;
+
+       # Docker internal address
+       allow 172.17.0.0/16;
+       deny all;
+       auth_basic "ONLYOFFICE Access";
+       auth_basic_user_file /etc/nginx/.htpasswd;
+
+        proxy_pass http://127.0.0.1:8080;
         proxy_http_version 1.1;
-        proxy_set_header   Upgrade $http_upgrade;
-        proxy_set_header   Connection "upgrade";
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection $proxy_connection;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Host $the_host;
+        proxy_set_header X-Forwarded-Proto $the_scheme;
+        proxy_set_header Authorization $backend_authorization;
+        proxy_set_header X-Remote-User $remote_user;
     }
 }

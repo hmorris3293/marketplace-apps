@@ -4,166 +4,62 @@
     name:
       - apt-transport-https
       - ca-certificates
-      - curl
+      - software-properties-common
       - wget
+      - curl
     state: present
     update_cache: true
 
-- name: Generate SSL
-  import_role:
-    name: certbot_ssl
-  vars:
-    webserver_stack: standalone
-
-- name: Create ONLYOFFICE certs directory structure
+- name: Create host persistent data directories
   file:
-    path: "{{ cert_dir }}"
+    path: "{{ item }}"
     state: directory
     mode: '0755'
-
-- name: Copy SSL certificates to ONLYOFFICE auto-discovery volume
-  copy:
-    src: "/etc/letsencrypt/live/{{ _domain }}/{{ item.src }}"
-    dest: "{{ cert_dir }}/{{ item.dest }}"
-    remote_src: true
-    mode: '0600'
   loop:
-    - { src: 'fullchain.pem', dest: 'onlyoffice.crt' }
-    - { src: 'privkey.pem', dest: 'onlyoffice.key' }
+    - /app/onlyoffice/DocumentServer/logs
+    - /app/onlyoffice/DocumentServer/data
+    - /app/onlyoffice/DocumentServer/lib
+    - /app/onlyoffice/DocumentServer/rabbitmq
+    - /app/onlyoffice/DocumentServer/redis
+    - /app/onlyoffice/DocumentServer/db
 
-- name: Deploy Certbot renewal hook from Jinja2 template
-  template:
-    src: reload-onlyoffice.sh.j2
-    dest: /etc/letsencrypt/renewal-hooks/deploy/reload-onlyoffice.sh
-    mode: '0755'
+- name: Deploy ONLYOFFICE DocumentServer Container
+  community.docker.docker_container:
+    name: onlyoffice-docs
+    image: "onlyoffice/documentserver:{{ docs_version }}"
+    state: started
+    restart_policy: always
+    published_ports:
+      - "127.0.0.1:8080:80"
+    env:
+      JWT_ENABLED: "true"
+      JWT_SECRET: "{{ jwt_secret }}"
+    volumes:
+      - /app/onlyoffice/DocumentServer/logs:/var/log/onlyoffice
+      - /app/onlyoffice/DocumentServer/data:/var/www/onlyoffice/Data
+      - /app/onlyoffice/DocumentServer/lib:/var/lib/onlyoffice
+      - /app/onlyoffice/DocumentServer/rabbitmq:/var/lib/rabbitmq
+      - /app/onlyoffice/DocumentServer/redis:/var/lib/redis
+      - /app/onlyoffice/DocumentServer/db:/var/lib/postgresql
 
-- name: Download ONLYOFFICE Docker installer script
-  get_url:
-    url: https://download.onlyoffice.com/install/install.sh
-    dest: /tmp/install.sh
-    mode: '0755'
-
-- name: Execute ONLYOFFICE Workspace installer non-interactively
-  command: >
-    bash /tmp/install.sh
-    --installationtype WORKSPACE
-    --maildomain "{{ _domain }}"
-    --installmailserver false
-    --skiphardwarecheck true
-  args:
-    creates: /app/onlyoffice/setup/config
-
-- name: Obtain wizard page and password hash settings
-  ansible.builtin.uri:
-    url: "https://{{ _domain }}/Wizard.aspx?_={{ lookup('pipe','date +%s') }}"
-    method: GET
-    validate_certs: false
-    timeout: 120
+- name: Wait for ONLYOFFICE DocumentServer to be ready
+  uri:
+    url: http://127.0.0.1:8080/healthcheck
     return_content: true
-  register: wizard_get
-  until:
-    - wizard_get.status == 200
-    - wizard_get.content_length | int > 30000
+  register: onlyoffice_healthcheck
+  until: onlyoffice_healthcheck.status == 200 and (onlyoffice_healthcheck.content | trim | lower) == 'true'
   retries: 30
   delay: 10
 
-- name: Extract PasswordHash settings from page
-  ansible.builtin.set_fact:
-    ph_size: "{{ wizard_get.content | regex_search('\"PasswordHashSize\":(\\d+)', '\\1') }}"
-    ph_iterations: "{{ wizard_get.content | regex_search('\"PasswordHashIterations\":(\\d+)', '\\1') }}"
-    ph_salt: "{{ wizard_get.content | regex_search('\"PasswordHashSalt\":\"([a-fA-F0-9]+)\"', '\\1') }}"
-
-- name: Fail early with a clear message if settings weren't found
-  ansible.builtin.fail:
-    msg: "Could not extract PasswordHash settings from Wizard.aspx — check the actual page format (see ph_size/ph_iterations/ph_salt)."
-  when: (ph_size is none) or (ph_iterations is none) or (ph_salt is none)
-
-- name: Compute PBKDF2 password hash via OpenSSL (no python)
-  ansible.builtin.shell: |
-    set -euo pipefail
-    SALT_HEX=$(printf '%s' "{{ ph_salt }}" | od -An -tx1 | tr -d ' \n')
-    openssl kdf -keylen "$(({{ ph_size }} / 8))" \
-      -kdfopt digest:SHA2-256 \
-      -kdfopt "pass:${ADMIN_PW}" \
-      -kdfopt "hexsalt:${SALT_HEX}" \
-      -kdfopt "iter:{{ ph_iterations }}" \
-      PBKDF2 2>/dev/null | tr -d ':\n' | tr 'A-F' 'a-f'
-  args:
-    executable: /bin/bash
-  environment:
-    ADMIN_PW: "{{ admin_password | trim }}"
-  register: computed_hash
+- name: Ensure ONLYOFFICE example (demo) autostart is enabled
+  community.docker.docker_container_exec:
+    container: onlyoffice-docs
+    command: sed -i 's/autostart=false/autostart=true/' /etc/supervisor/conf.d/ds-example.conf
   changed_when: false
-  no_log: true
 
-- name: Complete ONLYOFFICE setup via AjaxPro SaveData handler
-  ansible.builtin.uri:
-    url: "https://{{ _domain }}/ajaxpro/ASP.usercontrols_firsttime_emailandpassword_ascx,ASC.ashx"
-    method: POST
-    validate_certs: false
-    timeout: 60
-    headers:
-      Content-Type: "text/plain; charset=UTF-8"
-      X-AjaxPro-Method: "SaveData"
-    body_format: raw
-    body: >-
-      {"email":"{{ soa_email_address }}","passwordHash":"{{ computed_hash.stdout | trim }}","lng":"en-US","promocode":null,"amiid":null,"subscribeFromSite":false}
-    return_content: true
-    status_code: [200, 405]
-  register: setup_response
-  until:
-    - setup_response.status == 200
-    - "'Status\":1' in setup_response.content or 'Wizard passed' in setup_response.content"
-  retries: 20
-  delay: 10
-  no_log: true
-
-# curl 'https://172-233-163-73.ip.linodeusercontent.com/ajaxpro/ASP.usercontrols_firsttime_emailandpassword_ascx,ASC.ashx' \
-#   -H 'accept: */*' \
-#   -H 'accept-language: en-US,en;q=0.9' \
-#   -H 'cache-control: no-cache' \
-#   -H 'content-type: text/plain; charset=UTF-8' \
-#   -b 'mode_theme_key=dark' \
-#   -H 'origin: https://172-233-163-73.ip.linodeusercontent.com' \
-#   -H 'pragma: no-cache' \
-#   -H 'priority: u=1, i' \
-#   -H 'referer: https://172-233-163-73.ip.linodeusercontent.com/Wizard.aspx' \
-#   -H 'sec-ch-ua: "Not;A=Brand";v="8", "Chromium";v="150", "Google Chrome";v="150"' \
-#   -H 'sec-ch-ua-mobile: ?0' \
-#   -H 'sec-ch-ua-platform: "macOS"' \
-#   -H 'sec-fetch-dest: empty' \
-#   -H 'sec-fetch-mode: cors' \
-#   -H 'sec-fetch-site: same-origin' \
-#   -H 'user-agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/150.0.0.0 Safari/537.36' \
-#   -H 'x-ajaxpro-method: SaveData' \
-#   --data-raw '{"email":"webmaster@172-233-163-73.ip.linodeusercontent.com","passwordHash":"768f850dfde0c6983381497d5791d0656768cb86b546f8930fc2950fcee74269","lng":"en-US","promocode":null,"amiid":null,"subscribeFromSite":false}'
-
-# - name: Create ONLYOFFICE working directory
-#   file:
-#     path: /app/onlyoffice
-#     state: directory
-#     mode: '0755'
-
-# - name: Create persistent directories for DocumentServer
-#   file:
-#     path: "{{ item }}"
-#     state: directory
-#     mode: '0755'
-#   loop:
-#     - /app/onlyoffice/DocumentServer/data
-#     - /app/onlyoffice/DocumentServer/logs
-
-# - name: Deploy ONLYOFFICE Docs Docker container
-#   community.docker.docker_container:
-#     name: onlyoffice-docs
-#     image: onlyoffice/documentserver:latest
-#     state: started
-#     restart_policy: always
-#     published_ports:
-#       - "127.0.0.1:8080:80"
-#     env:
-#       JWT_ENABLED: "true"
-#       JWT_SECRET: "{{ jwt_secret }}"
-#     volumes:
-#       - /app/onlyoffice/DocumentServer/data:/var/www/onlyoffice/Data
-#       - /app/onlyoffice/DocumentServer/logs:/var/log/onlyoffice
+- name: Start the ONLYOFFICE example (demo) service
+  community.docker.docker_container_exec:
+    container: onlyoffice-docs
+    command: supervisorctl start ds:example
+  changed_when: false
+  failed_when: false
