@@ -26,7 +26,7 @@
 - name: Deploy ONLYOFFICE DocumentServer Container
   community.docker.docker_container:
     name: onlyoffice-docs
-    image: "onlyoffice/documentserver:{{ docs_version }}"
+    image: onlyoffice/documentserver:latest
     state: started
     restart_policy: always
     published_ports:
