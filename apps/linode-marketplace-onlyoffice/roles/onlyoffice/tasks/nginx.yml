@@ -8,7 +8,7 @@
 - name: Create basic auth password file
   community.general.htpasswd:
     path: /etc/nginx/.htpasswd
-    name: "{{ onlyoffice_admin_user }}"
+    name: onlyoffice
     password: "{{ onlyoffice_admin_password }}"
     owner: root
     group: www-data
