@@ -22,6 +22,9 @@
     state: absent
   notify: Reload nginx service
 
-- name: Setting up ssl certificate
+- name: Install SSL certificate
   import_role:
     name: certbot_ssl
+  vars:
+    webserver_stack: lemp
+  notify: Reload nginx service
