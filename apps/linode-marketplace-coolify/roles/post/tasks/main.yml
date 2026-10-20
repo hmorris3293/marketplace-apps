@@ -25,6 +25,6 @@
 
       Coolify Web Interface:
         URL: https://{{ _domain }}
-        Admin Username: {{ coolify_admin_username }}
+        Admin Username: admin
         Admin Email: {{ admin_email }}
         Admin Password: {{ coolify_admin_password }}

@@ -3,7 +3,6 @@ coolify_cdn_url: https://cdn.coollabs.io/coolify
 coolify_data_directory: /data/coolify
 coolify_source_directory: "{{ coolify_data_directory }}/source"
 coolify_user: root
-coolify_admin_username: admin
 coolify_ssh_key: "{{ coolify_data_directory }}/ssh/keys/id.{{ coolify_user }}@host.docker.internal"
 coolify_directories:
   - "{{ coolify_data_directory }}"
