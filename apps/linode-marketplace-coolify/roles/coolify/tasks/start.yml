@@ -1,0 +1,16 @@
+---
+- name: Start Coolify
+  command: bash ./upgrade.sh latest latest docker.io true
+  args:
+    chdir: "{{ coolify_source_directory }}"
+    creates: "{{ coolify_data_directory }}/.coolify_started"
+  async: 600
+  poll: 10
+  register: coolify_start
+
+- name: Mark Coolify as started
+  file:
+    path: "{{ coolify_data_directory }}/.coolify_started"
+    state: touch
+    mode: '0600'
+  when: coolify_start is changed
