@@ -32,30 +32,10 @@
             - "127.0.0.1:6001:6001"
             - "127.0.0.1:6002:6002"
 
-- name: Create Coolify env file from template
-  copy:
-    src: "{{ coolify_source_directory }}/.env.production"
+- name: Create Coolify env file
+  template:
+    src: templates/coolify-env.j2
     dest: "{{ coolify_source_directory }}/.env"
-    remote_src: true
-    force: false
     mode: '0600'
-
-- name: Set Coolify secrets and admin credentials
-  lineinfile:
-    path: "{{ coolify_source_directory }}/.env"
-    regexp: "^{{ item.key }}="
-    line: "{{ item.key }}={{ item.value }}"
-  loop:
-    - { key: APP_ID, value: "{{ coolify_app_id }}" }
-    - { key: APP_KEY, value: "base64:{{ coolify_app_key | b64encode }}" }
-    - { key: DB_PASSWORD, value: "{{ coolify_db_password }}" }
-    - { key: REDIS_PASSWORD, value: "{{ coolify_redis_password }}" }
-    - { key: PUSHER_APP_ID, value: "{{ coolify_pusher_app_id }}" }
-    - { key: PUSHER_APP_KEY, value: "{{ coolify_pusher_app_key }}" }
-    - { key: PUSHER_APP_SECRET, value: "{{ coolify_pusher_app_secret }}" }
-    - { key: ROOT_USERNAME, value: admin }
-    - { key: ROOT_USER_EMAIL, value: "{{ admin_email }}" }
-    - { key: ROOT_USER_PASSWORD, value: "{{ coolify_admin_password }}" }
-  loop_control:
-    label: "{{ item.key }}"
+    force: false
   no_log: true

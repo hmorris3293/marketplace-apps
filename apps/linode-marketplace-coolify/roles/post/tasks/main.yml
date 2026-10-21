@@ -23,8 +23,6 @@
       Sudo Username: {{ username }}
       Sudo Password: {{ password }}
 
-      Coolify Web Interface:
-        URL: https://{{ _domain }}
-        Admin Username: admin
-        Admin Email: {{ admin_email }}
-        Admin Password: {{ coolify_admin_password }}
+      Admin Username: admin
+      Admin Email: {{ admin_email }}
+      Admin Password: {{ coolify_admin_password }}
